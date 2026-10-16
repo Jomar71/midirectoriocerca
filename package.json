@@ -9,6 +9,7 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
+    "build": "node --check backend/server.js",
     "db:init": "node backend/scripts/init-db.js",
     "db:seed": "node backend/scripts/seed.js",
     "db:reset": "node backend/scripts/init-db.js && node backend/scripts/seed.js",

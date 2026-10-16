@@ -77,6 +77,9 @@ app.use(express.static(PUBLIC_DIR, {
   },
 }));
 
+// ── Health check (Pxxl y balanceadores) ─────────────────────────────────
+app.get('/health', (_req, res) => res.status(200).json({ ok: true, uptime: process.uptime() }));
+
 // ── Rutas ───────────────────────────────────────────────────────────────
 app.use(sitemapRoutes);
 app.use(authRoutes);
@@ -101,7 +104,7 @@ async function bootstrap() {
   try { await mailService.initMailer(); } catch (e) { console.warn('[mail]', e.message); }
   startCron();
 
-  const server = app.listen(env.port, () => {
+  const server = app.listen(env.port, '0.0.0.0', () => {
     console.log(`[server] DirectorioCerca corriendo en ${env.appUrl} (puerto ${env.port}).`);
   });
 

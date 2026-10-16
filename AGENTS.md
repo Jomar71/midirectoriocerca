@@ -11,8 +11,9 @@ Single-admin business directory. Node 18+ / Express 4, EJS server-rendered for S
 
 ## Critical gotchas
 - **`database.sql` begins with `DROP TABLE ... CASCADE`.** `npm run db:init` destroys all existing data. Seeding is idempotent (admin by email, listings by slug are skipped if present).
-- **No test framework and no ESLint** are installed (the `eslint-disable` comments are inert). Before finishing a change, syntax-check every file you touched with `node --check <file>`; lint alone is not enough.
-- **Not a git repo** (no `.git`). A real `.env` is present at the repo root and is gitignored — never print or commit its secrets.
+- **Test framework and ESLint are not installed** (the `eslint-disable` comments are inert). Before finishing a change, syntax-check every file you touched with `node --check <file>`; lint alone is not enough.
+- **Git repo** with remote `origin` → GitHub `Jomar71/midirectoriocerca` (`main`). A real `.env` is present at the repo root and is gitignored — never print or commit its secrets.
+- Deployed on **Pxxl** (`app.pxxl.app`): pipeline install → build → start → health check. Config: install `npm install`, build `npm run build` (no-op), start `npm start`, health check `GET /health`. Server binds `0.0.0.0` and reads `PORT`. A failed deploy shows on GitHub as a failed commit check (a red X), not a Git problem.
 - **All env access goes through `backend/config/env.js`** (it loads `.env` from the repo root). Do not read `process.env` directly elsewhere.
 - **DB access goes through `backend/config/db.js`** (`query`, `pool`, `withTransaction`). Always use parameterized queries (`$1`, `$2`), never string interpolation.
 - `STORAGE_DRIVER` only supports `local`; `cloudinary`/`s3` are stubs that throw. Local uploads land in `public/uploads/` (gitignored).

@@ -217,6 +217,24 @@ Con `NODE_ENV=production` el servidor activa `trust proxy`, cookies `secure` y C
 
 ---
 
+## Despliegue en Pxxl (u otras PaaS)
+
+Pxxl construye con el pipeline **install → build → start** y luego hace un **health check**. Configura así el proyecto:
+
+| Ajuste           | Valor                                            |
+| ---------------- | ------------------------------------------------ |
+| Install command  | `npm install`                                    |
+| Build command    | `npm run build` (no-op: solo verifica sintaxis)  |
+| Start command    | `npm start`                                      |
+| Puerto           | el que asigne Pxxl (la app lee `PORT`)           |
+| Health check     | `/health` (responde `200` sin tocar la BD)       |
+
+**Secretos** obligatorios en el panel (no van en el repo): `NODE_ENV=production`, `JWT_SECRET`, `APP_URL` (tu dominio público), `DATABASE_URL` (cadena del Postgres gestionado) y `PGSSL=true`.
+
+> El servidor escucha en `0.0.0.0` y lee `PORT`, requisito de las PaaS. Antes de la primera petición hay que aplicar `database.sql` sobre la base provisionada (equivale a `npm run db:init`, que hace `DROP TABLE`).
+
+---
+
 ## Escalabilidad
 
 - Paginación obligatoria (máx. 20 por página en el listado público).
@@ -234,6 +252,7 @@ Con `NODE_ENV=production` el servidor activa `trust proxy`, cookies `secure` y C
 | -------------- | ------------------------------------------------------- |
 | `npm start`    | Inicia el servidor (producción).                        |
 | `npm run dev`  | Inicia con recarga automática (nodemon).                |
+| `npm run build` | Verifica sintaxis de `server.js` (build no-op para PaaS). |
 | `npm run db:init`  | Crea la BD y aplica `database.sql`.                 |
 | `npm run db:seed`  | Crea el admin y 3 anuncios de ejemplo.             |
 | `npm run db:reset` | `db:init` + `db:seed`.                              |

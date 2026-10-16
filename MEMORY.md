@@ -57,15 +57,23 @@ Orden de montaje de rutas en `backend/server.js` (importa): **sitemap → auth �
 
 ## Comandos
 - `npm run dev` / `npm start` — nodemon / node plano, entry `backend/server.js`
+- `npm run build` — no-op (`node --check backend/server.js`); existe porque las PaaS (Pxxl) ejecutan `npm run build` y fallaban sin el script.
 - `npm run db:init` — crea la BD (si no existe) y ejecuta `database.sql`
 - `npm run db:seed` — crea el admin único + 3 anuncios de ejemplo
 - `npm run db:reset` — `db:init` + `db:seed`
 - `npm run lint` — **solo ejecuta `node --check backend/server.js`.** No revisa el resto del código.
 
+## Deploy (Pxxl)
+- Plataforma: **Pxxl** (`app.pxxl.app`). Repo GitHub `Jomar71/midirectoriocerca` (rama `main`). El deploy falla → Pxxl publica un check de commit en estado `failure` (aparece como **X** junto al commit en GitHub); **el commit en sí está bien**, la X es del deploy.
+- Pipeline Pxxl: install → build → start → health check. Config: install `npm install`, build `npm run build`, start `npm start`, health check `GET /health`, auto-detección Node.
+- El servidor hace `app.listen(env.port, '0.0.0.0')` (Pxxl no alcanza loopback) y lee `PORT`.
+- `GET /health` en `backend/server.js` devuelve `{ ok: true, uptime }` **sin tocar la BD**.
+- Secretos requeridos en Pxxl: `NODE_ENV=production`, `JWT_SECRET`, `APP_URL`, `DATABASE_URL` (Postgres gestionado), `PGSSL=true`. Aplicar `database.sql` antes del primer uso.
+
 ## Advertencias críticas
 - **`database.sql` empieza con `DROP TABLE ... CASCADE`.** `npm run db:init` destruye todos los datos existentes. El seeding es idempotente (admin por email, anuncios por slug se omiten si ya existen).
 - **No hay framework de tests ni ESLint instalados** (los comentarios `eslint-disable` son inertes). Antes de terminar un cambio, hacer syntax-check de cada archivo tocado con `node --check <file>`; el lint solo no basta.
-- **No es un repo git** (no hay `.git`). Hay un `.env` real en la raíz del repo y está gitignoreado — nunca imprimir ni commitear sus secretos.
+- **Sí es un repo git** (remoto `origin` → GitHub `Jomar71/midirectoriocerca`, rama `main`). Hay un `.env` real en la raíz del repo y está gitignoreado — nunca imprimir ni commitear sus secretos.
 - `STORAGE_DRIVER` solo soporta `local`; `cloudinary`/`s3` son stubs que lanzan error.
 - Redirects y cookies asumen `NODE_ENV=production` para cookies `secure`, `trust proxy` y HSTS — configurarlo en el VPS.
 
