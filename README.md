@@ -231,7 +231,7 @@ Pxxl construye con el pipeline **install → build → start** y luego hace un *
 
 **Secretos** obligatorios en el panel (no van en el repo): `NODE_ENV=production`, `JWT_SECRET`, `APP_URL` (tu dominio público), `DATABASE_URL` (cadena del Postgres gestionado) y `PGSSL=true`.
 
-> El servidor escucha en `0.0.0.0` y lee `PORT`, requisito de las PaaS. Antes de la primera petición hay que aplicar `database.sql` sobre la base provisionada (equivale a `npm run db:init`, que hace `DROP TABLE`).
+> El servidor escucha en `0.0.0.0` y lee `PORT`, requisito de las PaaS. Antes de la primera petición hay que aplicar `database.sql` sobre la base provisionada: copia la cadena de conexión de Pxxl y ejecuta desde tu máquina `DATABASE_URL=... PGSSL=true npm run db:load` (no uses `db:init`, intenta crear la base y en un Postgres gestionado no está permitido).
 
 ---
 
@@ -254,6 +254,7 @@ Pxxl construye con el pipeline **install → build → start** y luego hace un *
 | `npm run dev`  | Inicia con recarga automática (nodemon).                |
 | `npm run build` | Verifica sintaxis de `server.js` (build no-op para PaaS). |
 | `npm run db:init`  | Crea la BD y aplica `database.sql`.                 |
+| `npm run db:load`  | Aplica `database.sql` sobre `DATABASE_URL` (BD en la nube, sin crear la BD). |
 | `npm run db:seed`  | Crea el admin y 3 anuncios de ejemplo.             |
 | `npm run db:reset` | `db:init` + `db:seed`.                              |
 | `npm run lint` | Verificación de sintaxis de `server.js`.                |

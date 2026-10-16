@@ -59,6 +59,7 @@ Orden de montaje de rutas en `backend/server.js` (importa): **sitemap → auth �
 - `npm run dev` / `npm start` — nodemon / node plano, entry `backend/server.js`
 - `npm run build` — no-op (`node --check backend/server.js`); existe porque las PaaS (Pxxl) ejecutan `npm run build` y fallaban sin el script.
 - `npm run db:init` — crea la BD (si no existe) y ejecuta `database.sql`
+- `npm run db:load` — aplica `database.sql` sobre `DATABASE_URL` **sin** crear la BD (para Postgres gestionado en la nube).
 - `npm run db:seed` — crea el admin único + 3 anuncios de ejemplo
 - `npm run db:reset` — `db:init` + `db:seed`
 - `npm run lint` — **solo ejecuta `node --check backend/server.js`.** No revisa el resto del código.
@@ -68,7 +69,7 @@ Orden de montaje de rutas en `backend/server.js` (importa): **sitemap → auth �
 - Pipeline Pxxl: install → build → start → health check. Config: install `npm install`, build `npm run build`, start `npm start`, health check `GET /health`, auto-detección Node.
 - El servidor hace `app.listen(env.port, '0.0.0.0')` (Pxxl no alcanza loopback) y lee `PORT`.
 - `GET /health` en `backend/server.js` devuelve `{ ok: true, uptime }` **sin tocar la BD**.
-- Secretos requeridos en Pxxl: `NODE_ENV=production`, `JWT_SECRET`, `APP_URL`, `DATABASE_URL` (Postgres gestionado), `PGSSL=true`. Aplicar `database.sql` antes del primer uso.
+- Secretos requeridos en Pxxl: `NODE_ENV=production`, `JWT_SECRET`, `APP_URL`, `DATABASE_URL` (Postgres gestionado), `PGSSL=true`. Cargar el esquema con `npm run db:load` (no `db:init`, que intenta crear la BD y falla en la nube).
 
 ## Advertencias críticas
 - **`database.sql` empieza con `DROP TABLE ... CASCADE`.** `npm run db:init` destruye todos los datos existentes. El seeding es idempotente (admin por email, anuncios por slug se omiten si ya existen).
