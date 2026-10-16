@@ -1,0 +1,55 @@
+<% var titulo = 'Iniciar sesión — DirectorioCerca'; %>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('partials/head', { titulo: titulo }) %>
+</head>
+<body class="min-h-screen bg-neutral-100 font-sans">
+  <main class="min-h-screen grid lg:grid-cols-2">
+    <!-- Panel de marca -->
+    <section class="relative hidden lg:flex flex-col justify-between overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-primary-950 p-12 text-white">
+      <div class="absolute inset-0 opacity-[0.12]" style="background-image:radial-gradient(circle,#ffffff 1px,transparent 1px);background-size:22px 22px" aria-hidden="true"></div>
+      <div class="relative flex items-center gap-3">
+        <span class="grid place-items-center w-11 h-11 rounded-xl bg-white text-primary-800 font-display font-extrabold text-2xl shadow-md">D</span>
+        <span class="font-display font-bold text-2xl tracking-tight" translate="no">Directorio<span class="italic text-accent-400">Cerca</span></span>
+      </div>
+
+      <div class="relative max-w-md">
+        <p class="font-display text-4xl font-semibold leading-tight text-balance">Administra tu directorio con total control.</p>
+        <p class="mt-4 text-primary-100/90 leading-relaxed">Publica anuncios, gestiona categorías, responde mensajes e importa listados en lote desde un solo panel.</p>
+      </div>
+
+      <p class="relative text-sm text-primary-200/70">Directorio empresarial · Acceso exclusivo del propietario</p>
+    </section>
+
+    <!-- Formulario -->
+    <section class="flex items-center justify-center px-4 py-12 sm:px-8">
+      <div class="w-full max-w-sm">
+        <div class="lg:hidden flex items-center gap-2.5 mb-8">
+          <span class="grid place-items-center w-10 h-10 rounded-xl bg-primary-800 text-white font-display font-extrabold text-xl">D</span>
+          <span class="font-display font-bold text-xl tracking-tight text-neutral-900" translate="no">Directorio<span class="italic text-accent-600">Cerca</span></span>
+        </div>
+
+        <h1 class="font-display text-2xl font-semibold text-neutral-900">Inicia sesión</h1>
+        <p class="text-neutral-500 text-sm mt-1">Acceso exclusivo del propietario.</p>
+
+        <form id="login-form" class="mt-7 bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
+          <div>
+            <label for="login-email" class="block text-sm font-semibold text-neutral-800 mb-1.5">Correo electrónico</label>
+            <input id="login-email" name="email" type="email" required autocomplete="username" class="w-full h-11 px-4 rounded-xl bg-neutral-100 border border-neutral-200 text-neutral-900 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary-600">
+          </div>
+          <div>
+            <label for="login-password" class="block text-sm font-semibold text-neutral-800 mb-1.5">Contraseña</label>
+            <input id="login-password" name="password" type="password" required autocomplete="current-password" class="w-full h-11 px-4 rounded-xl bg-neutral-100 border border-neutral-200 text-neutral-900 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary-600">
+          </div>
+          <button type="submit" class="w-full h-11 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold transition-colors">Iniciar sesión</button>
+          <p id="login-msg" class="text-sm text-center min-h-[20px]" role="status"></p>
+        </form>
+
+        <p class="text-center text-sm text-neutral-500 mt-5"><a href="/" class="font-medium hover:text-primary-600">&#8592; Volver al sitio público</a></p>
+      </div>
+    </section>
+  </main>
+  <script src="/js/admin-login.js" defer></script>
+</body>
+</html>

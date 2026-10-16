@@ -1,0 +1,52 @@
+<footer class="mt-16 bg-neutral-900 text-neutral-300">
+  <div class="h-px bg-gradient-to-r from-transparent via-primary-500/60 to-transparent" aria-hidden="true"></div>
+
+  <div class="max-w-7xl mx-auto px-4 py-14 grid gap-10 md:grid-cols-2 lg:grid-cols-12">
+    <!-- Marca -->
+    <div class="lg:col-span-4 max-w-sm">
+      <div class="flex items-center gap-2.5 mb-4">
+        <span class="grid place-items-center w-10 h-10 rounded-xl bg-white text-primary-800 font-display font-extrabold text-xl">D</span>
+        <span class="font-display font-bold text-xl text-white tracking-tight" translate="no">Directorio<span class="italic text-accent-400">Cerca</span></span>
+      </div>
+      <p class="text-sm leading-relaxed text-neutral-400">Promocionamos empresas, negocios, profesionales, productos y servicios a nivel local, nacional e internacional.</p>
+      <a href="/#contacto" class="inline-flex items-center gap-2 mt-5 text-sm font-semibold text-accent-400 hover:text-accent-300 transition-colors">
+        Publica tu empresa
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+      </a>
+    </div>
+
+    <!-- Categorías -->
+    <div class="lg:col-span-4">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-4">Categorías</h3>
+      <ul class="grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
+        <% (typeof categorias !== 'undefined' ? categorias : []).slice(0,10).forEach(function(c){ %>
+          <li><a class="text-neutral-400 hover:text-white transition-colors" href="/?categoria=<%= c.slug %>"><%= c.nombre %></a></li>
+        <% }) %>
+      </ul>
+    </div>
+
+    <!-- Asistencia -->
+    <div class="lg:col-span-4">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-4">Asistencia 24/7</h3>
+      <p class="text-sm text-neutral-400">¿Necesitas ayuda o quieres publicar tu empresa? Te atendemos en línea.</p>
+      <a href="/#contacto" class="inline-flex items-center gap-2 mt-4 h-10 px-4 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-semibold transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.4-5.7 8-9 8l-6 3v-3.2C3.6 18.1 3 15.7 3 12c0-4.4 4.7-8 9-8s9 3.6 9 8Z"/></svg>
+        Escribir a soporte
+      </a>
+      <nav class="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+        <a href="/" class="text-neutral-400 hover:text-white transition-colors">Inicio</a>
+        <a href="/#contacto" class="text-neutral-400 hover:text-white transition-colors">Contacto</a>
+        <a href="/admin/login" class="text-neutral-400 hover:text-white transition-colors">Administración</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="border-t border-neutral-800">
+    <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-500">
+      <span>Directorio de negocios cerca de ti.</span>
+      <span>&copy; <span id="year"></span> DirectorioCerca. Todos los derechos reservados.</span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script src="/js/pwa.js" defer></script>

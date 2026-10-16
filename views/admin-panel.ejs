@@ -1,0 +1,270 @@
+<% var titulo = 'Panel de administración — DirectorioCerca'; %>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('partials/head', { titulo: titulo }) %>
+</head>
+<body class="bg-neutral-100 text-neutral-800 font-sans">
+  <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-3 focus:left-3 focus:bg-white focus:text-primary-800 focus:px-4 focus:py-2 focus:rounded-xl focus:font-bold focus:shadow-lg">Saltar al contenido</a>
+  <!-- Barra superior -->
+  <header class="sticky top-0 z-30 bg-neutral-900 text-white">
+    <div class="max-w-[1400px] mx-auto px-4 h-16 flex items-center gap-4">
+      <span class="font-display font-bold text-lg tracking-tight">Directorio<span class="italic text-accent-400">Cerca</span> <span class="text-neutral-500 font-normal text-sm font-sans">/ Panel</span></span>
+      <div class="flex-1"></div>
+      <span id="admin-name" class="hidden sm:inline text-sm text-neutral-300"></span>
+      <a href="/" target="_blank" class="text-sm text-neutral-300 hover:text-white transition-colors">Ver sitio<span class="sr-only">(se abre en una pestaña nueva)</span></a>
+      <button id="logout" class="text-sm bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors">Salir</button>
+    </div>
+  </header>
+
+  <div class="max-w-[1400px] mx-auto px-4 py-6 grid gap-6 lg:grid-cols-[240px_1fr]">
+    <!-- Navegación -->
+    <aside>
+      <nav class="bg-neutral-900 rounded-2xl p-2 lg:sticky lg:top-24" aria-label="Secciones del panel">
+        <p class="px-3 pt-3 pb-2 text-xs font-bold uppercase tracking-wider text-neutral-500">Gestión</p>
+        <button data-tab="dashboard" class="nav-item">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="9" width="4" height="11" rx="1"/><rect x="10" y="5" width="4" height="15" rx="1"/><rect x="16" y="12" width="4" height="8" rx="1"/></svg>
+          Resumen
+        </button>
+        <button data-tab="anuncios" class="nav-item">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Anuncios
+        </button>
+        <button data-tab="categorias" class="nav-item">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg>
+          Categorías
+        </button>
+
+        <p class="px-3 pt-4 pb-2 text-xs font-bold uppercase tracking-wider text-neutral-500">Comunicación</p>
+        <button data-tab="mensajes" class="nav-item">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="m3 7 9 6 9-6"/></svg>
+          Mensajes
+          <span id="badge-mensajes" class="hidden ml-auto text-xs bg-error-500 text-white rounded-full px-1.5 py-0.5 leading-none"></span>
+        </button>
+        <button data-tab="importar" class="nav-item">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0-4 4m4-4 4 4"/><path stroke-linecap="round" d="M4 20h16"/></svg>
+          Importar CSV
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Contenido -->
+    <main id="contenido" class="min-w-0">
+      <!-- DASHBOARD -->
+      <section data-panel="dashboard" class="panel">
+        <div class="mb-5">
+          <h1 class="font-display text-2xl font-bold text-neutral-900">Resumen</h1>
+          <p class="text-sm text-neutral-500 mt-0.5">Estado general de tu directorio.</p>
+        </div>
+        <div id="stats-cards" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
+        <div class="mt-6 bg-white rounded-2xl border border-neutral-200 p-5">
+          <h2 class="font-semibold text-neutral-900 flex items-center gap-2">
+            <svg class="w-5 h-5 text-warning-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 2"/></svg>
+            Próximos a vencer
+          </h2>
+          <p class="text-sm text-neutral-500 mt-0.5 mb-2">Anuncios que expiran en los próximos 30 días.</p>
+          <div id="por-vencer" class="divide-y divide-neutral-100"></div>
+        </div>
+      </section>
+
+      <!-- ANUNCIOS -->
+      <section data-panel="anuncios" class="panel hidden">
+        <div class="flex flex-wrap items-center gap-3 mb-5">
+          <div class="flex-1">
+            <h1 class="font-display text-2xl font-bold text-neutral-900">Anuncios</h1>
+            <p class="text-sm text-neutral-500 mt-0.5">Crea, edita y renueva los listados.</p>
+          </div>
+          <button id="btn-nuevo" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+            Nuevo anuncio
+          </button>
+        </div>
+        <div class="bg-white rounded-2xl border border-neutral-200 p-4 mb-4 grid gap-3 sm:grid-cols-4">
+          <label for="f-q" class="sr-only">Buscar anuncio por nombre</label>
+          <input id="f-q" placeholder="Buscar por nombre..." class="h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600 sm:col-span-2">
+          <label for="f-estado" class="sr-only">Filtrar por estado</label>
+          <select id="f-estado" class="h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600">
+            <option value="">Todos los estados</option>
+            <option value="activo">Activos</option>
+            <option value="pendiente">Pendientes</option>
+            <option value="vencido">Vencidos</option>
+            <option value="deshabilitado">Deshabilitados</option>
+          </select>
+          <button id="f-buscar" class="h-10 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium transition-colors">Filtrar</button>
+        </div>
+        <div id="tabla-anuncios" class="bg-white rounded-2xl border border-neutral-200 overflow-x-auto"></div>
+        <div id="paginador-anuncios" class="mt-4 flex justify-center gap-1"></div>
+      </section>
+
+      <!-- CATEGORÍAS -->
+      <section data-panel="categorias" class="panel hidden">
+        <div class="mb-5">
+          <h1 class="font-display text-2xl font-bold text-neutral-900">Categorías</h1>
+          <p class="text-sm text-neutral-500 mt-0.5">Organiza los anuncios del directorio.</p>
+        </div>
+        <form id="form-categoria" class="bg-white rounded-2xl border border-neutral-200 p-4 mb-4 flex flex-wrap gap-3">
+          <label for="cat-nombre" class="sr-only">Nombre de la categoría</label>
+          <input id="cat-nombre" name="nombre" required placeholder="Nombre de la categoría" class="flex-1 min-w-[200px] h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600">
+          <label for="cat-icono" class="sr-only">Icono (opcional)</label>
+          <input id="cat-icono" name="icono" placeholder="Icono (opcional)" class="w-40 h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600">
+          <button class="h-10 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold transition-colors">Agregar</button>
+        </form>
+        <div id="lista-categorias" class="bg-white rounded-2xl border border-neutral-200 divide-y divide-neutral-100"></div>
+      </section>
+
+      <!-- MENSAJES -->
+      <section data-panel="mensajes" class="panel hidden">
+        <div class="mb-5">
+          <h1 class="font-display text-2xl font-bold text-neutral-900">Mensajes recibidos</h1>
+          <p class="text-sm text-neutral-500 mt-0.5">Consulta y responde las solicitudes de contacto.</p>
+        </div>
+        <div class="flex gap-2 mb-4">
+          <button data-filtro-msg="" class="msg-filter is-active" aria-pressed="true">Todos</button>
+          <button data-filtro-msg="false" class="msg-filter" aria-pressed="false">No leídos</button>
+          <button data-filtro-msg="true" class="msg-filter" aria-pressed="false">Leídos</button>
+        </div>
+        <div id="lista-mensajes" class="space-y-3"></div>
+      </section>
+
+      <!-- IMPORTAR CSV -->
+      <section data-panel="importar" class="panel hidden">
+        <div class="mb-5">
+          <h1 class="font-display text-2xl font-bold text-neutral-900">Importar anuncios por CSV</h1>
+          <p class="text-sm text-neutral-500 mt-0.5">Carga listados en lote desde un archivo.</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <p class="text-sm text-neutral-500">Cabeceras requeridas: <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">razon_social, descripcion_50</code>. Opcionales: dirección, teléfonos, email, redes, categoría, ciudad, país, latitud, longitud, <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">palabras_clave</code>, fechas y <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">fotos</code> (URLs separadas por <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">|</code>).</p>
+          <a href="/templates/anuncios-plantilla.csv" download class="inline-flex items-center gap-2 mt-3 text-primary-600 text-sm font-semibold hover:text-primary-700">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0 4-4m-4 4-4-4"/><path stroke-linecap="round" d="M4 20h16"/></svg>
+            Descargar plantilla CSV
+          </a>
+          <form id="form-csv" class="mt-4 flex flex-wrap items-center gap-3">
+            <label for="csv-archivo" class="sr-only">Archivo CSV a importar</label>
+          <input type="file" id="csv-archivo" name="archivo" accept=".csv,text/csv" required class="text-sm">
+            <button class="px-4 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold transition-colors">Importar</button>
+          </form>
+          <div id="csv-result" role="status" class="mt-4"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal anuncio -->
+  <div id="modal-anuncio" role="dialog" aria-modal="true" aria-labelledby="modal-title" class="hidden fixed inset-0 z-50 bg-black/50 overflow-y-auto p-4">
+    <div class="bg-white rounded-2xl max-w-3xl mx-auto my-6 shadow-2xl">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-neutral-100 sticky top-0 bg-white rounded-t-2xl">
+        <h2 id="modal-title" class="font-display text-xl font-bold text-neutral-900">Nuevo anuncio</h2>
+        <button id="modal-close" aria-label="Cerrar" class="grid place-items-center w-9 h-9 rounded-lg text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 text-2xl leading-none transition-colors">&times;</button>
+      </div>
+      <form id="form-anuncio" class="px-6 py-5 space-y-6">
+        <input type="hidden" name="id">
+
+        <fieldset>
+          <legend class="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-3">Información principal</legend>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <label for="in-razon-social" class="text-sm font-medium text-neutral-700">Razón social *</label>
+              <input id="in-razon-social" name="razon_social" required class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600">
+            </div>
+            <div class="sm:col-span-2">
+              <label for="in-descripcion" class="text-sm font-medium text-neutral-700">Descripción / portafolio (~50 palabras) *</label>
+              <textarea id="in-descripcion" name="descripcion_50" required rows="3" class="mt-1 w-full px-3 py-2 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></textarea>
+            </div>
+            <div>
+              <label for="sel-categoria" class="text-sm font-medium text-neutral-700">Categoría</label>
+              <select name="categoria_id" id="sel-categoria" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></select>
+            </div>
+            <div>
+              <label for="sel-estado" class="text-sm font-medium text-neutral-700">Estado</label>
+              <select name="estado" id="sel-estado" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600">
+                <option value="activo">Activo</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="vencido">Vencido</option>
+                <option value="deshabilitado">Deshabilitado</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="pt-5 border-t border-neutral-100">
+          <legend class="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-3">Contacto y redes</legend>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div><label for="in-telefono-fijo" class="text-sm font-medium text-neutral-700">Teléfono fijo</label><input id="in-telefono-fijo" name="telefono_fijo" type="tel" inputmode="tel" autocomplete="tel" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <div><label for="in-telefono-movil" class="text-sm font-medium text-neutral-700">Teléfono móvil</label><input id="in-telefono-movil" name="telefono_movil" type="tel" inputmode="tel" autocomplete="tel" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <div><label for="in-email" class="text-sm font-medium text-neutral-700">Email</label><input id="in-email" name="email" type="email" autocomplete="email" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <div><label for="in-sitio-web" class="text-sm font-medium text-neutral-700">Sitio web</label><input id="in-sitio-web" name="sitio_web" type="url" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <div><label for="in-youtube" class="text-sm font-medium text-neutral-700">YouTube</label><input id="in-youtube" name="youtube" type="url" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <div><label for="in-facebook" class="text-sm font-medium text-neutral-700">Facebook</label><input id="in-facebook" name="facebook" type="url" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <div><label for="in-instagram" class="text-sm font-medium text-neutral-700">Instagram</label><input id="in-instagram" name="instagram" type="url" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <div><label for="in-tiktok" class="text-sm font-medium text-neutral-700">TikTok</label><input id="in-tiktok" name="tiktok" type="url" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+          </div>
+        </fieldset>
+
+        <fieldset class="pt-5 border-t border-neutral-100">
+          <legend class="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-3">Ubicación</legend>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="sm:col-span-2"><label for="in-direccion" class="text-sm font-medium text-neutral-700">Dirección</label><input id="in-direccion" name="direccion" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <div>
+              <label for="sel-departamento" class="text-sm font-medium text-neutral-700">Departamento (Colombia)</label>
+              <select id="sel-departamento" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600">
+                <option value="">— Fuera de Colombia / otro —</option>
+              </select>
+            </div>
+            <div>
+              <label for="in-ciudad" class="text-sm font-medium text-neutral-700">Ciudad / municipio</label>
+              <input name="ciudad" id="in-ciudad" list="lista-ciudades" placeholder="Ciudad o municipio (escribe o elige)" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600">
+              <datalist id="lista-ciudades"></datalist>
+            </div>
+            <div><label for="in-pais" class="text-sm font-medium text-neutral-700">País</label><input name="pais" id="in-pais" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <div><label for="in-latitud" class="text-sm font-medium text-neutral-700">Latitud</label><input id="in-latitud" name="latitud" inputmode="decimal" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <div><label for="in-longitud" class="text-sm font-medium text-neutral-700">Longitud</label><input id="in-longitud" name="longitud" inputmode="decimal" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+          </div>
+        </fieldset>
+
+        <fieldset class="pt-5 border-t border-neutral-100">
+          <legend class="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-3">Vigencia y etiquetas</legend>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div><label for="in-fecha-inicio" class="text-sm font-medium text-neutral-700">Fecha inicio</label><input id="in-fecha-inicio" name="fecha_inicio" type="date" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <div><label for="in-fecha-vencimiento" class="text-sm font-medium text-neutral-700">Fecha vencimiento</label><input id="in-fecha-vencimiento" name="fecha_vencimiento" type="date" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <div class="sm:col-span-2">
+              <label for="in-palabras-clave" class="text-sm font-medium text-neutral-700">10 palabras clave (separadas por coma)</label>
+              <input id="in-palabras-clave" name="palabras_clave" placeholder="restaurante,comida,delivery,..." class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="pt-5 border-t border-neutral-100">
+          <legend class="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-3">Fotografías (hasta 11)</legend>
+          <label for="in-fotos" class="sr-only">Seleccionar fotografías (hasta 11)</label>
+          <input type="file" id="in-fotos" name="fotos" multiple accept="image/*" class="w-full text-sm">
+          <div id="fotos-actuales" class="mt-3 flex flex-wrap gap-2"></div>
+        </fieldset>
+
+        <div class="flex items-center gap-3 pt-4 border-t border-neutral-100">
+          <button type="submit" class="px-6 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold transition-colors">Guardar</button>
+          <span id="form-msg" class="text-sm" role="status"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal responder mensaje -->
+  <div id="modal-mensaje" role="dialog" aria-modal="true" aria-labelledby="modal-mensaje-title" class="hidden fixed inset-0 z-50 bg-black/50 grid place-items-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl">
+      <h2 id="modal-mensaje-title" class="font-display text-lg font-bold text-neutral-900 mb-3">Responder mensaje</h2>
+      <div id="msg-detalle" class="text-sm text-neutral-600 bg-neutral-50 rounded-xl p-3 mb-3 border border-neutral-100"></div>
+      <label for="msg-respuesta" class="sr-only">Escribe tu respuesta</label>
+      <textarea id="msg-respuesta" rows="4" placeholder="Escribe tu respuesta..." class="w-full px-3 py-2 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></textarea>
+      <div class="mt-3 flex gap-2">
+        <button id="msg-enviar" class="px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold transition-colors">Enviar respuesta</button>
+        <button id="msg-cerrar" class="px-4 py-2 rounded-xl bg-neutral-200 hover:bg-neutral-300 text-neutral-700 font-semibold transition-colors">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite" class="hidden fixed bottom-5 right-5 z-[60] px-4 py-3 rounded-xl text-white font-medium shadow-lg"></div>
+
+  <script>window.PANEL_API = "<%= panelApi %>";</script>
+  <script src="/js/admin-panel.js" defer></script>
+</body>
+</html>

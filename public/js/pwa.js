@@ -1,0 +1,6 @@
+/* public/js/pwa.js — Registro del Service Worker para la PWA */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => { /* silencioso */ });
+  });
+}

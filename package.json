@@ -1,0 +1,48 @@
+{
+  "name": "directoriocerca",
+  "version": "1.0.0",
+  "description": "Directorio empresarial escalable (público + panel de administrador único). Node.js + Express + PostgreSQL.",
+  "main": "backend/server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "db:init": "node backend/scripts/init-db.js",
+    "db:seed": "node backend/scripts/seed.js",
+    "db:reset": "node backend/scripts/init-db.js && node backend/scripts/seed.js",
+    "lint": "node --check backend/server.js"
+  },
+  "keywords": [
+    "directorio",
+    "empresas",
+    "express",
+    "postgresql",
+    "seo"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.5",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "csv-parse": "^7.0.3",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.4.1",
+    "express-validator": "^7.2.0",
+    "helmet": "^8.0.0",
+    "ioredis": "^5.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^2.4.0",
+    "node-cron": "^4.6.0",
+    "nodemailer": "^10.1.0",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
