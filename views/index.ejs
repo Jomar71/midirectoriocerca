@@ -16,36 +16,36 @@
   <section class="relative overflow-hidden border-b border-neutral-200 dark:border-slate-800 bg-gradient-to-b from-primary-50 via-white to-white dark:from-slate-800 dark:via-slate-900 dark:to-slate-900">
     <div class="absolute inset-0 opacity-70 dark:opacity-20" style="background-image:radial-gradient(circle,#bfdbfe 1px,transparent 1px);background-size:24px 24px" aria-hidden="true"></div>
 
-    <div class="relative max-w-7xl mx-auto px-4 py-14 lg:py-20">
-      <div class="grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-center">
+    <div class="relative max-w-7xl mx-auto px-3 sm:px-4 py-10 sm:py-14 lg:py-20">
+      <div class="grid lg:grid-cols-[1.05fr_1fr] gap-8 lg:gap-16 items-center">
         <!-- Mensaje -->
-        <div class="dc-rise">
-          <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05] text-neutral-900 dark:text-white text-balance">
+        <div class="dc-rise min-w-0">
+          <h1 class="font-display text-3xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.08] sm:leading-[1.05] text-neutral-900 dark:text-white text-balance break-words">
             Encuentra negocios y servicios cerca de ti
           </h1>
-          <p class="mt-5 max-w-xl text-lg leading-relaxed text-neutral-500 dark:text-slate-400">
+          <p class="mt-4 sm:mt-5 max-w-xl text-base sm:text-lg leading-relaxed text-neutral-500 dark:text-slate-400 break-words">
             Un directorio de empresas, profesionales, productos y servicios locales, nacionales e internacionales. Busca por palabra clave, categoría o ciudad.
           </p>
 
-          <div class="mt-8 flex flex-wrap gap-x-10 gap-y-5">
+          <div class="mt-6 sm:mt-8 flex flex-wrap gap-x-8 gap-y-4 sm:gap-x-10 sm:gap-y-5">
             <div>
-              <p class="font-display text-3xl font-bold text-primary-700 dark:text-primary-400 dc-tabular"><%= totalGlobal %></p>
+              <p class="font-display text-2xl sm:text-3xl font-bold text-primary-700 dark:text-primary-400 dc-tabular"><%= totalGlobal %></p>
               <p class="text-sm text-neutral-500 dark:text-slate-400">Anuncios publicados</p>
             </div>
             <div>
-              <p class="font-display text-3xl font-bold text-primary-700 dark:text-primary-400 dc-tabular"><%= categorias.length %></p>
+              <p class="font-display text-2xl sm:text-3xl font-bold text-primary-700 dark:text-primary-400 dc-tabular"><%= categorias.length %></p>
               <p class="text-sm text-neutral-500 dark:text-slate-400">Categorías</p>
             </div>
             <div>
-              <p class="font-display text-3xl font-bold text-primary-700 dark:text-primary-400 dc-tabular"><%= ubicaciones.ciudades.length %></p>
+              <p class="font-display text-2xl sm:text-3xl font-bold text-primary-700 dark:text-primary-400 dc-tabular"><%= ubicaciones.ciudades.length %></p>
               <p class="text-sm text-neutral-500 dark:text-slate-400">Ciudades</p>
             </div>
           </div>
         </div>
 
         <!-- Buscador -->
-        <div class="dc-rise bg-white dark:bg-slate-800 rounded-2xl border border-neutral-200 dark:border-slate-700 shadow-xl shadow-primary-950/[0.07] dark:shadow-black/40 p-5 sm:p-6" style="animation-delay:.08s">
-          <h2 class="font-display text-lg font-semibold text-neutral-900 dark:text-white mb-4">Busca en el directorio</h2>
+        <div class="dc-rise bg-white dark:bg-slate-800 rounded-2xl border border-neutral-200 dark:border-slate-700 shadow-xl shadow-primary-950/[0.07] dark:shadow-black/40 p-4 sm:p-6 w-full min-w-0" style="animation-delay:.08s">
+          <h2 class="font-display text-base sm:text-lg font-semibold text-neutral-900 dark:text-white mb-4">Busca en el directorio</h2>
           <form action="/" method="get" class="space-y-3">
             <div class="relative">
               <label for="q" class="sr-only">Qué buscas</label>
@@ -133,14 +133,14 @@
   </section>
 
   <!-- ── RESULTADOS ──────────────────────────────────────────────── -->
-  <section class="max-w-7xl mx-auto px-4 py-12">
-    <div class="flex flex-wrap items-baseline justify-between gap-3 mb-6">
-      <div>
-        <h2 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100">Resultados</h2>
+  <section class="max-w-7xl mx-auto px-3 sm:px-4 py-10 sm:py-12">
+    <div class="flex flex-wrap items-baseline justify-between gap-3 mb-6 min-w-0">
+      <div class="min-w-0">
+        <h2 class="font-display text-xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100 break-words">Resultados</h2>
         <p class="text-sm text-neutral-500 dark:text-slate-400 mt-1"><%= pagination.total %> <%= pagination.total === 1 ? 'anuncio disponible' : 'anuncios disponibles' %></p>
       </div>
       <% if (hayFiltros) { %>
-        <a href="/" class="inline-flex items-center h-9 px-4 rounded-lg text-sm font-semibold border border-primary-600 text-primary-600 hover:bg-primary-50 hover:border-primary-700 dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-500/10 transition-colors">Limpiar filtros</a>
+        <a href="/" class="inline-flex items-center h-9 px-3 sm:px-4 rounded-lg text-sm font-semibold border border-primary-600 text-primary-600 hover:bg-primary-50 hover:border-primary-700 dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-500/10 transition-colors whitespace-nowrap">Limpiar filtros</a>
       <% } %>
     </div>
 
@@ -154,25 +154,25 @@
         <a href="/" class="inline-grid place-items-center h-11 px-6 mt-7 rounded-xl bg-accent-400 text-neutral-900 font-bold hover:bg-accent-500 transition-colors">Ver todos los anuncios</a>
       </div>
     <% } else { %>
-      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <% anuncios.forEach(function(a){ %>
-          <article class="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-300 dark:hover:border-primary-500 hover:shadow-lg hover:shadow-primary-950/[0.07] dark:hover:shadow-black/40 transition">
+          <article class="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-300 dark:hover:border-primary-500 hover:shadow-lg hover:shadow-primary-950/[0.07] dark:hover:shadow-black/40 transition min-w-0">
             <a href="/anuncio/<%= a.slug %>" class="block aspect-[4/3] overflow-hidden bg-neutral-100 dark:bg-slate-700">
               <img src="<%= a.foto_principal || '/img/placeholder.jpg' %>" alt="<%= a.razon_social %>" width="800" height="600" loading="lazy"
                    class="w-full h-full object-cover transition duration-300 group-hover:scale-[1.04]">
             </a>
-            <div class="flex flex-col grow p-5">
+            <div class="flex flex-col grow p-4 sm:p-5">
               <% if (a.categoria_nombre) { %>
-                <span class="self-start text-xs font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-500/15 rounded-full px-2.5 py-1 mb-3"><%= a.categoria_nombre %></span>
+                <span class="self-start text-xs font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-500/15 rounded-full px-2.5 py-1 mb-3 truncate max-w-full"><%= a.categoria_nombre %></span>
               <% } %>
-              <h3 class="font-display text-lg font-semibold text-neutral-900 dark:text-slate-100 leading-snug line-clamp-1 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors"><%= a.razon_social %></h3>
-              <p class="text-sm leading-relaxed text-neutral-500 dark:text-slate-400 mt-1.5 line-clamp-2"><%= a.descripcion_50 %></p>
-              <div class="mt-auto pt-4 flex items-center justify-between gap-3 border-t border-neutral-100 dark:border-slate-700">
+              <h3 class="font-display text-base sm:text-lg font-semibold text-neutral-900 dark:text-slate-100 leading-snug line-clamp-1 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors break-words"><%= a.razon_social %></h3>
+              <p class="text-sm leading-relaxed text-neutral-500 dark:text-slate-400 mt-1.5 line-clamp-2 break-words"><%= a.descripcion_50 %></p>
+              <div class="mt-auto pt-4 flex items-center justify-between gap-3 border-t border-neutral-100 dark:border-slate-700 min-w-0">
                 <span class="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-slate-400 min-w-0">
                   <svg class="w-4 h-4 shrink-0 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-5.6-7-11a7 7 0 1 1 14 0c0 5.4-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
                   <span class="truncate"><%= [a.ciudad, a.pais].filter(Boolean).join(', ') || 'Sin ubicación' %></span>
                 </span>
-                <a href="/anuncio/<%= a.slug %>" class="shrink-0 inline-flex items-center gap-1 text-sm font-bold text-primary-600 hover:text-primary-700 dark:text-primary-400">Ver ficha
+                <a href="/anuncio/<%= a.slug %>" class="shrink-0 inline-flex items-center gap-1 text-sm font-bold text-primary-600 hover:text-primary-700 dark:text-primary-400 whitespace-nowrap">Ver ficha
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
                 </a>
               </div>
@@ -183,7 +183,7 @@
 
       <!-- Paginación -->
       <% if (pagination.totalPages > 1) { %>
-        <nav class="mt-12 flex items-center justify-center gap-1.5" aria-label="Paginación">
+        <nav class="mt-10 sm:mt-12 flex flex-wrap items-center justify-center gap-1.5 px-2" aria-label="Paginación">
           <% var build = function(p){ return '/?' + queryString + (queryString ? '&' : '') + 'page=' + p; }; %>
           <a href="<%= build(pagination.page - 1) %>" class="h-10 px-4 grid place-items-center rounded-lg text-sm font-semibold border border-primary-600 text-primary-600 hover:bg-primary-50 hover:border-primary-700 dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-500/10 <%= pagination.hasPrev ? '' : 'pointer-events-none opacity-40' %>">Anterior</a>
           <% for (var p = Math.max(1, pagination.page-2); p <= Math.min(pagination.totalPages, pagination.page+2); p++) { %>
@@ -197,8 +197,8 @@
 
   <!-- ── CONTACTO / ASISTENCIA 24/7 ──────────────────────────────── -->
   <section id="contacto" class="border-t border-neutral-200 dark:border-slate-800 bg-neutral-50 dark:bg-slate-800/60">
-    <div class="max-w-6xl mx-auto px-4 py-14 lg:py-16">
-      <div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 lg:gap-14 items-start">
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 py-10 sm:py-14 lg:py-16">
+      <div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-6 lg:gap-14 items-start">
         <div>
           <h2 class="font-display text-3xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100">Asistencia 24/7</h2>
           <p class="text-neutral-500 dark:text-slate-400 mt-3 leading-relaxed">¿Quieres publicar tu empresa o necesitas ayuda? Escríbenos y te responderemos a la brevedad.</p>
@@ -218,18 +218,18 @@
           </ul>
         </div>
 
-        <form id="contacto-form" class="bg-white dark:bg-slate-700 rounded-2xl border border-neutral-200 dark:border-slate-700 shadow-sm p-6 sm:p-7 grid gap-4 sm:grid-cols-2">
-          <div class="sm:col-span-2">
-            <h3 class="font-semibold text-neutral-900 dark:text-slate-100">Cuéntanos qué necesitas</h3>
-            <p class="text-sm text-neutral-500 dark:text-slate-400 mt-0.5">Te respondemos por email.</p>
+        <form id="contacto-form" class="bg-white dark:bg-slate-700 rounded-2xl border border-neutral-200 dark:border-slate-700 shadow-sm p-4 sm:p-7 grid gap-4 sm:grid-cols-2 w-full min-w-0">
+          <div class="sm:col-span-2 min-w-0">
+            <h3 class="font-semibold text-neutral-900 dark:text-slate-100 break-words">Cuéntanos qué necesitas</h3>
+            <p class="text-sm text-neutral-500 dark:text-slate-400 mt-0.5 break-words">Te respondemos por email.</p>
           </div>
-          <input name="nombre" required placeholder="Tu nombre" aria-label="Tu nombre" autocomplete="name" class="h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-600 border border-neutral-200 dark:border-slate-500 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500">
-          <input name="email" type="email" required placeholder="Tu email" aria-label="Tu email" autocomplete="email" class="h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-600 border border-neutral-200 dark:border-slate-500 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500">
-          <input name="telefono" type="tel" inputmode="tel" placeholder="Teléfono (opcional)" aria-label="Teléfono" autocomplete="tel" class="sm:col-span-2 h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-600 border border-neutral-200 dark:border-slate-500 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500">
-          <textarea name="mensaje" required rows="4" placeholder="Escribe tu mensaje..." aria-label="Mensaje" class="sm:col-span-2 px-4 py-3 rounded-xl bg-neutral-100 dark:bg-slate-600 border border-neutral-200 dark:border-slate-500 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500"></textarea>
-          <div class="sm:col-span-2 flex items-center gap-3">
-            <button type="submit" class="px-6 h-11 grid place-items-center rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold transition-colors">Enviar mensaje</button>
-            <span id="contacto-msg" class="text-sm" role="status"></span>
+          <input name="nombre" required placeholder="Tu nombre" aria-label="Tu nombre" autocomplete="name" class="h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-600 border border-neutral-200 dark:border-slate-500 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0">
+          <input name="email" type="email" required placeholder="Tu email" aria-label="Tu email" autocomplete="email" class="h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-600 border border-neutral-200 dark:border-slate-500 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0">
+          <input name="telefono" type="tel" inputmode="tel" placeholder="Teléfono (opcional)" aria-label="Teléfono" autocomplete="tel" class="sm:col-span-2 h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-600 border border-neutral-200 dark:border-slate-500 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0">
+          <textarea name="mensaje" required rows="4" placeholder="Escribe tu mensaje..." aria-label="Mensaje" class="sm:col-span-2 px-4 py-3 rounded-xl bg-neutral-100 dark:bg-slate-600 border border-neutral-200 dark:border-slate-500 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0 resize-y"></textarea>
+          <div class="sm:col-span-2 flex flex-wrap items-center gap-3">
+            <button type="submit" class="px-6 h-11 grid place-items-center rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold transition-colors whitespace-nowrap">Enviar mensaje</button>
+            <span id="contacto-msg" class="text-sm break-words" role="status"></span>
           </div>
         </form>
       </div>

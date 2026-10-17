@@ -7,20 +7,20 @@
 <body class="bg-neutral-50 text-neutral-800 dark:bg-slate-900 dark:text-slate-100 font-sans">
   <%- include('partials/header') %>
 
-  <main id="contenido" class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
+  <main id="contenido" class="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-6 lg:py-8">
     <!-- Breadcrumb -->
-    <nav class="text-sm text-neutral-500 dark:text-slate-400 mb-5" aria-label="Ruta">
+    <nav class="flex flex-wrap items-center text-sm text-neutral-500 dark:text-slate-400 mb-5 min-w-0 break-words" aria-label="Ruta">
       <a href="/" class="hover:text-primary-600 dark:hover:text-primary-400">Inicio</a>
-      <span class="mx-1.5 text-neutral-300 dark:text-slate-600">/</span>
+      <span class="mx-1 text-neutral-300 dark:text-slate-600">/</span>
       <% if (anuncio.categoria_slug) { %>
-        <a href="/?categoria=<%= anuncio.categoria_slug %>" class="hover:text-primary-600 dark:hover:text-primary-400"><%= anuncio.categoria_nombre %></a>
-        <span class="mx-1.5 text-neutral-300 dark:text-slate-600">/</span>
+        <a href="/?categoria=<%= anuncio.categoria_slug %>" class="hover:text-primary-600 dark:hover:text-primary-400 truncate max-w-[40vw] sm:max-w-xs"><%= anuncio.categoria_nombre %></a>
+        <span class="mx-1 text-neutral-300 dark:text-slate-600">/</span>
       <% } %>
-      <span class="text-neutral-700 dark:text-slate-300"><%= anuncio.razon_social %></span>
+      <span class="text-neutral-700 dark:text-slate-300 break-words"><%= anuncio.razon_social %></span>
     </nav>
     <h1 class="sr-only"><%= anuncio.razon_social %></h1>
 
-    <div class="grid gap-6 lg:gap-8 lg:grid-cols-[1.7fr_1fr]">
+      <div class="grid gap-5 sm:gap-6 lg:gap-8 lg:grid-cols-[1.7fr_1fr]">
       <!-- ── Columna principal ──────────────────────────────────── -->
       <div class="min-w-0 space-y-6">
         <!-- Galería de fotografías con lightbox -->
@@ -40,9 +40,9 @@
             <% } %>
           </div>
           <% if (fotos.length > 1) { %>
-            <div class="flex gap-2 p-3 overflow-x-auto bg-white dark:bg-slate-800">
+            <div class="flex gap-2 p-3 overflow-x-auto bg-white dark:bg-slate-800 scroll-smooth snap-x snap-proximity">
               <% fotos.forEach(function(f, i){ %>
-                <button type="button" class="gal-thumb shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 <%= i===0 ? 'border-primary-600' : 'border-neutral-200 dark:border-slate-600' %>" data-src="<%= f.url %>" aria-label="Ver foto <%= i+1 %>">
+                <button type="button" class="gal-thumb shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 snap-start <%= i===0 ? 'border-primary-600' : 'border-neutral-200 dark:border-slate-600' %>" data-src="<%= f.url %>" aria-label="Ver foto <%= i+1 %>">
                   <img src="<%= f.url %>" alt="Foto <%= i+1 %>" width="320" height="256" loading="lazy" class="w-full h-full object-cover">
                 </button>
               <% }) %>
@@ -51,9 +51,9 @@
         </div>
 
         <!-- Portafolio empresarial (50 palabras) -->
-        <section class="bg-white dark:bg-slate-800 rounded-2xl border border-neutral-200 dark:border-slate-700 p-6 sm:p-7 shadow-sm">
-          <h2 class="font-display text-2xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100">Sobre esta empresa</h2>
-          <p class="mt-3 text-neutral-600 dark:text-slate-300 leading-relaxed whitespace-pre-line"><%= anuncio.descripcion_50 %></p>
+        <section class="bg-white dark:bg-slate-800 rounded-2xl border border-neutral-200 dark:border-slate-700 p-4 sm:p-6 lg:p-7 shadow-sm min-w-0">
+          <h2 class="font-display text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100 break-words">Sobre esta empresa</h2>
+          <p class="mt-3 text-neutral-600 dark:text-slate-300 leading-relaxed whitespace-pre-line break-words"><%= anuncio.descripcion_50 %></p>
           <% if (keywords.length) { %>
             <div class="mt-6 pt-5 border-t border-neutral-100 dark:border-slate-700">
               <p class="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-slate-400 mb-3">Palabras clave</p>
@@ -68,30 +68,30 @@
 
         <!-- Mapa geosatelital -->
         <% if (mapsEmbed) { %>
-          <section class="bg-white dark:bg-slate-800 rounded-2xl border border-neutral-200 dark:border-slate-700 p-6 sm:p-7 shadow-sm">
-            <h2 class="font-display text-2xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100">Ubicación</h2>
-            <% if (anuncio.direccion) { %>
-              <p class="text-neutral-500 dark:text-slate-400 mt-1 mb-4"><%= [anuncio.direccion, anuncio.ciudad, anuncio.pais].filter(Boolean).join(', ') %></p>
-            <% } %>
-            <div class="rounded-xl overflow-hidden border border-neutral-200 dark:border-slate-700">
-              <iframe title="Mapa de ubicación" src="<%= mapsEmbed %>" width="100%" height="360" style="border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
-          </section>
+        <section class="bg-white dark:bg-slate-800 rounded-2xl border border-neutral-200 dark:border-slate-700 p-4 sm:p-6 lg:p-7 shadow-sm min-w-0">
+          <h2 class="font-display text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100 break-words">Ubicación</h2>
+          <% if (anuncio.direccion) { %>
+            <p class="text-neutral-500 dark:text-slate-400 mt-1 mb-4 break-words"><%= [anuncio.direccion, anuncio.ciudad, anuncio.pais].filter(Boolean).join(', ') %></p>
+          <% } %>
+          <div class="rounded-xl overflow-hidden border border-neutral-200 dark:border-slate-700 w-full min-w-0">
+            <iframe title="Mapa de ubicación" src="<%= mapsEmbed %>" width="100%" height="360" style="border:0; width:100%; min-height:260px;" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="w-full"></iframe>
+          </div>
+        </section>
         <% } %>
 
         <!-- Formulario de contacto -->
-        <section class="bg-white dark:bg-slate-800 rounded-2xl border border-neutral-200 dark:border-slate-700 p-6 sm:p-7 shadow-sm">
-          <h2 class="font-display text-2xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100">Escribe a este negocio</h2>
-          <p class="text-neutral-500 dark:text-slate-400 mt-1">Tu mensaje llega directamente al anunciante, con asistencia 24/7.</p>
-          <form id="contacto-form" class="mt-6 grid gap-4 sm:grid-cols-2">
+        <section class="bg-white dark:bg-slate-800 rounded-2xl border border-neutral-200 dark:border-slate-700 p-4 sm:p-6 lg:p-7 shadow-sm min-w-0">
+          <h2 class="font-display text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100 break-words">Escribe a este negocio</h2>
+          <p class="text-neutral-500 dark:text-slate-400 mt-1 break-words">Tu mensaje llega directamente al anunciante, con asistencia 24/7.</p>
+          <form id="contacto-form" class="mt-6 grid gap-4 sm:grid-cols-2 w-full min-w-0">
             <input type="hidden" name="anuncio_slug" value="<%= anuncio.slug %>">
-            <input name="nombre" required placeholder="Tu nombre" aria-label="Tu nombre" autocomplete="name" class="h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500">
-            <input name="email" type="email" required placeholder="Tu email" aria-label="Tu email" autocomplete="email" class="h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500">
-            <input name="telefono" type="tel" inputmode="tel" placeholder="Teléfono (opcional)" aria-label="Teléfono" autocomplete="tel" class="sm:col-span-2 h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500">
-            <textarea name="mensaje" required rows="4" placeholder="Escribe tu mensaje..." aria-label="Mensaje" class="sm:col-span-2 px-4 py-3 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500"></textarea>
-            <div class="sm:col-span-2 flex items-center gap-3">
-              <button type="submit" class="px-6 h-11 grid place-items-center rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold transition-colors">Enviar mensaje</button>
-              <span id="contacto-msg" class="text-sm" role="status"></span>
+            <input name="nombre" required placeholder="Tu nombre" aria-label="Tu nombre" autocomplete="name" class="h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0">
+            <input name="email" type="email" required placeholder="Tu email" aria-label="Tu email" autocomplete="email" class="h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0">
+            <input name="telefono" type="tel" inputmode="tel" placeholder="Teléfono (opcional)" aria-label="Teléfono" autocomplete="tel" class="sm:col-span-2 h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0">
+            <textarea name="mensaje" required rows="4" placeholder="Escribe tu mensaje..." aria-label="Mensaje" class="sm:col-span-2 px-4 py-3 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0 resize-y"></textarea>
+            <div class="sm:col-span-2 flex flex-wrap items-center gap-3">
+              <button type="submit" class="px-6 h-11 grid place-items-center rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold transition-colors whitespace-nowrap">Enviar mensaje</button>
+              <span id="contacto-msg" class="text-sm break-words" role="status"></span>
             </div>
           </form>
         </section>
@@ -147,10 +147,10 @@
 
           <!-- Datos direccionales -->
           <% if (anuncio.direccion || anuncio.telefono_fijo || anuncio.telefono_movil) { %>
-            <dl class="px-6 py-5 border-t border-neutral-100 dark:border-slate-700 space-y-2.5 text-sm">
-              <% if (anuncio.direccion) { %><div class="flex gap-3"><dt class="text-neutral-500 dark:text-slate-400 w-24 shrink-0">Dirección</dt><dd class="text-neutral-700 dark:text-slate-200"><%= anuncio.direccion %></dd></div><% } %>
-              <% if (anuncio.telefono_fijo) { %><div class="flex gap-3"><dt class="text-neutral-500 dark:text-slate-400 w-24 shrink-0">Tel. fijo</dt><dd class="text-neutral-700 dark:text-slate-200"><%= anuncio.telefono_fijo %></dd></div><% } %>
-              <% if (anuncio.telefono_movil) { %><div class="flex gap-3"><dt class="text-neutral-500 dark:text-slate-400 w-24 shrink-0">Tel. móvil</dt><dd class="text-neutral-700 dark:text-slate-200"><%= anuncio.telefono_movil %></dd></div><% } %>
+            <dl class="px-6 py-5 border-t border-neutral-100 dark:border-slate-700 space-y-2.5 text-sm break-words">
+              <% if (anuncio.direccion) { %><div class="flex flex-col sm:flex-row gap-1 sm:gap-3"><dt class="text-neutral-500 dark:text-slate-400 sm:w-24 shrink-0">Dirección</dt><dd class="text-neutral-700 dark:text-slate-200 break-words overflow-wrap-anywhere"><%= anuncio.direccion %></dd></div><% } %>
+              <% if (anuncio.telefono_fijo) { %><div class="flex flex-col sm:flex-row gap-1 sm:gap-3"><dt class="text-neutral-500 dark:text-slate-400 sm:w-24 shrink-0">Tel. fijo</dt><dd class="text-neutral-700 dark:text-slate-200 break-words"><%= anuncio.telefono_fijo %></dd></div><% } %>
+              <% if (anuncio.telefono_movil) { %><div class="flex flex-col sm:flex-row gap-1 sm:gap-3"><dt class="text-neutral-500 dark:text-slate-400 sm:w-24 shrink-0">Tel. móvil</dt><dd class="text-neutral-700 dark:text-slate-200 break-words"><%= anuncio.telefono_movil %></dd></div><% } %>
             </dl>
           <% } %>
 

@@ -1,5 +1,6 @@
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
 <title><%= (typeof titulo !== 'undefined' && titulo) ? titulo : 'DirectorioCerca — Directorio de negocios' %></title>
 
 <!-- PWA -->
@@ -21,6 +22,9 @@
     darkMode: 'class',
     theme: {
       extend: {
+        screens: {
+          xs: '380px'
+        },
         colors: {
           // 1. Color primario — Azul Confianza
           primary: {
