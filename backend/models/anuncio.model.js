@@ -44,7 +44,11 @@ function buildFilters({ q, categoria, ciudad, departamento, pais, soloActivos = 
   }
   if (ciudad) {
     params.push(ciudad);
-    clauses.push(`a.ciudad = $${params.length}`);
+    // Tolerante a mayúsculas/acentos y a escritura parcial (el usuario escribe a mano)
+    clauses.push(`(
+      unaccent(lower(a.ciudad)) = unaccent(lower($${params.length}))
+      OR a.ciudad ILIKE '%' || $${params.length} || '%'
+    )`);
   }
   if (pais) {
     params.push(pais);

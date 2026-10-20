@@ -3,7 +3,7 @@
 Directorio empresarial en línea, escalable y listo para producción. Sitio **público** para visitantes y **panel privado** para un **único administrador** (el propietario).
 
 - **Stack:** Node.js + Express · EJS (SEO server-side) · PostgreSQL · Tailwind CSS (CDN) · Nodemailer · node-cron.
-- **Público:** buscador con filtros (categoría, departamento y ciudad), fichas de anuncio con galería, mapa, redes, traducción, WhatsApp y formulario de contacto 24/7.
+- **Público:** buscador (palabra clave + ciudad), fichas de anuncio con galería, mapa, redes, traducción, WhatsApp, formulario de contacto y páginas legales (`/nosotros`, `/terminos`, `/privacidad`, `/contacto`) enlazadas desde el menú superior.
 - **Geografía:** catálogo oficial DANE de los 33 departamentos y 1.122 municipios de Colombia, con sus capitales.
 - **Privado:** un solo usuario administrador gestiona todo: anuncios, fotos, categorías, mensajes, vencimientos e importación CSV masiva.
 
@@ -59,7 +59,7 @@ npm start        # producción
 ```
 
 Abre `http://localhost:3000`.
-Panel de administración: `http://localhost:3000/admin/login`.
+Panel de administración: `http://localhost:3000/admin/login` (acceso solo por URL directa; no hay enlace en el sitio y el panel redirige al login sin sesión de admin).
 
 **Credenciales por defecto** (cámbialas en `.env` antes de `db:seed`):
 
@@ -100,7 +100,7 @@ Si Redis no está disponible, el sistema funciona igual sin caché.
 
 El directorio incluye el **catálogo oficial DANE – DIVIPOLA**: los **33 departamentos** con su **capital** y los **1.122 municipios** (código, tipo y coordenadas), cargados por `npm run db:init`.
 
-- **Público:** en la portada, filtros dependientes **Departamento → Ciudad** (el de ciudades agrupado por departamento).
+- **Público:** en la portada, el buscador tiene "¿Qué buscas?" (palabra clave) y "¿Dónde?" (ciudad, autocompletado con el catálogo). Los filtros por URL (`?categoria=`, `?departamento=`, `?ciudad=`) siguen disponibles; `?ciudad=` acepta coincidencia parcial y sin acentos.
 - **Admin:** al crear/editar un anuncio puedes elegir el departamento y la ciudad/municipio (autocompletado desde el catálogo), manteniendo la libertad de texto para otros países.
 - **API:** `/api/ubicaciones` devuelve `departamentos`, `ciudades` y `paises`; con `?departamento=<slug>` devuelve solo ese departamento y sus ciudades.
 - **Búsqueda:** `/?departamento=<slug>` filtra los anuncios del departamento (coincidencia tolerante sin acentos).

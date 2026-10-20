@@ -25,7 +25,7 @@ Single-admin business directory. Node 18+ / Express 4, EJS server-rendered for S
 - Colombia geography: tables `departamentos` (33, with `capital`) and `ciudades` (1122 DANE DIVIPOLA municipalities) are seeded by `database.sql`; model in `backend/models/ubicacion.model.js`. Home has Department→City dependent filters (`public/js/index.js`); `/api/ubicaciones` returns `{departamentos, ciudades, paises}` and supports `?departamento=<slug>`. Department matching is accent-tolerant (`unaccent(lower(...))` plus the part before the comma) so legacy free-text cities (e.g. "Bogotá") still match the catalog ("Bogotá, D.C."). Cundinamarca's capital is Bogotá (a separate entity), so it has no `es_capital` municipality.
 - The admin panel is one page (`views/admin-panel.ejs`) driven by `public/js/admin-panel.js` calling `/api/admin/*`. All `/api/admin/*` routes require the admin JWT (`middlewares/auth.js`); HTML pages use `requireAdminPage`.
 - Auth is a single admin with a JWT in an httpOnly cookie. There is no customer/anunciante registration — do not add one.
-- Server-rendered pages live in `public.routes.js` (`/`, `/anuncio/:slug`); read-only API is `/api/anuncios`, `/api/categorias`, `/api/ubicaciones`.
+- Server-rendered pages live in `public.routes.js` (`/`, `/anuncio/:slug`, plus static `/nosotros`, `/terminos`, `/privacidad`, `/contacto`); read-only API is `/api/anuncios`, `/api/categorias`, `/api/ubicaciones`.
 
 ## Business rules to preserve
 - Max **11 photos** per listing (`fotoModel` / `saveUploadedFotos`).
