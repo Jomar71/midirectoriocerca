@@ -60,6 +60,11 @@ body { top: 0 !important; }
 /* Números de estadísticas alineados (tabular) */
 .dc-tabular { font-variant-numeric: tabular-nums; }
 
+/* Efecto de onda (CursorRipples): el canvas cubre la imagen cuando el shader
+   está activo. El atributo [hidden] se respeta mientras no se monta. */
+.dc-ripple-canvas:not([hidden]) { display: block; }
+.dc-ripple-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
 /* Navegación del panel admin (barra lateral oscura) */
 .nav-item {
   display: flex; width: 100%; align-items: center; gap: .75rem;

@@ -45,10 +45,17 @@ app.use(helmet({
         'https://translate.google.com', 'https://translate.googleapis.com',
         'https://www.google.com', 'https://www.gstatic.com',
       ],
+      scriptSrcElem: [
+        "'self'", "'unsafe-inline'",
+        'https://cdn.tailwindcss.com',
+        'https://translate.google.com', 'https://translate.googleapis.com',
+        'https://www.google.com', 'https://www.gstatic.com',
+      ],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdn.tailwindcss.com', 'https://translate.googleapis.com', 'https://www.gstatic.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
       imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
       connectSrc: ["'self'", 'https://translate.googleapis.com'],
+      workerSrc: ["'self'", 'blob:'],
       frameSrc: ["'self'", 'https://www.google.com', 'https://maps.google.com', 'https://www.youtube.com', 'https://translate.google.com'],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
@@ -75,6 +82,16 @@ app.use(express.static(PUBLIC_DIR, {
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.webmanifest')) res.setHeader('Content-Type', 'application/manifest+json');
   },
+}));
+
+// ── Vendor: shaders (ESM autocontenido) servido al navegador ──────────────
+// Solo dist/ (el build ESM). Se carga de forma diferida desde el cliente.
+const SHADERS_DIST = path.join(__dirname, '..', 'node_modules', 'shaders', 'dist');
+app.use('/vendor/shaders', express.static(SHADERS_DIST, {
+  maxAge: '30d',
+  immutable: true,
+  index: false,
+  setHeaders: (res) => { res.setHeader('Content-Type', 'text/javascript; charset=utf-8'); },
 }));
 
 // ── Health check (Pxxl y balanceadores) ─────────────────────────────────
