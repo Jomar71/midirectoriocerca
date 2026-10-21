@@ -54,6 +54,44 @@ async function renderIndex(req, res, next) {
   }
 }
 
+/** GET /resultados → Página aparte con los resultados de la búsqueda. */
+async function renderResultados(req, res, next) {
+  try {
+    const { page, limit, offset } = parsePagination({ ...req.query, limit: DEFAULT_LIMIT });
+    const filtros = {
+      q: (req.query.q || '').toString().trim().slice(0, 100) || null,
+      categoria: (req.query.categoria || '').toString().trim() || null,
+      departamento: (req.query.departamento || '').toString().trim() || null,
+      ciudad: (req.query.ciudad || '').toString().trim() || null,
+      pais: (req.query.pais || '').toString().trim() || null,
+      page, limit, offset,
+    };
+
+    const [ubicaciones, data] = await Promise.all([
+      ubicacionModel.getUbicaciones(),
+      anuncioModel.list(filtros),
+    ]);
+
+    const meta = buildMeta(data.total, page, limit);
+    return res.render('resultados', {
+      title: filtros.q ? `Resultados para "${filtros.q}" | DirectorioCerca` : 'Resultados de búsqueda | DirectorioCerca',
+      meta: seo.metaFor({
+        title: 'Resultados de búsqueda — DirectorioCerca',
+        description: 'Resultados de búsqueda en el directorio de empresas, negocios y profesionales.',
+        url: `${env.appUrl}/resultados`,
+        type: 'website',
+      }),
+      ubicaciones,
+      anuncios: data.rows,
+      pagination: meta,
+      filtros,
+      queryString: buildQueryString(req.query),
+    });
+  } catch (e) {
+    return next(e);
+  }
+}
+
 function buildQueryString(query, overrides = {}) {
   const params = new URLSearchParams();
   Object.entries({ ...query, ...overrides }).forEach(([k, v]) => {
@@ -153,4 +191,4 @@ async function apiUbicaciones(req, res, next) {
   } catch (e) { next(e); }
 }
 
-module.exports = { renderIndex, renderAnuncio, apiList, apiGet, apiCategorias, apiUbicaciones, buildQueryString };
+module.exports = { renderIndex, renderResultados, renderAnuncio, apiList, apiGet, apiCategorias, apiUbicaciones, buildQueryString };

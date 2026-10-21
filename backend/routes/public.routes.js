@@ -16,6 +16,7 @@ const router = express.Router();
 
 // ── Páginas (server-side para SEO) ──────────────────────────────────────
 router.get('/', anuncioCtrl.renderIndex);
+router.get('/resultados', anuncioCtrl.renderResultados);
 router.get('/anuncio/:slug', anuncioCtrl.renderAnuncio);
 router.get('/nosotros', (_req, res) => res.render('nosotros', { titulo: 'Nosotros — Quiénes somos | DirectorioCerca' }));
 router.get('/terminos', (_req, res) => res.render('terminos', { titulo: 'Términos y condiciones | DirectorioCerca' }));

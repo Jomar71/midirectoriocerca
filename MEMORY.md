@@ -35,7 +35,7 @@ Orden de montaje de rutas en `backend/server.js` (importa): **sitemap → auth �
 - **No agregar registro de clientes ni login de anunciantes.**
 
 ## Rutas clave
-- **Server-rendered (`public.routes.js`):** `/`, `/anuncio/:slug`, `/nosotros`, `/terminos`, `/privacidad`, `/contacto` (estas 4 son estáticas, sin BD; el formulario de `/contacto` reutiliza `#contacto-form` + `/js/index.js` → `POST /api/contacto`)
+- **Server-rendered (`public.routes.js`):** `/`, `/resultados`, `/anuncio/:slug`, `/nosotros`, `/terminos`, `/privacidad`, `/contacto` (las 4 últimas son estáticas, sin BD; el formulario de `/contacto` reutiliza `#contacto-form` + `/js/index.js` → `POST /api/contacto`)
 - **API de solo lectura:** `/api/anuncios`, `/api/categorias`, `/api/ubicaciones`
 - **Panel admin:** una sola página (`views/admin-panel.ejs`) manejada por `public/js/admin-panel.js` que llama a `/api/admin/*`. `/admin/panel` → `requireAdminPage` (302 a login); API admin → 401. **El footer ya NO enlaza a `/admin/login`** (el acceso es solo por URL directa, a petición del usuario).
 
@@ -44,7 +44,7 @@ Orden de montaje de rutas en `backend/server.js` (importa): **sitemap → auth �
 - **Caso especial:** Cundinamarca no tiene municipio `001` propio (su capital es Bogotá, entidad aparte). Su `capital` es "Bogotá D.C." y ninguna de sus ciudades marca `es_capital`.
 - Modelo: `backend/models/ubicacion.model.js` (`listDepartamentos`, `listCiudades`, `listCiudadesByDepartamento`, `findDepartamentoBySlug`, `getUbicaciones`, `groupByDepartamento`). `getUbicaciones` reemplazó a `categoriaModel.getUbicaciones` (eliminada).
 - Filtro `?departamento=<slug>` en la home: coincide la ciudad del anuncio con el catálogo de forma **tolerante** (`unaccent(lower(...))`, aceptando también la parte antes de la coma, ej. "Bogotá" ↔ "Bogotá, D.C.") para reconocer datos históricos de texto libre.
-- Home: **buscador simplificado (2026-10-20):** input "¿Qué buscas?" (`q`) + input "¿Dónde?" (`ciudad`, con `<datalist>` de las ciudades del catálogo, deduplicadas) + botón "Buscar". Los selects de categoría/departamento/ciudad se quitaron del formulario (los filtros por URL `?categoria=`/`?departamento=`/`?ciudad=` siguen funcionando; las tarjetas de categorías enlazan `?categoria=`). El filtro `?ciudad=` en `anuncio.model.js` ahora es tolerante: `unaccent(lower(...)) = ... OR ILIKE '%...%'` (el usuario escribe a mano). El JS dependiente dept→ciudad (`filtro-departamento`) quedó sin uso (guard se sale si no existen los elementos).
+- Home: **buscador flotante en una sola pieza (2026-10-20):** píldora (`sm:rounded-full`) con input "¿Qué buscas?" (`q`) + input "¿Dónde?" (`ciudad` con `<datalist>` de ciudades) + botón "Buscar". El formulario hace `action="/resultados"` (**no** `GET /`), de modo que los resultados se abren en **página aparte** (`views/resultados.ejs`, controlador `renderResultados`). La home ya no muestra resultados; solo portada + categorías + contacto. Las tarjetas de categoría enlazan a `/resultados?categoria=<slug>`. Los filtros por URL (`?q=`, `?ciudad=`, `?categoria=`) siguen funcionando en `/resultados`; `?ciudad=` es tolerante (ILIKE sin acentos). El JS dependiente dept→ciudad (`filtro-departamento`) sigue sin uso.
 - Admin: el modal de anuncio tiene select de departamento + input ciudad con `<datalist>` del catálogo (permite texto libre para otros países); elegir departamento autocompleta país = Colombia.
 - La BD real ya tiene el catálogo aplicado de forma aditiva (sin borrar datos); para instalaciones limpias basta `npm run db:init`.
 

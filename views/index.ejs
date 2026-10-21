@@ -17,48 +17,46 @@
     <div class="absolute inset-0 opacity-70 dark:opacity-20" style="background-image:radial-gradient(circle,#bfdbfe 1px,transparent 1px);background-size:24px 24px" aria-hidden="true"></div>
 
     <div class="relative max-w-7xl mx-auto px-3 sm:px-4 py-10 sm:py-14 lg:py-20">
-      <div class="grid lg:grid-cols-[1.05fr_1fr] gap-8 lg:gap-16 items-center">
-        <!-- Mensaje -->
-        <div class="dc-rise min-w-0">
-          <h1 class="font-display text-3xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.08] sm:leading-[1.05] text-neutral-900 dark:text-white text-balance break-words">
-            Encuentra lo que buscas, cerca de ti.
-          </h1>
-          <p class="mt-4 sm:mt-5 max-w-xl text-base sm:text-lg leading-relaxed text-neutral-500 dark:text-slate-400 break-words">
-            El directorio virtual donde las empresas, microempresas y pymes de Colombia se conectan con sus clientes. Sin complicaciones, sin costos altos.
-          </p>
+      <div class="dc-rise max-w-3xl min-w-0">
+        <h1 class="font-display text-3xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.08] sm:leading-[1.05] text-neutral-900 dark:text-white text-balance break-words">
+          Encuentra lo que buscas, cerca de ti.
+        </h1>
+        <p class="mt-4 sm:mt-5 max-w-xl text-base sm:text-lg leading-relaxed text-neutral-500 dark:text-slate-400 break-words">
+          El directorio virtual donde las empresas, microempresas y pymes de Colombia se conectan con sus clientes. Sin complicaciones, sin costos altos.
+        </p>
 
-          <div class="mt-6 sm:mt-8 flex flex-wrap gap-x-8 gap-y-4 sm:gap-x-10 sm:gap-y-5">
-            <div>
-              <p class="font-display text-2xl sm:text-3xl font-bold text-primary-700 dark:text-primary-400 dc-tabular"><%= totalGlobal %></p>
-              <p class="text-sm text-neutral-500 dark:text-slate-400">Anuncios publicados</p>
-            </div>
-            <div>
-              <p class="font-display text-2xl sm:text-3xl font-bold text-primary-700 dark:text-primary-400 dc-tabular"><%= categorias.length %></p>
-              <p class="text-sm text-neutral-500 dark:text-slate-400">Categorías</p>
-            </div>
-            <div>
-              <p class="font-display text-2xl sm:text-3xl font-bold text-primary-700 dark:text-primary-400 dc-tabular"><%= ubicaciones.ciudades.length %></p>
-              <p class="text-sm text-neutral-500 dark:text-slate-400">Ciudades</p>
-            </div>
+        <div class="mt-6 sm:mt-8 flex flex-wrap gap-x-8 gap-y-4 sm:gap-x-10 sm:gap-y-5">
+          <div>
+            <p class="font-display text-2xl sm:text-3xl font-bold text-primary-700 dark:text-primary-400 dc-tabular"><%= totalGlobal %></p>
+            <p class="text-sm text-neutral-500 dark:text-slate-400">Anuncios publicados</p>
+          </div>
+          <div>
+            <p class="font-display text-2xl sm:text-3xl font-bold text-primary-700 dark:text-primary-400 dc-tabular"><%= categorias.length %></p>
+            <p class="text-sm text-neutral-500 dark:text-slate-400">Categorías</p>
+          </div>
+          <div>
+            <p class="font-display text-2xl sm:text-3xl font-bold text-primary-700 dark:text-primary-400 dc-tabular"><%= ubicaciones.ciudades.length %></p>
+            <p class="text-sm text-neutral-500 dark:text-slate-400">Ciudades</p>
           </div>
         </div>
 
-        <!-- Buscador -->
-        <div class="dc-rise bg-white dark:bg-slate-800 rounded-2xl border border-neutral-200 dark:border-slate-700 shadow-xl shadow-primary-950/[0.07] dark:shadow-black/40 p-4 sm:p-6 w-full min-w-0" style="animation-delay:.08s">
-          <h2 class="font-display text-base sm:text-lg font-semibold text-neutral-900 dark:text-white mb-4">Busca en el directorio</h2>
-          <form action="/" method="get" class="space-y-3">
-            <div class="relative">
+        <!-- Barra de búsqueda flotante (una sola pieza) -->
+        <div class="dc-rise mt-8 sm:mt-10 w-full max-w-2xl" style="animation-delay:.08s">
+          <form action="/resultados" method="get" role="search" aria-label="Buscar en el directorio"
+                class="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-full border border-neutral-200 dark:border-slate-700 shadow-xl shadow-primary-950/[0.12] dark:shadow-black/40 p-1.5 sm:p-2 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+            <div class="relative flex-1 min-w-0">
               <label for="q" class="sr-only">Qué buscas</label>
               <svg class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-600 dark:text-primary-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-3.2-3.2"/></svg>
               <input id="q" type="text" name="q" value="<%= filtros.q || '' %>" placeholder="¿Qué buscas? (Ej: restaurantes, abogados, talleres)"
-                     class="h-12 w-full pl-11 pr-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500">
+                     class="h-12 w-full pl-11 pr-3 rounded-full bg-transparent sm:bg-neutral-100 dark:sm:bg-slate-700/70 border-0 sm:border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500">
             </div>
-            <div class="relative">
+            <span class="hidden sm:block w-px h-7 bg-neutral-200 dark:bg-slate-600 shrink-0" aria-hidden="true"></span>
+            <div class="relative flex-1 min-w-0">
               <label for="ciudad" class="sr-only">Dónde</label>
               <svg class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-600 dark:text-primary-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-5.6-7-11a7 7 0 1 1 14 0c0 5.4-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
               <input id="ciudad" type="text" name="ciudad" list="ciudades-list" value="<%= filtros.ciudad || '' %>" placeholder="¿Dónde? (Tu ciudad o barrio)"
                      autocomplete="off"
-                     class="h-12 w-full pl-11 pr-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500">
+                     class="h-12 w-full pl-11 pr-3 rounded-full bg-transparent sm:bg-neutral-100 dark:sm:bg-slate-700/70 border-0 sm:border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500">
               <datalist id="ciudades-list">
                 <% var ciudadesVistas = {}; %>
                 <% ubicaciones.ciudades.forEach(function(c){ %>
@@ -68,9 +66,12 @@
                 <% }) %>
               </datalist>
             </div>
-            <button type="submit" class="h-12 w-full rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold transition-colors">Buscar</button>
+            <button type="submit" class="h-12 shrink-0 px-6 rounded-full bg-primary-600 hover:bg-primary-700 text-white font-bold transition-colors inline-flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-3.2-3.2"/></svg>
+              Buscar
+            </button>
           </form>
-          <p class="mt-3 text-sm text-neutral-500 dark:text-slate-400"><%= pagination.total %> <%= pagination.total === 1 ? 'resultado' : 'resultados' %> encontrados</p>
+          <p class="mt-3 text-sm text-neutral-500 dark:text-slate-400"><%= pagination.total %> <%= pagination.total === 1 ? 'resultado' : 'resultados' %> disponibles en el directorio</p>
         </div>
       </div>
     </div>
@@ -99,7 +100,7 @@
         </a>
 
         <% categorias.forEach(function(c){ %>
-          <a href="/?categoria=<%= c.slug %>" class="group flex items-center gap-4 rounded-2xl border border-neutral-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-300 dark:hover:border-primary-500 hover:shadow-sm p-4 transition">
+          <a href="/resultados?categoria=<%= c.slug %>" class="group flex items-center gap-4 rounded-2xl border border-neutral-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-300 dark:hover:border-primary-500 hover:shadow-sm p-4 transition">
             <span class="grid place-items-center w-11 h-11 rounded-xl bg-primary-50 dark:bg-slate-700 text-primary-600 dark:text-primary-400 group-hover:bg-primary-600 group-hover:text-white transition-colors shrink-0">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-5.6-7-11a7 7 0 1 1 14 0c0 5.4-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
             </span>
@@ -112,69 +113,6 @@
         <% }) %>
       </div>
     </div>
-  </section>
-
-  <!-- ── RESULTADOS ──────────────────────────────────────────────── -->
-  <section class="max-w-7xl mx-auto px-3 sm:px-4 py-10 sm:py-12">
-    <div class="flex flex-wrap items-baseline justify-between gap-3 mb-6 min-w-0">
-      <div class="min-w-0">
-        <h2 class="font-display text-xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100 break-words">Resultados</h2>
-        <p class="text-sm text-neutral-500 dark:text-slate-400 mt-1"><%= pagination.total %> <%= pagination.total === 1 ? 'anuncio disponible' : 'anuncios disponibles' %></p>
-      </div>
-      <% if (hayFiltros) { %>
-        <a href="/" class="inline-flex items-center h-9 px-3 sm:px-4 rounded-lg text-sm font-semibold border border-primary-600 text-primary-600 hover:bg-primary-50 hover:border-primary-700 dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-500/10 transition-colors whitespace-nowrap">Limpiar filtros</a>
-      <% } %>
-    </div>
-
-    <% if (anuncios.length === 0) { %>
-      <div class="bg-white dark:bg-slate-800 border border-neutral-200 dark:border-slate-700 rounded-2xl px-6 py-16 text-center">
-        <span class="inline-grid place-items-center w-14 h-14 rounded-2xl bg-neutral-100 dark:bg-slate-700 text-neutral-500 dark:text-slate-400 mb-4">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-3.2-3.2"/></svg>
-        </span>
-        <p class="font-display text-2xl font-semibold text-neutral-900 dark:text-slate-100">No encontramos anuncios con esos filtros</p>
-        <p class="text-neutral-500 dark:text-slate-400 mt-2 max-w-md mx-auto">Prueba con otras palabras clave o quita la categoría, el departamento y la ciudad.</p>
-        <a href="/" class="inline-grid place-items-center h-11 px-6 mt-7 rounded-xl bg-accent-400 text-neutral-900 font-bold hover:bg-accent-500 transition-colors">Ver todos los anuncios</a>
-      </div>
-    <% } else { %>
-      <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <% anuncios.forEach(function(a){ %>
-          <article class="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-300 dark:hover:border-primary-500 hover:shadow-lg hover:shadow-primary-950/[0.07] dark:hover:shadow-black/40 transition min-w-0">
-            <a href="/anuncio/<%= a.slug %>" class="block aspect-[4/3] overflow-hidden bg-neutral-100 dark:bg-slate-700">
-              <img src="<%= a.foto_principal || '/img/placeholder.jpg' %>" alt="<%= a.razon_social %>" width="800" height="600" loading="lazy"
-                   class="w-full h-full object-cover transition duration-300 group-hover:scale-[1.04]">
-            </a>
-            <div class="flex flex-col grow p-4 sm:p-5">
-              <% if (a.categoria_nombre) { %>
-                <span class="self-start text-xs font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-500/15 rounded-full px-2.5 py-1 mb-3 truncate max-w-full"><%= a.categoria_nombre %></span>
-              <% } %>
-              <h3 class="font-display text-base sm:text-lg font-semibold text-neutral-900 dark:text-slate-100 leading-snug line-clamp-1 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors break-words"><%= a.razon_social %></h3>
-              <p class="text-sm leading-relaxed text-neutral-500 dark:text-slate-400 mt-1.5 line-clamp-2 break-words"><%= a.descripcion_50 %></p>
-              <div class="mt-auto pt-4 flex items-center justify-between gap-3 border-t border-neutral-100 dark:border-slate-700 min-w-0">
-                <span class="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-slate-400 min-w-0">
-                  <svg class="w-4 h-4 shrink-0 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-5.6-7-11a7 7 0 1 1 14 0c0 5.4-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
-                  <span class="truncate"><%= [a.ciudad, a.pais].filter(Boolean).join(', ') || 'Sin ubicación' %></span>
-                </span>
-                <a href="/anuncio/<%= a.slug %>" class="shrink-0 inline-flex items-center gap-1 text-sm font-bold text-primary-600 hover:text-primary-700 dark:text-primary-400 whitespace-nowrap">Ver ficha
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
-                </a>
-              </div>
-            </div>
-          </article>
-        <% }) %>
-      </div>
-
-      <!-- Paginación -->
-      <% if (pagination.totalPages > 1) { %>
-        <nav class="mt-10 sm:mt-12 flex flex-wrap items-center justify-center gap-1.5 px-2" aria-label="Paginación">
-          <% var build = function(p){ return '/?' + queryString + (queryString ? '&' : '') + 'page=' + p; }; %>
-          <a href="<%= build(pagination.page - 1) %>" class="h-10 px-4 grid place-items-center rounded-lg text-sm font-semibold border border-primary-600 text-primary-600 hover:bg-primary-50 hover:border-primary-700 dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-500/10 <%= pagination.hasPrev ? '' : 'pointer-events-none opacity-40' %>">Anterior</a>
-          <% for (var p = Math.max(1, pagination.page-2); p <= Math.min(pagination.totalPages, pagination.page+2); p++) { %>
-            <a href="<%= build(p) %>" class="w-10 h-10 grid place-items-center rounded-lg text-sm font-semibold <%= p === pagination.page ? 'bg-primary-600 text-white' : 'border border-neutral-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-neutral-700 dark:text-slate-300 hover:border-primary-300 dark:hover:border-primary-500' %>"><%= p %></a>
-          <% } %>
-          <a href="<%= build(pagination.page + 1) %>" class="h-10 px-4 grid place-items-center rounded-lg text-sm font-semibold border border-primary-600 text-primary-600 hover:bg-primary-50 hover:border-primary-700 dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-500/10 <%= pagination.hasNext ? '' : 'pointer-events-none opacity-40' %>">Siguiente</a>
-        </nav>
-      <% } %>
-    <% } %>
   </section>
 
   <!-- ── CONTACTO / ASISTENCIA 24/7 ──────────────────────────────── -->
