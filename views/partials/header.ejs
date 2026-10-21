@@ -2,7 +2,7 @@
   // Partial: banner superior (marca + CTA de contacto/suscripción) + traductor de Google + modo oscuro.
 %>
 <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-3 focus:left-3 focus:bg-white focus:text-primary-800 focus:px-4 focus:py-2 focus:rounded-xl focus:font-bold focus:shadow-lg">Saltar al contenido</a>
-<header class="sticky top-0 z-40 text-white shadow-lg shadow-primary-950/30 bg-gradient-to-r from-primary-950 via-primary-900 to-primary-800">
+<header class="fixed top-0 left-0 right-0 z-40 text-white shadow-lg shadow-primary-950/30 bg-gradient-to-r from-primary-950 via-primary-900 to-primary-800">
   <!-- Textura de puntos -->
   <div class="absolute inset-0 opacity-[0.12]" style="background-image:radial-gradient(circle,#ffffff 1px,transparent 1px);background-size:22px 22px" aria-hidden="true"></div>
   <!-- Acento superior -->
@@ -11,48 +11,73 @@
   <div class="relative max-w-7xl mx-auto px-3 sm:px-4 h-14 sm:h-[68px] flex items-center gap-2 sm:gap-3 min-w-0">
     <!-- Marca / logo -->
     <a href="/" class="flex items-center shrink-0 group" aria-label="DirectorioCerca - Inicio">
-      <img src="/img/logo-white.png" alt="DirectorioCerca" width="210" height="64" class="h-11 sm:h-14 w-auto transition-transform duration-200 group-hover:scale-[1.03]">
+      <img src="/img/logo-white.png" alt="DirectorioCerca" width="210" height="64" class="h-9 sm:h-12 lg:h-14 w-auto transition-transform duration-200 group-hover:scale-[1.03]">
     </a>
 
-    <!-- Mensaje centrado que motiva la acción -->
-    <div class="hidden lg:flex flex-1 min-w-0 justify-center text-center pointer-events-none px-2">
+    <!-- Menú principal (misma barra, solo desde lg) -->
+    <nav class="hidden lg:flex flex-1 min-w-0 items-center gap-1 sm:gap-2 overflow-x-auto text-xs sm:text-sm font-semibold whitespace-nowrap" aria-label="Menú principal" style="scrollbar-width:none">
+      <a href="/" class="shrink-0 px-2.5 sm:px-3 py-2 rounded-lg text-primary-100 hover:text-white hover:bg-white/10 transition-colors">Inicio</a>
+      <a href="/nosotros" class="shrink-0 px-2.5 sm:px-3 py-2 rounded-lg text-primary-100 hover:text-white hover:bg-white/10 transition-colors">Nosotros</a>
+      <a href="/contacto" class="shrink-0 px-2.5 sm:px-3 py-2 rounded-lg text-primary-100 hover:text-white hover:bg-white/10 transition-colors">Contáctanos</a>
+    </nav>
+
+    <!-- Relleno flexible en móvil/tablet (empuja las acciones a la derecha) -->
+    <div class="flex-1 lg:hidden"></div>
+
+    <!-- Mensaje motivador (solo pantallas grandes) -->
+    <div class="hidden xl:flex shrink-0 justify-center text-center pointer-events-none px-2">
       <div class="max-w-md truncate">
-        <p class="text-[9px] xl:text-[10px] font-bold uppercase tracking-[0.2em] xl:tracking-[0.22em] text-accent-300">Publicidad 24/7</p>
-        <p class="text-[11px] xl:text-[13px] font-medium text-primary-100/90 mt-0.5 truncate">¿Tienes un negocio? Muéstralo y vende más</p>
+        <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-accent-300">Publicidad 24/7</p>
+        <p class="text-[12px] font-medium text-primary-100/90 mt-0.5 truncate">¿Tienes un negocio? Muéstralo y vende más</p>
       </div>
     </div>
 
-    <div class="flex-1 lg:hidden"></div>
-
-    <!-- CTA principal: llama y suscríbete -->
-    <a href="/#contacto" class="inline-flex items-center gap-1.5 sm:gap-2 h-9 sm:h-11 px-2.5 sm:px-5 rounded-xl bg-accent-400 hover:bg-accent-300 text-neutral-900 font-extrabold text-xs sm:text-sm shadow-lg shadow-black/20 transition-colors whitespace-nowrap">
+    <!-- CTA principal: llama y suscríbete (desde sm; en móvil vive en el panel) -->
+    <a href="/#contacto" class="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 h-9 sm:h-11 px-2.5 sm:px-5 rounded-xl bg-accent-400 hover:bg-accent-300 text-neutral-900 font-extrabold text-xs sm:text-sm shadow-lg shadow-black/20 transition-colors whitespace-nowrap shrink-0">
       <svg class="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"/></svg>
       <span class="hidden sm:inline">Llama y suscríbete</span>
       <span class="sm:hidden">Suscríbete</span>
     </a>
 
-    <!-- Traducción a todos los idiomas (Google Translate) -->
+    <!-- Traducción a todos los idiomas (Google Translate, solo escritorio) -->
     <div class="hidden lg:block shrink-0">
       <div id="google_translate_element"></div>
     </div>
 
-    <!-- Interruptor de modo oscuro -->
-    <button id="theme-toggle" type="button" aria-label="Cambiar tema claro/oscuro" class="w-9 h-9 sm:w-10 sm:h-10 grid place-items-center rounded-xl text-white hover:bg-white/15 transition-colors shrink-0">
-      <svg id="theme-moon" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
-      <svg id="theme-sun" class="w-4 h-4 sm:w-5 sm:h-5 hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <!-- Interruptor de modo oscuro (escritorio) -->
+    <button data-theme-toggle type="button" aria-label="Cambiar tema claro/oscuro" class="hidden lg:grid w-9 h-9 sm:w-10 sm:h-10 place-items-center rounded-xl text-white hover:bg-white/15 transition-colors shrink-0">
+      <svg data-theme-moon class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      <svg data-theme-sun class="w-4 h-4 sm:w-5 sm:h-5 hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+
+    <!-- Menú móvil/tablet: botón hamburguesa (hasta lg) -->
+    <button id="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-movil" class="lg:hidden w-9 h-9 sm:w-10 sm:h-10 grid place-items-center rounded-xl text-white hover:bg-white/15 transition-colors shrink-0">
+      <svg id="menu-open-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"/></svg>
+      <svg id="menu-close-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M6 18 18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- Panel desplegable móvil/tablet -->
+  <div id="menu-movil" class="lg:hidden hidden border-t border-white/10 bg-primary-950/95 backdrop-blur-sm">
+    <nav class="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex flex-col gap-1 text-sm font-semibold" aria-label="Menú principal móvil">
+      <a href="/" class="px-3 py-2.5 rounded-lg text-primary-100 hover:text-white hover:bg-white/10 transition-colors">Inicio</a>
+      <a href="/nosotros" class="px-3 py-2.5 rounded-lg text-primary-100 hover:text-white hover:bg-white/10 transition-colors">Nosotros</a>
+      <a href="/contacto" class="px-3 py-2.5 rounded-lg text-primary-100 hover:text-white hover:bg-white/10 transition-colors">Contáctanos</a>
+    </nav>
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 pb-3 flex flex-wrap items-center gap-2">
+      <a href="/#contacto" class="sm:hidden flex-1 min-w-[9rem] inline-flex items-center justify-center gap-2 h-11 px-4 rounded-xl bg-accent-400 hover:bg-accent-300 text-neutral-900 font-extrabold text-sm shadow-lg shadow-black/20 transition-colors">
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"/></svg>
+        <span>Llama y suscríbete</span>
+      </a>
+      <button data-theme-toggle type="button" aria-label="Cambiar tema claro/oscuro" class="w-11 h-11 grid place-items-center rounded-xl text-white bg-white/10 hover:bg-white/20 transition-colors shrink-0">
+        <svg data-theme-moon class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+        <svg data-theme-sun class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
       </button>
     </div>
   </div>
-
-  <!-- Menú principal -->
-  <nav class="relative border-t border-white/10 bg-primary-950/50" aria-label="Menú principal">
-    <div class="max-w-7xl mx-auto px-3 sm:px-4 flex items-center gap-1 sm:gap-2 overflow-x-auto text-xs sm:text-sm font-semibold whitespace-nowrap" style="scrollbar-width:none">
-      <a href="/" class="shrink-0 px-2.5 sm:px-3 py-2 rounded-lg text-primary-100 hover:text-white hover:bg-white/10 transition-colors">Inicio</a>
-      <a href="/nosotros" class="shrink-0 px-2.5 sm:px-3 py-2 rounded-lg text-primary-100 hover:text-white hover:bg-white/10 transition-colors">Nosotros</a>
-      <a href="/contacto" class="shrink-0 px-2.5 sm:px-3 py-2 rounded-lg text-primary-100 hover:text-white hover:bg-white/10 transition-colors">Contáctanos</a>
-    </div>
-  </nav>
 </header>
+<!-- Espaciador: compensa la altura del header fijo (h-14 = 56px, sm:h-[68px]) -->
+<div class="h-14 sm:h-[68px]" aria-hidden="true"></div>
 
 <script type="text/javascript">
   function googleTranslateElementInit() {
@@ -65,20 +90,48 @@
 <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 <script>
   (function () {
-    var btn = document.getElementById('theme-toggle');
-    if (!btn) return;
-    var sun = document.getElementById('theme-sun');
-    var moon = document.getElementById('theme-moon');
+    // ── Modo oscuro: soporta varios botones (escritorio + menú móvil) ──
+    var toggleBtns = document.querySelectorAll('[data-theme-toggle]');
+    var suns = document.querySelectorAll('[data-theme-sun]');
+    var moons = document.querySelectorAll('[data-theme-moon]');
     function paint() {
       var dark = document.documentElement.classList.contains('dark');
-      sun.classList.toggle('hidden', dark);
-      moon.classList.toggle('hidden', !dark);
+      for (var i = 0; i < suns.length; i++) suns[i].classList.toggle('hidden', dark);
+      for (var j = 0; j < moons.length; j++) moons[j].classList.toggle('hidden', !dark);
     }
-    btn.addEventListener('click', function () {
-      var dark = document.documentElement.classList.toggle('dark');
-      try { localStorage.setItem('dc-theme', dark ? 'dark' : 'light'); } catch (e) {}
-      paint();
-    });
+    for (var k = 0; k < toggleBtns.length; k++) {
+      toggleBtns[k].addEventListener('click', function () {
+        var dark = document.documentElement.classList.toggle('dark');
+        try { localStorage.setItem('dc-theme', dark ? 'dark' : 'light'); } catch (e) {}
+        paint();
+      });
+    }
     paint();
+
+    // ── Menú móvil/tablet: hamburguesa ──
+    var menuBtn = document.getElementById('menu-toggle');
+    var panel = document.getElementById('menu-movil');
+    if (!menuBtn || !panel) return;
+    var openIcon = document.getElementById('menu-open-icon');
+    var closeIcon = document.getElementById('menu-close-icon');
+    function setOpen(open) {
+      panel.classList.toggle('hidden', !open);
+      menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      menuBtn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+      if (openIcon) openIcon.classList.toggle('hidden', open);
+      if (closeIcon) closeIcon.classList.toggle('hidden', !open);
+    }
+    menuBtn.addEventListener('click', function () {
+      setOpen(panel.classList.contains('hidden'));
+    });
+    // Cierra el panel al navegar.
+    var links = panel.querySelectorAll('a');
+    for (var l = 0; l < links.length; l++) {
+      links[l].addEventListener('click', function () { setOpen(false); });
+    }
+    // Vuelve a su estado cerrado al pasar a escritorio.
+    window.addEventListener('resize', function () {
+      if (window.innerWidth >= 1024) setOpen(false);
+    });
   })();
 </script>
