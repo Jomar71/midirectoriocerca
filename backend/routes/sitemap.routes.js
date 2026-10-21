@@ -21,8 +21,9 @@ router.get('/sitemap.xml', async (req, res) => {
     const urls = [
       { loc: `${env.appUrl}/`, priority: '1.0', changefreq: 'daily' },
       { loc: `${env.appUrl}/nosotros`, priority: '0.5', changefreq: 'monthly' },
-      { loc: `${env.appUrl}/terminos`, priority: '0.2', changefreq: 'yearly' },
-      { loc: `${env.appUrl}/privacidad`, priority: '0.2', changefreq: 'yearly' },
+      { loc: `${env.appUrl}/nosotros/quienes-somos`, priority: '0.5', changefreq: 'monthly' },
+      { loc: `${env.appUrl}/nosotros/terminos`, priority: '0.2', changefreq: 'yearly' },
+      { loc: `${env.appUrl}/nosotros/privacidad`, priority: '0.2', changefreq: 'yearly' },
       { loc: `${env.appUrl}/contacto`, priority: '0.5', changefreq: 'monthly' },
       ...categorias.map((c) => ({
         loc: `${env.appUrl}/?categoria=${c.slug}`, priority: '0.6', changefreq: 'weekly',

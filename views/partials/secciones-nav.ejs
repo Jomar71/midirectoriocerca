@@ -1,0 +1,17 @@
+<%
+  // Partial: pestañas de navegación entre las subpáginas de "Nosotros".
+  // Requiere local `activa` con el valor: quienes-somos | terminos | privacidad
+  var items = [
+    { id: 'quienes-somos', href: '/nosotros/quienes-somos', label: 'Quiénes somos' },
+    { id: 'terminos', href: '/nosotros/terminos', label: 'Términos y condiciones' },
+    { id: 'privacidad', href: '/nosotros/privacidad', label: 'Políticas y privacidad' }
+  ];
+%>
+<nav class="border-b border-neutral-200 dark:border-slate-800 bg-white dark:bg-slate-900" aria-label="Secciones de Nosotros">
+  <div class="max-w-4xl mx-auto px-3 sm:px-4 flex flex-wrap gap-2 py-3">
+    <a href="/nosotros" class="px-3.5 py-2 rounded-full text-sm font-semibold text-neutral-600 dark:text-slate-300 hover:bg-neutral-100 dark:hover:bg-slate-800 transition-colors">← Nosotros</a>
+    <% items.forEach(function(it){ %>
+      <a href="<%= it.href %>" <%= activa === it.id ? 'aria-current="page"' : '' %> class="px-3.5 py-2 rounded-full text-sm font-semibold transition-colors <%= activa === it.id ? 'bg-primary-600 text-white' : 'text-neutral-600 dark:text-slate-300 hover:bg-neutral-100 dark:hover:bg-slate-800' %>"><%= it.label %></a>
+    <% }) %>
+  </div>
+</nav>

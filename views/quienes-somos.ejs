@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('partials/head', { titulo: titulo }) %>
+</head>
+<body class="bg-white text-neutral-800 dark:bg-slate-900 dark:text-slate-100 font-sans">
+  <%- include('partials/header') %>
+
+  <main id="contenido">
+    <!-- ── PORTADA ───────────────────────────────────────────────── -->
+    <section class="relative overflow-hidden border-b border-neutral-200 dark:border-slate-800 bg-gradient-to-b from-primary-50 via-white to-white dark:from-slate-800 dark:via-slate-900 dark:to-slate-900">
+      <div class="absolute inset-0 opacity-70 dark:opacity-20" style="background-image:radial-gradient(circle,#bfdbfe 1px,transparent 1px);background-size:24px 24px" aria-hidden="true"></div>
+      <div class="relative max-w-4xl mx-auto px-3 sm:px-4 py-12 sm:py-16 lg:py-20 text-center">
+        <p class="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-400">Nosotros</p>
+        <h1 class="mt-3 font-display text-3xl sm:text-5xl font-semibold tracking-tight text-neutral-900 dark:text-white text-balance">
+          Quiénes somos
+        </h1>
+        <p class="mt-4 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed text-neutral-500 dark:text-slate-400">
+          Encuentra lo que buscas, cerca de ti.
+        </p>
+      </div>
+    </section>
+
+    <%- include('partials/secciones-nav', { activa: 'quienes-somos' }) %>
+
+    <!-- ── CONTENIDO ─────────────────────────────────────────────── -->
+    <section class="max-w-4xl mx-auto px-3 sm:px-4 py-10 sm:py-14">
+      <article class="prose-neutral max-w-none space-y-8 text-neutral-600 dark:text-slate-300 leading-relaxed">
+        <div>
+          <h2 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100 mb-4">MiDirectorioCerca</h2>
+          <p class="mb-4">MiDirectorioCerca es un portal de información comercial, fácil de consultar por consumidores que buscan productos o servicios. Fue creado por un grupo de inversionistas que se unieron estratégicamente para lanzar al mercado un portal con información de empresas de las ciudades de Colombia.</p>
+          <p class="mb-4">Los altos costos de publicidad existentes actualmente en el mercado hacen que muchas empresas, microempresas o pymes se abstengan de promocionar sus productos y servicios. A través de MiDirectorioCerca, queremos darte la posibilidad de que promociones, por una mínima cuota anual, tu actividad comercial en uno de los medios más visitados por los usuarios en todo el mundo: Internet.</p>
+          <p>El Directorio Virtual MiDirectorioCerca es la mejor oportunidad para que publiques la información que necesitas dar a conocer de tu empresa, negocio, actividad comercial o profesional, y recibas todos los valores agregados que podemos ofrecerte. Nuestro portal permite la búsqueda simple de datos, pues contamos con un motor de búsqueda con diseño propio que indexa todas las informaciones publicadas por los anunciadores, permitiendo resultados ágiles y eficaces.</p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4 sm:gap-6">
+          <div class="rounded-2xl border border-neutral-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+            <span class="inline-grid place-items-center w-11 h-11 rounded-xl bg-primary-50 dark:bg-slate-700 text-primary-600 dark:text-primary-400 mb-4">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>
+            </span>
+            <h3 class="font-display text-xl font-semibold text-neutral-900 dark:text-slate-100 mb-2">Misión</h3>
+            <p class="text-sm sm:text-base leading-relaxed text-neutral-600 dark:text-slate-300">Facilitar el acceso de las empresas, microempresas y pymes colombianas a un canal de publicidad virtual económico, ágil y efectivo, conectándolas con consumidores que buscan productos y servicios en sus ciudades, y contribuyendo a la reducción de la brecha digital en el tejido comercial del país.</p>
+          </div>
+          <div class="rounded-2xl border border-neutral-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+            <span class="inline-grid place-items-center w-11 h-11 rounded-xl bg-accent-50 dark:bg-slate-700 text-accent-600 dark:text-accent-400 mb-4">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.04 12.32a1 1 0 0 1 0-.64C3.42 7.51 7.36 4.5 12 4.5s8.57 3.01 9.96 7.18a1 1 0 0 1 0 .64C20.58 16.49 16.64 19.5 12 19.5S3.42 16.49 2.04 12.32Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+            <h3 class="font-display text-xl font-semibold text-neutral-900 dark:text-slate-100 mb-2">Visión</h3>
+            <p class="text-sm sm:text-base leading-relaxed text-neutral-600 dark:text-slate-300">Ser el directorio virtual de referencia en Colombia, reconocido por ser la vitrina comercial más accesible y confiable para las pymes, y por ser la guía de consulta obligada para los consumidores que buscan productos y servicios locales.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

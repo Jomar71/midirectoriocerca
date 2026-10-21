@@ -58,11 +58,8 @@
                      autocomplete="off"
                      class="h-12 w-full pl-11 pr-3 rounded-full bg-transparent sm:bg-neutral-100 dark:sm:bg-slate-700/70 border-0 sm:border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500">
               <datalist id="ciudades-list">
-                <% var ciudadesVistas = {}; %>
                 <% ubicaciones.ciudades.forEach(function(c){ %>
-                  <% if (!ciudadesVistas[c.nombre]) { ciudadesVistas[c.nombre] = 1; %>
-                    <option value="<%= c.nombre %>"></option>
-                  <% } %>
+                  <option value="<%= c.nombre %>"><%= c.departamento_nombre %><% if (c.es_capital) { %> · capital<% } %></option>
                 <% }) %>
               </datalist>
             </div>

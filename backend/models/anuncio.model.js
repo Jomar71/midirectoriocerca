@@ -44,10 +44,13 @@ function buildFilters({ q, categoria, ciudad, departamento, pais, soloActivos = 
   }
   if (ciudad) {
     params.push(ciudad);
-    // Tolerante a mayúsculas/acentos y a escritura parcial (el usuario escribe a mano)
+    // Tolerante a mayúsculas/acentos, nombre corto vs. "Bogotá, D.C." y escritura parcial.
+    // Compara también la parte antes de la coma en ambos lados (catálogo y anuncio).
     clauses.push(`(
       unaccent(lower(a.ciudad)) = unaccent(lower($${params.length}))
+      OR unaccent(lower(split_part(a.ciudad, ',', 1))) = unaccent(lower(split_part($${params.length}, ',', 1)))
       OR a.ciudad ILIKE '%' || $${params.length} || '%'
+      OR split_part(a.ciudad, ',', 1) ILIKE '%' || split_part($${params.length}, ',', 1) || '%'
     )`);
   }
   if (pais) {
