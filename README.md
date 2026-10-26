@@ -23,7 +23,7 @@ Directorio empresarial en línea, escalable y listo para producción. Sitio **p�
 10. **6 cambios** gratis por anuncio (contador + auditoría en el panel).
 11. Botón para **compartir por WhatsApp**.
 12. **PWA** (manifest + service worker, instalable en móvil).
-13. **Asistencia 24/7** (formulario de contacto).
+13. **Asistencia 24/7** (formulario de contacto, email y WhatsApp).
 14. **Vencimiento a 12 meses** con aviso al admin 1 mes antes y renovación/deshabilitación manual.
 
 ---

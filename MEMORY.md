@@ -36,6 +36,7 @@ Orden de montaje de rutas en `backend/server.js` (importa): **sitemap → auth �
 
 ## Rutas clave
 - **Server-rendered (`public.routes.js`):** `/`, `/resultados`, `/anuncio/:slug`, `/contacto` (formulario reutiliza `#contacto-form` + `/js/index.js` → `POST /api/contacto`), y la sección **Nosotros** con subpáginas: `/nosotros` (índice con 3 tarjetas), `/nosotros/quienes-somos`, `/nosotros/terminos`, `/nosotros/privacidad`. Las URLs antiguas `/terminos`, `/privacidad`, `/quienes-somos` hacen **301** a las nuevas (SEO).
+- **Contacto del sitio:** `/contacto`, el footer y el formulario de afiliación de la home muestran correo + WhatsApp con icono (`+57 305 303 3903` → `wa.me/573053033903`).
 - **API de solo lectura:** `/api/anuncios`, `/api/categorias`, `/api/ubicaciones`
 - **Panel admin:** una sola página (`views/admin-panel.ejs`) manejada por `public/js/admin-panel.js` que llama a `/api/admin/*`. `/admin/panel` → `requireAdminPage` (302 a login); API admin → 401. **El footer ya NO enlaza a `/admin/login`** (el acceso es solo por URL directa, a petición del usuario).
 
