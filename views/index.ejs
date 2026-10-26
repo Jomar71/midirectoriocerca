@@ -121,51 +121,163 @@
     </div>
   </section>
 
-  <!-- ── CONTACTO / ASISTENCIA 24/7 ──────────────────────────────── -->
-  <section id="contacto" class="relative overflow-hidden border-t border-neutral-200 dark:border-slate-800 bg-primary-950">
-    <div class="absolute inset-y-0 right-0 w-1/2 hidden lg:block" data-ripple data-ripple-image="/img/call-center.jpg">
-      <img src="/img/call-center.jpg" alt="" loading="lazy" decoding="async"
-           class="w-full h-full object-cover object-center">
-      <canvas class="dc-ripple-canvas" hidden aria-hidden="true"></canvas>
-      <div class="absolute inset-0 pointer-events-none bg-gradient-to-r from-primary-950 via-primary-950/55 to-primary-950/85"></div>
+  <!-- ── PAUTA CON NOSOTROS ──────────────────────────────────────── -->
+  <section id="contacto" class="border-t border-primary-800 bg-primary-950" aria-labelledby="pauta-titulo">
+    <div class="relative overflow-hidden border-b border-white/10 bg-gradient-to-br from-primary-950 via-primary-950 to-primary-900">
+      <div class="relative max-w-6xl mx-auto px-3 sm:px-4 py-14 sm:py-20 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        <div class="min-w-0">
+          <div class="flex items-center gap-3">
+            <span class="h-px w-8 bg-accent-400" aria-hidden="true"></span>
+            <p class="text-sm font-semibold text-accent-300">Pauta con nosotros</p>
+          </div>
+          <h2 id="pauta-titulo" class="mt-5 font-display text-4xl sm:text-5xl lg:text-[3.4rem] font-semibold tracking-tight leading-[1.08] text-white text-balance">
+            Afíliate hoy: 3 años de beneficios por un solo pago $374.900.
+          </h2>
+          <p class="mt-5 text-lg sm:text-xl font-semibold leading-snug text-accent-300">
+            ¡Aprovecha esta promoción y asegura tu lugar ahora!
+          </p>
+          <p class="mt-5 max-w-xl text-base leading-relaxed text-primary-100/90 break-words">
+            Si tienes una Empresa, Actividad Comercial, ofreces un Producto o un Servicio y deseas aumentar tus Ventas y Beneficios dándote a conocer a nivel Local, Regional, Nacional, puedes anunciarlo en www.midirectoriocerca.com
+          </p>
+          <a href="#contacto-form" class="mt-7 inline-flex items-center justify-center h-12 px-6 rounded-xl bg-accent-400 hover:bg-accent-300 text-neutral-900 font-extrabold shadow-lg shadow-accent-600/20 transition-colors">
+            Solicitar afiliación
+          </a>
+        </div>
+
+        <div class="relative overflow-hidden rounded-2xl ring-1 ring-white/15 shadow-2xl shadow-primary-950/60 min-h-[320px] sm:min-h-[380px] lg:min-h-[520px]" data-ripple data-ripple-image="/img/call-center.jpg">
+          <img src="/img/call-center.jpg" alt="" width="1200" height="800" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover object-center">
+          <canvas class="dc-ripple-canvas" hidden aria-hidden="true"></canvas>
+          <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-primary-950/45 via-transparent to-transparent" aria-hidden="true"></div>
+        </div>
+      </div>
     </div>
 
-    <div class="relative max-w-6xl mx-auto px-3 sm:px-4 py-12 sm:py-16 lg:py-20">
-      <div class="grid lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-14 items-center">
-        <form id="contacto-form" class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl shadow-primary-950/40 p-4 sm:p-7 grid gap-4 sm:grid-cols-2 w-full min-w-0">
-          <div class="sm:col-span-2 min-w-0">
-            <h3 class="font-semibold text-neutral-900 dark:text-slate-100 break-words">Cuéntanos qué necesitas</h3>
-            <p class="text-sm text-neutral-500 dark:text-slate-400 mt-0.5 break-words">Te respondemos por email.</p>
-          </div>
-          <input name="nombre" required placeholder="Tu nombre" aria-label="Tu nombre" autocomplete="name" class="h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0">
-          <input name="email" type="email" required placeholder="Tu email" aria-label="Tu email" autocomplete="email" class="h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0">
-          <input name="telefono" type="tel" inputmode="tel" placeholder="Teléfono (opcional)" aria-label="Teléfono" autocomplete="tel" class="sm:col-span-2 h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0">
-          <textarea name="mensaje" required rows="4" placeholder="Escribe tu mensaje..." aria-label="Mensaje" class="sm:col-span-2 px-4 py-3 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0 resize-y"></textarea>
-          <div class="sm:col-span-2 flex flex-wrap items-center gap-3">
-            <button type="submit" class="px-6 h-11 grid place-items-center rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold transition-colors whitespace-nowrap">Enviar mensaje</button>
-            <span id="contacto-msg" class="text-sm break-words" role="status"></span>
-          </div>
-        </form>
-
-        <div class="drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
-          <p class="text-xs sm:text-sm font-bold uppercase tracking-[0.22em] text-accent-400">Asistencia 24/7</p>
-          <h2 class="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight text-white">Contáctanos</h2>
-          <p class="text-white mt-3 leading-relaxed">¿Quieres publicar tu empresa o necesitas ayuda? Escríbenos y te responderemos a la brevedad.</p>
-          <ul class="mt-6 space-y-3 text-sm text-white font-medium">
-            <li class="flex items-start gap-3">
-              <span class="grid place-items-center w-6 h-6 rounded-full bg-success-500/30 text-success-200 shrink-0 mt-0.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg></span>
-              Publica fotos, datos de contacto y ubicación en el mapa.
+    <div id="beneficios" class="max-w-6xl mx-auto px-3 sm:px-4 py-14 sm:py-16">
+      <div class="grid lg:grid-cols-12 gap-10 lg:gap-14">
+        <div class="lg:col-span-7 min-w-0">
+          <h3 class="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-white">Este valor incluye</h3>
+          <p class="mt-3 max-w-xl text-base leading-relaxed text-primary-200/90">
+            Una ficha completa para que tus clientes encuentren tu empresa, la conozcan y te contacten.
+          </p>
+          <ul class="mt-7 grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm leading-snug text-primary-100">
+            <li class="flex items-start gap-2.5">
+              <svg class="w-4 h-4 mt-0.5 shrink-0 text-primary-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
+              <span><strong class="font-semibold text-white">7 fotografías</strong> de tu Empresa.</span>
             </li>
-            <li class="flex items-start gap-3">
-              <span class="grid place-items-center w-6 h-6 rounded-full bg-success-500/30 text-success-200 shrink-0 mt-0.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg></span>
-              Aparece en las búsquedas por categoría y ciudad.
+            <li class="flex items-start gap-2.5">
+              <svg class="w-4 h-4 mt-0.5 shrink-0 text-primary-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
+              <span><strong class="font-semibold text-white">50 palabras</strong> de texto del Portafolio Empresarial.</span>
             </li>
-            <li class="flex items-start gap-3">
-              <span class="grid place-items-center w-6 h-6 rounded-full bg-success-500/30 text-success-200 shrink-0 mt-0.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg></span>
-              Promoción local, nacional e internacional.
+            <li class="flex items-start gap-2.5">
+              <svg class="w-4 h-4 mt-0.5 shrink-0 text-primary-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
+              <span>Datos direccionales, teléfonos fijos y móviles + correos electrónicos.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <svg class="w-4 h-4 mt-0.5 shrink-0 text-primary-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
+              <span>Enlace a tu página web y redes sociales: WhatsApp, Facebook, Twitter, Instagram y YouTube (si las tuvieses).</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <svg class="w-4 h-4 mt-0.5 shrink-0 text-primary-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
+              <span>Formulario de contacto.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <svg class="w-4 h-4 mt-0.5 shrink-0 text-primary-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
+              <span>Transcripción a todos los idiomas del mundo.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <svg class="w-4 h-4 mt-0.5 shrink-0 text-primary-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
+              <span>Mapa de ubicación geo-satelital.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <svg class="w-4 h-4 mt-0.5 shrink-0 text-primary-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
+              <span><strong class="font-semibold text-white">10 palabras clave</strong> de búsqueda relacionadas con la razón social.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <svg class="w-4 h-4 mt-0.5 shrink-0 text-primary-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
+              <span><strong class="font-semibold text-white">7 cambios gratis</strong> durante el año, en la información y fotos del anuncio.</span>
+            </li>
+            <li class="flex items-start gap-2.5 sm:col-span-2">
+              <svg class="w-4 h-4 mt-0.5 shrink-0 text-primary-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
+              <span>Subdominio web de tu empresa: <span class="font-medium text-primary-200 break-all">www.midirectoriocerca.com/tuempresa</span></span>
             </li>
           </ul>
         </div>
+
+        <div class="lg:col-span-5 min-w-0">
+          <form id="contacto-form" class="lg:sticky lg:top-24 rounded-2xl bg-white p-6 sm:p-7 grid gap-4 sm:grid-cols-2 w-full min-w-0 shadow-2xl shadow-primary-950/50">
+            <div class="sm:col-span-2 min-w-0">
+              <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight leading-tight text-neutral-900 text-balance">
+                Solicita tu afiliación
+              </h3>
+              <p class="mt-2 text-sm leading-relaxed text-neutral-600">Déjanos tus datos y te contactamos para activar tu anuncio.</p>
+            </div>
+            <div class="min-w-0">
+              <label for="pauta-nombre" class="sr-only">Tu nombre</label>
+              <input id="pauta-nombre" name="nombre" required placeholder="Tu nombre" autocomplete="name" class="h-11 px-4 rounded-xl bg-neutral-50 border border-neutral-300 text-neutral-900 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary-600 w-full min-w-0">
+            </div>
+            <div class="min-w-0">
+              <label for="pauta-email" class="sr-only">Tu email</label>
+              <input id="pauta-email" name="email" type="email" required placeholder="Tu email" autocomplete="email" class="h-11 px-4 rounded-xl bg-neutral-50 border border-neutral-300 text-neutral-900 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary-600 w-full min-w-0">
+            </div>
+            <div class="sm:col-span-2 min-w-0">
+              <label for="pauta-telefono" class="sr-only">Teléfono (opcional)</label>
+              <input id="pauta-telefono" name="telefono" type="tel" inputmode="tel" placeholder="Teléfono (opcional)" autocomplete="tel" class="h-11 px-4 rounded-xl bg-neutral-50 border border-neutral-300 text-neutral-900 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary-600 w-full min-w-0">
+            </div>
+            <div class="sm:col-span-2 min-w-0">
+              <label for="pauta-mensaje" class="sr-only">Mensaje</label>
+              <textarea id="pauta-mensaje" name="mensaje" required rows="4" placeholder="Cuéntanos sobre tu empresa y qué necesitas..." class="px-4 py-3 rounded-xl bg-neutral-50 border border-neutral-300 text-neutral-900 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary-600 w-full min-w-0 resize-y"></textarea>
+            </div>
+            <div class="sm:col-span-2 flex flex-wrap items-center gap-3">
+              <button type="submit" class="px-6 h-12 grid place-items-center rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold transition-colors whitespace-nowrap">Enviar solicitud</button>
+              <span id="contacto-msg" class="text-sm break-words" role="status"></span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 pb-14 sm:pb-16">
+      <div class="border-t border-white/10 pt-8 sm:pt-10 grid lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-4 min-w-0">
+          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight leading-tight text-white text-balance">Potencia tu presencia digital</h3>
+          <p class="mt-3 text-sm leading-relaxed text-primary-200/90">
+            Descubre nuestros servicios opcionales: calidad y comodidad a precios accesibles. Elige lo que tu negocio necesita para destacar.
+          </p>
+          <a href="#contacto-form" class="inline-block mt-4 text-sm font-semibold text-accent-300 hover:text-accent-200 underline underline-offset-4 decoration-accent-400/50">
+            Consulta hoy mismo y encuentra la opción perfecta para ti
+          </a>
+        </div>
+
+        <ul class="lg:col-span-8 grid sm:grid-cols-2 gap-x-10">
+          <li class="border-t border-white/15 pt-4">
+            <h4 class="font-semibold text-white">Tarjeta digital de presentación</h4>
+            <p class="mt-1 text-sm leading-relaxed text-primary-200/90">Comparte tus datos de forma moderna y profesional.</p>
+          </li>
+          <li class="border-t border-white/15 pt-4">
+            <h4 class="font-semibold text-white">Elaboración de páginas web</h4>
+            <p class="mt-1 text-sm leading-relaxed text-primary-200/90">Diseños atractivos, funcionales y listos para convertir.</p>
+          </li>
+          <li class="border-t border-white/15 pt-4">
+            <h4 class="font-semibold text-white">Creación de redes sociales</h4>
+            <p class="mt-1 text-sm leading-relaxed text-primary-200/90">Construye tu comunidad desde cero con una estrategia sólida.</p>
+          </li>
+          <li class="border-t border-white/15 pt-4">
+            <h4 class="font-semibold text-white">Elaboración de logos</h4>
+            <p class="mt-1 text-sm leading-relaxed text-primary-200/90">Una identidad visual que deje huella.</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 pb-14 sm:pb-20">
+      <div class="border-t border-white/10 pt-8 sm:pt-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div class="min-w-0">
+          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight leading-tight text-white text-balance">Es hora de llevar tu empresa o negocio a otro nivel</h3>
+          <p class="mt-2 text-sm sm:text-base leading-relaxed text-primary-200/90">Llega a todo el país y multiplica tus ventas con publicidad efectiva al mejor precio.</p>
+        </div>
+        <a href="#contacto-form" class="shrink-0 inline-flex items-center justify-center h-12 px-6 rounded-xl border border-accent-400/70 text-accent-300 hover:bg-accent-400 hover:text-neutral-900 font-bold transition-colors">
+          Solicitar afiliación
+        </a>
       </div>
     </div>
   </section>
