@@ -37,7 +37,7 @@ Single-admin business directory. Node 18+ / Express 4, EJS server-rendered for S
 
 ## Frontend/CSP
 - Tailwind and Google Translate load from CDNs. Adding any new external script/style/frame domain requires editing the `helmet` `contentSecurityPolicy` in `backend/server.js`.
-- `shaders` (WebGPU ripple effect) is served locally from `/vendor/shaders` (`backend/server.js` mounts `node_modules/shaders/dist`) and lazy-loaded by `public/js/ripple.js`; CSP needs `scriptSrcElem`/`workerSrc` with `'self'` and `blob:`.
+- `shaders` (WebGPU ripple effect) is served locally from `/vendor/shaders` (`backend/server.js` mounts `node_modules/shaders/dist`) and lazy-loaded by `public/js/ripple.js`; CSP needs `scriptSrcElem`/`workerSrc` with `'self'` and `blob:`. `ripple.js` falls back to a self-contained WebGL ripple when WebGPU is unavailable or fails (mobile/tablet); WebGPU requires a secure context (HTTPS or localhost), so LAN HTTP testing uses the fallback.
 - Design tokens live in the Tailwind config inside `views/partials/head.ejs` (`primary`, `accent`, `neutral`, etc.). Use those tokens, not `blue-*`/`gray-*`; admin/login stay light. Dark mode uses the `slate` scale, is toggled in the public header, and persists in `localStorage['dc-theme']`.
 - Public pagination is capped at 20/page; full-text search uses the weighted `search_vector` plus `pg_trgm` indexes.
 
