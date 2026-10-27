@@ -63,21 +63,39 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
   const filename = `${date}-${uuid}.webp`;
   const filePath = path.join(targetDir, filename);
 
-  // Convertir a WebP con calidad 80 usando sharp
-  // Estrategia 1: toFile directo (más eficiente)
-  // Estrategia 2: fallback a buffer → writeFile si hay Permission Denied
+  ensureDirSync(targetDir);
+
+  const webpBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
+
+  // Intentar escribir directamente
   try {
-    await sharp(buffer)
-      .webp({ quality: 80 })
-      .toFile(filePath);
+    await fsp.writeFile(filePath, webpBuffer, { mode: 0o666 });
+    return { url: `/${uploadDirName}/${rel}`, publicId: `${uploadDirName}/${rel}` };
   } catch (err) {
-    if (err.message && (err.message.includes('Permission denied') || err.message.includes('EACCES'))) {
-      console.warn('[storage] toFile falló por permisos, intentando vía buffer...');
-      const webpBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
+    console.warn('[storage] writeFile falló:', err.message);
+  }
+
+  try {
+    await sharp(webpBuffer).toFile(filePath);
+  } catch (err2) {
+    console.warn('[storage] toFile con buffer falló:', err2.message);
+  }
+
+  // Verificar si se creó
+  try {
+    await fsp.access(filePath);
+  } catch (e) {
+    // Último recurso: escribir a TEMP y copiar
+    const tmpDir = path.join(process.env.TEMP || process.env.TMP || PUBLIC_DIR, 'uploads-tmp');
+    ensureDirSync(tmpDir);
+    const tmpFile = path.join(tmpDir, filename);
+    await fsp.writeFile(tmpFile, webpBuffer, { mode: 0o666 });
+    try {
+      await fsp.copyFile(tmpFile, filePath);
+    } catch (e2) {
       await fsp.writeFile(filePath, webpBuffer, { mode: 0o666 });
-    } else {
-      throw err;
     }
+    try { await fsp.unlink(tmpFile).catch(() => {}); } catch (e3) {}
   }
 
   const rel = `${subfolder}/${filename}`;
