@@ -31,11 +31,13 @@
   const lightbox = document.getElementById('lightbox');
   const lbImg = document.getElementById('lb-img');
   const lbClose = document.getElementById('lb-close');
+  const lbPrev = document.getElementById('lb-prev');
+  const lbNext = document.getElementById('lb-next');
   let lastFocused = null;
   const open = () => {
     if (!lightbox) return;
     lastFocused = document.activeElement;
-    lbImg.src = sources[current] || (main && main.src);
+    if (lbImg) lbImg.src = sources[current] || (main && main.src);
     lightbox.classList.remove('hidden');
     lightbox.classList.add('flex');
     if (lbClose) lbClose.focus();
@@ -44,7 +46,7 @@
     if (!lightbox) return;
     lightbox.classList.add('hidden');
     lightbox.classList.remove('flex');
-    if (lastFocused && lastFocused.focus) lastFocused.focus();
+    if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
   };
 
   const gal = document.getElementById('galeria');
@@ -55,16 +57,16 @@
   if (lightbox) {
     lightbox.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
     if (lbClose) lbClose.addEventListener('click', close);
-    document.getElementById('lb-prev').addEventListener('click', () => show(current - 1));
-    document.getElementById('lb-next').addEventListener('click', () => show(current + 1));
+    if (lbPrev) lbPrev.addEventListener('click', () => show(current - 1));
+    if (lbNext) lbNext.addEventListener('click', () => show(current + 1));
   }
   document.addEventListener('keydown', (e) => {
     if (!lightbox || lightbox.classList.contains('hidden')) return;
-    if (e.key === 'Escape') { e.preventDefault(); close(); }
-    if (e.key === 'ArrowLeft') show(current - 1);
-    if (e.key === 'ArrowRight') show(current + 1);
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); return; }
+    if (e.key === 'ArrowRight') { e.preventDefault(); show(current + 1); return; }
     if (e.key === 'Tab') {
-      const items = lightbox.querySelectorAll('button');
+      const items = Array.from(lightbox.querySelectorAll('button')).filter((b) => !b.disabled && b.offsetWidth > 0 && b.offsetHeight > 0);
       if (!items.length) return;
       const first = items[0], last = items[items.length - 1];
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -96,7 +98,7 @@
       msg.className = 'text-sm text-success-600';
       form.reset();
     } catch (err) {
-      msg.textContent = err.message;
+      msg.textContent = err.message || 'Error al enviar el mensaje';
       msg.className = 'text-sm text-error-600';
     } finally {
       btn.disabled = false;

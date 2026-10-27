@@ -57,7 +57,7 @@
       msg.className = 'text-sm text-success-600';
       form.reset();
     } catch (err) {
-      msg.textContent = err.message;
+      msg.textContent = err.message || 'Error al enviar el mensaje';
       msg.className = 'text-sm text-error-600';
     } finally {
       btn.disabled = false;
