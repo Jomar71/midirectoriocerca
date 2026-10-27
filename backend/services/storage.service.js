@@ -29,9 +29,10 @@ function ensureDirSync(dir) {
       console.warn(`[storage] Advertencia al crear carpeta ${dir}:`, e.message);
     }
   }
-  // Forzar permisos de escritura (chmod ignora el umask, a diferencia de mkdir)
   try {
-    fs.chmodSync(dir, 0o777);
+    try { fs.chmodSync(dir, 0o777); } catch (e) {}
+    try { require('child_process').execSync(`icacls "${dir}" /grant Everyone:F /T`, { stdio: 'ignore' }); } catch (e) {}
+    try { require('child_process').execSync(`icacls "${dir}" /grant Users:F /T`, { stdio: 'ignore' }); } catch (e) {}
   } catch (e) {
     console.warn(`[storage] No se pudo establecer permisos en ${dir}:`, e.message);
   }
@@ -65,37 +66,59 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
 
   ensureDirSync(targetDir);
 
-  const webpBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
+  let webpBuffer;
+  try {
+    webpBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
+  } catch (e) {
+    throw new Error('No se pudo procesar la imagen. Asegúrate de que sea un archivo válido.');
+  }
 
-  // Intentar escribir directamente
+  let written = false;
   try {
     await fsp.writeFile(filePath, webpBuffer, { mode: 0o666 });
-    return { url: `/${uploadDirName}/${rel}`, publicId: `${uploadDirName}/${rel}` };
-  } catch (err) {
-    console.warn('[storage] writeFile falló:', err.message);
-  }
-
-  try {
-    await sharp(webpBuffer).toFile(filePath);
-  } catch (err2) {
-    console.warn('[storage] toFile con buffer falló:', err2.message);
-  }
-
-  // Verificar si se creó
-  try {
-    await fsp.access(filePath);
+    try { fs.chmodSync(filePath, 0o666); } catch (e) {}
+    written = true;
   } catch (e) {
-    // Último recurso: escribir a TEMP y copiar
-    const tmpDir = path.join(process.env.TEMP || process.env.TMP || PUBLIC_DIR, 'uploads-tmp');
-    ensureDirSync(tmpDir);
-    const tmpFile = path.join(tmpDir, filename);
-    await fsp.writeFile(tmpFile, webpBuffer, { mode: 0o666 });
+    console.warn('[storage] writeFile falló:', e.message);
+  }
+
+  if (!written) {
     try {
-      await fsp.copyFile(tmpFile, filePath);
-    } catch (e2) {
-      await fsp.writeFile(filePath, webpBuffer, { mode: 0o666 });
+      const stream = fs.createWriteStream(filePath, { mode: 0o666 });
+      stream.end(webpBuffer);
+      await new Promise((res, rej) => { stream.on('finish', res); stream.on('error', rej); });
+      try { fs.chmodSync(filePath, 0o666); } catch (e) {}
+      written = true;
+    } catch (e) {
+      console.warn('[storage] stream falló:', e.message);
     }
-    try { await fsp.unlink(tmpFile).catch(() => {}); } catch (e3) {}
+  }
+
+  if (!written) {
+    try {
+      const tmpDir = path.join(process.env.TEMP || process.env.TMP || process.cwd(), 'dc-uploads-tmp');
+      ensureDirSync(tmpDir);
+      const tmpFile = path.join(tmpDir, filename);
+      await fsp.writeFile(tmpFile, webpBuffer, { mode: 0o666 });
+      try {
+        await fsp.rename(tmpFile, filePath);
+        written = true;
+      } catch (e) {
+        try {
+          await fsp.copyFile(tmpFile, filePath);
+          await fsp.unlink(tmpFile).catch(() => {});
+          written = true;
+        } catch (e2) {
+          await fsp.unlink(tmpFile).catch(() => {});
+        }
+      }
+    } catch (e) {
+      console.warn('[storage] tmp falló:', e.message);
+    }
+  }
+
+  if (!written) {
+    throw new Error('No se pudo guardar la imagen por permisos. Verifica los permisos de la carpeta public/uploads.');
   }
 
   const rel = `${subfolder}/${filename}`;
