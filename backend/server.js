@@ -18,6 +18,7 @@ const { testConnection } = require('./config/db');
 const { initRedis } = require('./config/redis');
 const mailService = require('./services/mail.service');
 const { startCron } = require('./services/cron.service');
+const { ensureUploadDirs } = require('./services/storage.service');
 
 const publicRoutes = require('./routes/public.routes');
 const authRoutes = require('./routes/auth.routes');
@@ -117,6 +118,7 @@ async function bootstrap() {
     console.error('     Revisa tu .env y que la base de datos exista (npm run db:init).');
   }
 
+  ensureUploadDirs();
   await initRedis();
   try { await mailService.initMailer(); } catch (e) { console.warn('[mail]', e.message); }
   startCron();

@@ -92,8 +92,8 @@
     var moons = document.querySelectorAll('[data-theme-moon]');
     function paint() {
       var dark = document.documentElement.classList.contains('dark');
-      for (var i = 0; i < suns.length; i++) suns[i].classList.toggle('hidden', dark);
-      for (var j = 0; j < moons.length; j++) moons[j].classList.toggle('hidden', !dark);
+      for (var i = 0; i < suns.length; i++) suns[i].classList.toggle('hidden', !dark);
+      for (var j = 0; j < moons.length; j++) moons[j].classList.toggle('hidden', dark);
     }
     for (var k = 0; k < toggleBtns.length; k++) {
       toggleBtns[k].addEventListener('click', function () {

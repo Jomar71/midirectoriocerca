@@ -12,27 +12,22 @@ const seo = require('../services/seo.service');
 const { parsePagination, buildMeta, DEFAULT_LIMIT } = require('../utils/pagination');
 const env = require('../config/env');
 
-/** GET /  → Página principal (buscador + filtros + paginación). */
+/** GET /  → Página principal (portada + categorías + pauta). */
 async function renderIndex(req, res, next) {
   try {
-    const { page, limit, offset } = parsePagination({ ...req.query, limit: DEFAULT_LIMIT });
     const filtros = {
       q: (req.query.q || '').toString().trim().slice(0, 100) || null,
       categoria: (req.query.categoria || '').toString().trim() || null,
       departamento: (req.query.departamento || '').toString().trim() || null,
       ciudad: (req.query.ciudad || '').toString().trim() || null,
       pais: (req.query.pais || '').toString().trim() || null,
-      page, limit, offset,
     };
 
-    const [categorias, ubicaciones, data] = await Promise.all([
+    const [categorias, ubicaciones] = await Promise.all([
       categoriaModel.list(),
       ubicacionModel.getUbicaciones(),
-      anuncioModel.list(filtros),
     ]);
-    const ciudadesPorDepartamento = ubicacionModel.groupByDepartamento(ubicaciones.ciudades);
 
-    const meta = buildMeta(data.total, page, limit);
     return res.render('index', {
       title: 'DirectorioCerca — Directorio de empresas, negocios y profesionales',
       meta: seo.metaFor({
@@ -43,9 +38,6 @@ async function renderIndex(req, res, next) {
       }),
       categorias,
       ubicaciones,
-      ciudadesPorDepartamento,
-      anuncios: data.rows,
-      pagination: meta,
       filtros,
       queryString: buildQueryString(req.query),
     });
@@ -67,20 +59,39 @@ async function renderResultados(req, res, next) {
       page, limit, offset,
     };
 
-    const [ubicaciones, data] = await Promise.all([
+    const [categorias, ubicaciones, data] = await Promise.all([
+      categoriaModel.list(),
       ubicacionModel.getUbicaciones(),
       anuncioModel.list(filtros),
     ]);
 
+    const categoriaActual = filtros.categoria
+      ? categorias.find((c) => c.slug === filtros.categoria) || null
+      : null;
+
     const meta = buildMeta(data.total, page, limit);
+
+    let pageTitle = 'Resultados de búsqueda | DirectorioCerca';
+    if (filtros.q && categoriaActual) {
+      pageTitle = `«${filtros.q}» en ${categoriaActual.nombre} | DirectorioCerca`;
+    } else if (filtros.q) {
+      pageTitle = `Resultados para «${filtros.q}» | DirectorioCerca`;
+    } else if (categoriaActual) {
+      pageTitle = `${categoriaActual.nombre} | DirectorioCerca`;
+    } else if (filtros.ciudad) {
+      pageTitle = `Negocios en ${filtros.ciudad} | DirectorioCerca`;
+    }
+
     return res.render('resultados', {
-      title: filtros.q ? `Resultados para "${filtros.q}" | DirectorioCerca` : 'Resultados de búsqueda | DirectorioCerca',
+      title: pageTitle,
       meta: seo.metaFor({
-        title: 'Resultados de búsqueda — DirectorioCerca',
-        description: 'Resultados de búsqueda en el directorio de empresas, negocios y profesionales.',
+        title: pageTitle,
+        description: `Explora ${data.total} anuncios y servicios comerciales en Colombia con DirectorioCerca.`,
         url: `${env.appUrl}/resultados`,
         type: 'website',
       }),
+      categorias,
+      categoriaActual,
       ubicaciones,
       anuncios: data.rows,
       pagination: meta,
@@ -127,6 +138,10 @@ async function renderAnuncio(req, res, next) {
       fotos,
       jsonLd: JSON.stringify(jsonLd),
       keywords,
+      cleanMobile: (anuncio.telefono_movil || '').replace(/[^0-9]/g, ''),
+      whatsappDirectUrl: (anuncio.telefono_movil || '').replace(/[^0-9]/g, '')
+        ? `https://wa.me/${(anuncio.telefono_movil || '').replace(/[^0-9]/g, '').startsWith('57') ? (anuncio.telefono_movil || '').replace(/[^0-9]/g, '') : '57' + (anuncio.telefono_movil || '').replace(/[^0-9]/g, '').replace(/^0+/, '')}?text=${encodeURIComponent(`Hola, vi su anuncio "${anuncio.razon_social}" en DirectorioCerca y deseo información.`)}`
+        : null,
       whatsappText: encodeURIComponent(`Mira este negocio en DirectorioCerca: ${anuncio.razon_social} → ${env.appUrl}/anuncio/${anuncio.slug}`),
       mapsEmbed: anuncio.latitud != null && anuncio.longitud != null
         ? `https://www.google.com/maps?q=${anuncio.latitud},${anuncio.longitud}&z=15&output=embed`

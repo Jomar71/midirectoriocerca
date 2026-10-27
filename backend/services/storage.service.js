@@ -6,40 +6,65 @@
  */
 'use strict';
 
-const fs = require('fs/promises');
+const fs = require('fs');
+const fsp = require('fs/promises');
 const path = require('path');
-const crypto = require('crypto');
+const sharp = require('sharp');
+const { v4: uuidv4 } = require('uuid');
 const env = require('../config/env');
 
+const cleanUploadDir = (env.storage.uploadDir || 'uploads')
+  .replace(/^[\\/]+/, '')
+  .replace(/^public[\\/]+/, '')
+  .replace(/[\\/]+$/, '');
+
 const PUBLIC_DIR = path.resolve(__dirname, '..', '..', 'public');
-const UPLOAD_ABS = path.join(PUBLIC_DIR, env.storage.uploadDir);
+const UPLOAD_ABS = path.resolve(PUBLIC_DIR, cleanUploadDir || 'uploads');
 
-async function ensureDir(dir) {
-  await fs.mkdir(dir, { recursive: true });
+function ensureDirSync(dir) {
+  try {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true, mode: 0o777 });
+    }
+  } catch (e) {
+    console.warn(`[storage] Advertencia al crear carpeta ${dir}:`, e.message);
+  }
 }
 
-function safeName(original) {
-  const ext = (path.extname(original || '') || '.jpg').toLowerCase().replace(/[^.a-z0-9]/g, '');
-  const rand = crypto.randomBytes(8).toString('hex');
-  return `${Date.now()}-${rand}${ext || '.jpg'}`;
+function ensureUploadDirs() {
+  ensureDirSync(PUBLIC_DIR);
+  ensureDirSync(UPLOAD_ABS);
+  ensureDirSync(path.join(UPLOAD_ABS, 'anuncios'));
 }
+
+// Inicializar carpetas al cargar el módulo
+ensureUploadDirs();
 
 /** Guarda un buffer y devuelve { url, publicId }. */
 async function saveBuffer(buffer, originalName, folder = 'anuncios') {
   const driver = env.storage.driver;
   if (driver === 'cloudinary' || driver === 's3') {
-    // Punto de extensión: integrar SDK correspondiente con las credenciales de .env.
     throw new Error(`El driver de almacenamiento "${driver}" no está configurado. Usa STORAGE_DRIVER=local.`);
   }
 
-  // Driver local
-  const dir = path.join(UPLOAD_ABS, folder);
-  await ensureDir(dir);
-  const filename = safeName(originalName);
-  await fs.writeFile(path.join(dir, filename), buffer);
+  const uploadDirName = cleanUploadDir || 'uploads';
+  const subfolder = (folder || 'anuncios').replace(/^[\\/]+/, '').replace(/[\\/]+$/, '');
+  const targetDir = path.resolve(UPLOAD_ABS, subfolder);
+  ensureDirSync(targetDir);
 
-  const publicId = `${env.storage.uploadDir}/${folder}/${filename}`;
-  const url = `/${env.storage.uploadDir}/${folder}/${filename}`;
+  const uuid = uuidv4();
+  const date = new Date().toISOString().split('T')[0];
+  const filename = `${date}-${uuid}.webp`;
+  const filePath = path.join(targetDir, filename);
+
+  // Convertir a WebP con calidad 80 usando sharp
+  await sharp(buffer)
+    .webp({ quality: 80 })
+    .toFile(filePath);
+
+  const rel = `${subfolder}/${filename}`;
+  const publicId = `${uploadDirName}/${rel}`;
+  const url = `/${uploadDirName}/${rel}`;
   return { url, publicId };
 }
 
@@ -55,7 +80,7 @@ async function deleteByPublicId(publicId) {
   // Seguridad: evita salir del directorio de subidas
   if (!abs.startsWith(UPLOAD_ABS)) return;
   try {
-    await fs.unlink(abs);
+    await fsp.unlink(abs);
   } catch (e) {
     if (e.code !== 'ENOENT') console.warn('[storage] No se pudo borrar:', publicId);
   }
@@ -67,4 +92,4 @@ async function deleteByUrl(url) {
   return deleteByPublicId(url.replace(/^\//, ''));
 }
 
-module.exports = { saveBuffer, deleteByPublicId, deleteByUrl };
+module.exports = { saveBuffer, deleteByPublicId, deleteByUrl, ensureUploadDirs };

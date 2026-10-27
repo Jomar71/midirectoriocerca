@@ -115,7 +115,7 @@
       if (!data.length) { cont.innerHTML = '<p class="p-6 text-neutral-500 text-sm">Sin anuncios.</p>'; }
       else {
         cont.innerHTML = `
-          <table class="w-full text-sm">
+          <table class="w-full text-sm min-w-[720px]">
             <caption class="sr-only">Listado de anuncios</caption>
             <thead>
               <tr class="text-left text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-100">
@@ -250,7 +250,13 @@
         const { data } = await api(`/anuncios/${id}`);
         Object.entries(data).forEach(([k, v]) => {
           const field = formAnuncio.elements[k];
-          if (field && k !== 'fotos') field.value = v == null ? '' : v;
+          if (field && k !== 'fotos') {
+            if (field.type === 'date' && v) {
+              field.value = String(v).slice(0, 10);
+            } else {
+              field.value = v == null ? '' : v;
+            }
+          }
         });
         if (data.categoria_id) formAnuncio.elements['categoria_id'].value = data.categoria_id;
         syncDepartamentoFromCiudad(data.ciudad);
@@ -289,8 +295,6 @@
     msg.textContent = 'Guardando...'; msg.className = 'text-sm text-neutral-500';
 
     const fd = new FormData(formAnuncio);
-    const files = formAnuncio.elements['fotos'].files;
-    for (const f of files) fd.append('fotos', f);
 
     try {
       if (state.anuncioEditando) {

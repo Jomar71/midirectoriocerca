@@ -105,6 +105,8 @@ async function getAnuncio(req, res, next) {
   try {
     const anuncio = await anuncioModel.findById(req.params.id);
     if (!anuncio) return res.status(404).json({ ok: false, error: 'Anuncio no encontrado.' });
+    if (anuncio.fecha_inicio) anuncio.fecha_inicio = String(anuncio.fecha_inicio).slice(0, 10);
+    if (anuncio.fecha_vencimiento) anuncio.fecha_vencimiento = String(anuncio.fecha_vencimiento).slice(0, 10);
     const [fotos, suscripciones] = await Promise.all([
       fotoModel.listByAnuncio(anuncio.id),
       require('../models/suscripcion.model').listByAnuncio(anuncio.id),

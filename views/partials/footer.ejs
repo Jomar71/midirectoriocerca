@@ -19,7 +19,7 @@
       <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-4">Categorías</h3>
       <ul class="grid grid-cols-1 xs:grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
         <% (typeof categorias !== 'undefined' ? categorias : []).slice(0,10).forEach(function(c){ %>
-          <li class="truncate"><a class="text-neutral-400 hover:text-white transition-colors" href="/?categoria=<%= c.slug %>"><%= c.nombre %></a></li>
+          <li class="truncate"><a class="text-neutral-400 hover:text-white transition-colors" href="/resultados?categoria=<%= c.slug %>"><%= c.nombre %></a></li>
         <% }) %>
       </ul>
     </div>
