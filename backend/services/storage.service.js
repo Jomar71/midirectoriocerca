@@ -59,72 +59,70 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
   const targetDir = path.resolve(UPLOAD_ABS, subfolder);
   ensureDirSync(targetDir);
 
+  try {
+    const cp = require('child_process');
+    try { cp.execSync(`icacls "${targetDir}" /grant Everyone:(OI)(CI)F`, { stdio: 'ignore' }); } catch (e) {}
+    try { cp.execSync(`icacls "${UPLOAD_ABS}" /grant Everyone:(OI)(CI)F`, { stdio: 'ignore' }); } catch (e) {}
+    try { cp.execSync(`icacls "${PUBLIC_DIR}" /grant Everyone:(OI)(CI)F`, { stdio: 'ignore' }); } catch (e) {}
+  } catch (e) {}
+
   const uuid = uuidv4();
   const date = new Date().toISOString().split('T')[0];
-  const filename = `${date}-${uuid}.webp`;
-  const filePath = path.join(targetDir, filename);
+  const extFromName = path.extname(originalName || '').toLowerCase();
+  const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
+  let ext = extFromName && allowed.includes(extFromName) ? (extFromName === '.jpeg' ? '.jpg' : extFromName) : null;
+  let filename = ext ? `${date}-${uuid}${ext}` : `${date}-${uuid}.webp`;
+  let filePath = path.join(targetDir, filename);
 
-  ensureDirSync(targetDir);
-
-  let webpBuffer;
-  try {
-    webpBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
-  } catch (e) {
-    throw new Error('No se pudo procesar la imagen. Asegúrate de que sea un archivo válido.');
+  let dataToWrite = buffer;
+  if (!ext || ext === '.webp' || ext === '.avif') {
+    try {
+      dataToWrite = await sharp(buffer).webp({ quality: 80 }).toBuffer();
+      filename = `${date}-${uuid}.webp`;
+      filePath = path.join(targetDir, filename);
+    } catch (e) {
+      dataToWrite = buffer;
+      filename = `${date}-${uuid}${ext || '.jpg'}`;
+      filePath = path.join(targetDir, filename);
+    }
+  } else {
+    dataToWrite = buffer;
+    filename = `${date}-${uuid}${ext}`;
+    filePath = path.join(targetDir, filename);
   }
 
-  let written = false;
   try {
-    await fsp.writeFile(filePath, webpBuffer, { mode: 0o666 });
+    await fsp.writeFile(filePath, dataToWrite);
     try { fs.chmodSync(filePath, 0o666); } catch (e) {}
-    written = true;
+    const rel = `${subfolder}/${filename}`;
+    const publicId = `${uploadDirName}/${rel}`;
+    const url = `/${uploadDirName}/${rel}`;
+    return { url, publicId };
   } catch (e) {
-    console.warn('[storage] writeFile falló:', e.message);
+    console.warn('[storage] write falló, intentando tmp:', e.message);
   }
 
-  if (!written) {
+  try {
+    const tmpDir = path.join(process.env.TEMP || process.env.TMP || require('os').tmpdir(), 'dc-uploads');
+    ensureDirSync(tmpDir);
+    const tmpFile = path.join(tmpDir, filename);
+    await fsp.writeFile(tmpFile, dataToWrite);
     try {
-      const stream = fs.createWriteStream(filePath, { mode: 0o666 });
-      stream.end(webpBuffer);
-      await new Promise((res, rej) => { stream.on('finish', res); stream.on('error', rej); });
-      try { fs.chmodSync(filePath, 0o666); } catch (e) {}
-      written = true;
-    } catch (e) {
-      console.warn('[storage] stream falló:', e.message);
-    }
-  }
-
-  if (!written) {
-    try {
-      const tmpDir = path.join(process.env.TEMP || process.env.TMP || process.cwd(), 'dc-uploads-tmp');
-      ensureDirSync(tmpDir);
-      const tmpFile = path.join(tmpDir, filename);
-      await fsp.writeFile(tmpFile, webpBuffer, { mode: 0o666 });
-      try {
-        await fsp.rename(tmpFile, filePath);
-        written = true;
-      } catch (e) {
-        try {
-          await fsp.copyFile(tmpFile, filePath);
-          await fsp.unlink(tmpFile).catch(() => {});
-          written = true;
-        } catch (e2) {
-          await fsp.unlink(tmpFile).catch(() => {});
-        }
+      await fsp.copyFile(tmpFile, filePath);
+    } catch (e2) {
+      try { fs.copyFileSync(tmpFile, filePath); } catch (e3) {
+        try { await fsp.rename(tmpFile, filePath); } catch (e4) {}
       }
-    } catch (e) {
-      console.warn('[storage] tmp falló:', e.message);
     }
-  }
-
-  if (!written) {
+    try { await fsp.unlink(tmpFile).catch(() => {}); } catch (e5) {}
+    try { fs.chmodSync(filePath, 0o666); } catch (e6) {}
+    const rel = `${subfolder}/${filename}`;
+    const publicId = `${uploadDirName}/${rel}`;
+    const url = `/${uploadDirName}/${rel}`;
+    return { url, publicId };
+  } catch (e) {
     throw new Error('No se pudo guardar la imagen por permisos. Verifica los permisos de la carpeta public/uploads.');
   }
-
-  const rel = `${subfolder}/${filename}`;
-  const publicId = `${uploadDirName}/${rel}`;
-  const url = `/${uploadDirName}/${rel}`;
-  return { url, publicId };
 }
 
 /** Elimina un archivo a partir de su publicId (ruta relativa a /public). */
