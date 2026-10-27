@@ -19,9 +19,15 @@ function errorHandler(err, req, res, next) {
   const status = err.status || err.statusCode || 500;
   if (status >= 500) console.error('[error]', err);
 
+  let message = err.message || 'Error interno del servidor.';
+  if (err.type === 'entity.too.large') {
+    message = 'El archivo o la solicitud es demasiado grande.';
+    return res.status(413).json({ ok: false, error: message });
+  }
+
   const payload = {
     ok: false,
-    error: status >= 500 && env.isProd ? 'Error interno del servidor.' : err.message,
+    error: status >= 500 && env.isProd ? 'Error interno del servidor.' : message,
   };
 
   if (req.path.startsWith('/api/')) {

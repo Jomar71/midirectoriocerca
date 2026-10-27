@@ -71,7 +71,7 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
       .webp({ quality: 80 })
       .toFile(filePath);
   } catch (err) {
-    if (err.message && err.message.includes('Permission denied')) {
+    if (err.message && (err.message.includes('Permission denied') || err.message.includes('EACCES'))) {
       console.warn('[storage] toFile falló por permisos, intentando vía buffer...');
       const webpBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
       await fsp.writeFile(filePath, webpBuffer, { mode: 0o666 });
