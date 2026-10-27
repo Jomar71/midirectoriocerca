@@ -75,20 +75,24 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
   let filePath = path.join(targetDir, filename);
 
   let dataToWrite = buffer;
-  if (!ext || ext === '.webp' || ext === '.avif') {
+  if (!ext) {
     try {
-      dataToWrite = await sharp(buffer).webp({ quality: 80 }).toBuffer();
-      filename = `${date}-${uuid}.webp`;
+      dataToWrite = await sharp(buffer).jpeg({ quality: 85 }).toBuffer();
+      filename = `${date}-${uuid}.jpg`;
       filePath = path.join(targetDir, filename);
     } catch (e) {
-      dataToWrite = buffer;
-      filename = `${date}-${uuid}${ext || '.jpg'}`;
-      filePath = path.join(targetDir, filename);
+      try {
+        dataToWrite = await sharp(buffer).png().toBuffer();
+        filename = `${date}-${uuid}.png`;
+        filePath = path.join(targetDir, filename);
+      } catch (e2) {
+        throw new Error('Formato de imagen no válido.');
+      }
     }
   } else {
-    dataToWrite = buffer;
     filename = `${date}-${uuid}${ext}`;
     filePath = path.join(targetDir, filename);
+    dataToWrite = buffer;
   }
 
   try {
@@ -99,7 +103,7 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
     const url = `/${uploadDirName}/${rel}`;
     return { url, publicId };
   } catch (e) {
-    console.warn('[storage] write falló, intentando tmp:', e.message);
+    console.warn('[storage] write falló:', e.message);
   }
 
   try {
@@ -108,13 +112,19 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
     const tmpFile = path.join(tmpDir, filename);
     await fsp.writeFile(tmpFile, dataToWrite);
     try {
-      await fsp.copyFile(tmpFile, filePath);
-    } catch (e2) {
-      try { fs.copyFileSync(tmpFile, filePath); } catch (e3) {
-        try { await fsp.rename(tmpFile, filePath); } catch (e4) {}
+      try { await fsp.copyFile(tmpFile, filePath); } catch (e2) {
+        try { fs.copyFileSync(tmpFile, filePath); } catch (e3) {
+          try { await fsp.rename(tmpFile, filePath); } catch (e4) {
+            // último intento
+            const fd = fs.openSync(filePath, 'w', 0o666);
+            fs.writeSync(fd, dataToWrite);
+            fs.closeSync(fd);
+          }
+        }
       }
+    } finally {
+      await fsp.unlink(tmpFile).catch(() => {});
     }
-    try { await fsp.unlink(tmpFile).catch(() => {}); } catch (e5) {}
     try { fs.chmodSync(filePath, 0o666); } catch (e6) {}
     const rel = `${subfolder}/${filename}`;
     const publicId = `${uploadDirName}/${rel}`;
