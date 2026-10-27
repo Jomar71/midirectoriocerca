@@ -23,11 +23,17 @@ const UPLOAD_ABS = path.resolve(PUBLIC_DIR, cleanUploadDir || 'uploads');
 
 function ensureDirSync(dir) {
   try {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true, mode: 0o777 });
-    }
+    fs.mkdirSync(dir, { recursive: true });
   } catch (e) {
-    console.warn(`[storage] Advertencia al crear carpeta ${dir}:`, e.message);
+    if (e.code !== 'EEXIST') {
+      console.warn(`[storage] Advertencia al crear carpeta ${dir}:`, e.message);
+    }
+  }
+  // Forzar permisos de escritura (chmod ignora el umask, a diferencia de mkdir)
+  try {
+    fs.chmodSync(dir, 0o777);
+  } catch (e) {
+    console.warn(`[storage] No se pudo establecer permisos en ${dir}:`, e.message);
   }
 }
 
@@ -58,9 +64,21 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
   const filePath = path.join(targetDir, filename);
 
   // Convertir a WebP con calidad 80 usando sharp
-  await sharp(buffer)
-    .webp({ quality: 80 })
-    .toFile(filePath);
+  // Estrategia 1: toFile directo (más eficiente)
+  // Estrategia 2: fallback a buffer → writeFile si hay Permission Denied
+  try {
+    await sharp(buffer)
+      .webp({ quality: 80 })
+      .toFile(filePath);
+  } catch (err) {
+    if (err.message && err.message.includes('Permission denied')) {
+      console.warn('[storage] toFile falló por permisos, intentando vía buffer...');
+      const webpBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
+      await fsp.writeFile(filePath, webpBuffer, { mode: 0o666 });
+    } else {
+      throw err;
+    }
+  }
 
   const rel = `${subfolder}/${filename}`;
   const publicId = `${uploadDirName}/${rel}`;
