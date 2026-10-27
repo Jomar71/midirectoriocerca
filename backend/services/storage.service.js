@@ -61,10 +61,11 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
 
   try {
     const cp = require('child_process');
-    try { cp.execSync(`icacls "${targetDir}" /grant Everyone:F /T`, { stdio: 'ignore' }); } catch (e) {}
-    try { cp.execSync(`icacls "${UPLOAD_ABS}" /grant Everyone:F /T`, { stdio: 'ignore' }); } catch (e) {}
-    try { cp.execSync(`icacls "${PUBLIC_DIR}" /grant Everyone:F /T`, { stdio: 'ignore' }); } catch (e) {}
+    try { cp.execSync(`icacls "${targetDir}" /grant Everyone:F /T /C /Q`, { stdio: 'ignore' }); } catch (e) {}
+    try { cp.execSync(`icacls "${UPLOAD_ABS}" /grant Everyone:F /T /C /Q`, { stdio: 'ignore' }); } catch (e) {}
+    try { cp.execSync(`icacls "${PUBLIC_DIR}" /grant Everyone:F /T /C /Q`, { stdio: 'ignore' }); } catch (e) {}
     try { cp.execSync(`takeown /f "${targetDir}" /r /d y`, { stdio: 'ignore' }); } catch (e) {}
+    try { cp.execSync(`cacls "${targetDir}" /e /t /p Everyone:f`, { stdio: 'ignore' }); } catch (e) {}
   } catch (e) {}
 
   const uuid = uuidv4();
