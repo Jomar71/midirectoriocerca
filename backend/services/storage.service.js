@@ -61,9 +61,10 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
 
   try {
     const cp = require('child_process');
-    try { cp.execSync(`icacls "${targetDir}" /grant Everyone:(OI)(CI)F`, { stdio: 'ignore' }); } catch (e) {}
-    try { cp.execSync(`icacls "${UPLOAD_ABS}" /grant Everyone:(OI)(CI)F`, { stdio: 'ignore' }); } catch (e) {}
-    try { cp.execSync(`icacls "${PUBLIC_DIR}" /grant Everyone:(OI)(CI)F`, { stdio: 'ignore' }); } catch (e) {}
+    try { cp.execSync(`icacls "${targetDir}" /grant Everyone:F /T`, { stdio: 'ignore' }); } catch (e) {}
+    try { cp.execSync(`icacls "${UPLOAD_ABS}" /grant Everyone:F /T`, { stdio: 'ignore' }); } catch (e) {}
+    try { cp.execSync(`icacls "${PUBLIC_DIR}" /grant Everyone:F /T`, { stdio: 'ignore' }); } catch (e) {}
+    try { cp.execSync(`takeown /f "${targetDir}" /r /d y`, { stdio: 'ignore' }); } catch (e) {}
   } catch (e) {}
 
   const uuid = uuidv4();
@@ -95,9 +96,15 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
     dataToWrite = buffer;
   }
 
+  const cp = require('child_process');
+  const writeToPath = async (p) => {
+    await fsp.writeFile(p, dataToWrite);
+    try { fs.chmodSync(p, 0o666); } catch (e) {}
+    try { cp.execSync(`icacls "${p}" /grant Everyone:F`, { stdio: 'ignore' }); } catch (e) {}
+  };
+
   try {
-    await fsp.writeFile(filePath, dataToWrite);
-    try { fs.chmodSync(filePath, 0o666); } catch (e) {}
+    await writeToPath(filePath);
     const rel = `${subfolder}/${filename}`;
     const publicId = `${uploadDirName}/${rel}`;
     const url = `/${uploadDirName}/${rel}`;
@@ -111,11 +118,11 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
     ensureDirSync(tmpDir);
     const tmpFile = path.join(tmpDir, filename);
     await fsp.writeFile(tmpFile, dataToWrite);
+    try { cp.execSync(`icacls "${tmpFile}" /grant Everyone:F`, { stdio: 'ignore' }); } catch (e) {}
     try {
       try { await fsp.copyFile(tmpFile, filePath); } catch (e2) {
         try { fs.copyFileSync(tmpFile, filePath); } catch (e3) {
           try { await fsp.rename(tmpFile, filePath); } catch (e4) {
-            // último intento
             const fd = fs.openSync(filePath, 'w', 0o666);
             fs.writeSync(fd, dataToWrite);
             fs.closeSync(fd);
@@ -126,6 +133,7 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
       await fsp.unlink(tmpFile).catch(() => {});
     }
     try { fs.chmodSync(filePath, 0o666); } catch (e6) {}
+    try { cp.execSync(`icacls "${filePath}" /grant Everyone:F`, { stdio: 'ignore' }); } catch (e7) {}
     const rel = `${subfolder}/${filename}`;
     const publicId = `${uploadDirName}/${rel}`;
     const url = `/${uploadDirName}/${rel}`;
