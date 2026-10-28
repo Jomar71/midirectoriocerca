@@ -50,4 +50,9 @@ Promociona Empresas, Negocios, Profesionales, Productos y Servicios a nivel Loca
 ## Comandos
 - `npm run dev` / `npm start` — nodemon / node plano, entry `backend/server.js`
 - `npm run build` — no-op (`node --check backend/server.js`) para PaaS
-- `npm run db:init` / `db:load` / `db:seed` / `db:reset`
+- `npm run db:init` / `db:load` / `db:seed` / `db:reset`?
+?
+## Fix guardado de fotos (2026-10-27)
+- **Causa raiz:** `saveBuffer` en `backend/services/storage.service.js` tenia cadena de fallbacks (escritura directa -> tmp dir + copy) y catch final que enmascaraba el error real, lanzando generico "No se pudo guardar la imagen por permisos...".
+- **Solucion:** se elimino el fallback complejo y se reescribio el guardado local directo (mkdir recursive + chmod + icacls best-effort en Windows + fsp.writeFile). El error ahora incluye la causa real (`No se pudo guardar la imagen en <path>: <err>`).
+- **Verificado:** `saveBuffer` probado con JPG real (sharp + escritura OK) en entorno Linux.

@@ -1,8 +1,8 @@
 /**
  * services/storage.service.js
- * Abstracción de almacenamiento de imágenes.
+ * Abstraccion de almacenamiento de imagenes.
  * Implementa el driver "local". Los drivers "cloudinary" y "s3" quedan
- * preparados para conectar sin cambiar el resto del código.
+ * preparados para conectar sin cambiar el resto del codigo.
  */
 'use strict';
 
@@ -21,6 +21,15 @@ const cleanUploadDir = (env.storage.uploadDir || 'uploads')
 const PUBLIC_DIR = path.resolve(__dirname, '..', '..', 'public');
 const UPLOAD_ABS = path.resolve(PUBLIC_DIR, cleanUploadDir || 'uploads');
 
+const IS_WINDOWS = process.platform === 'win32';
+
+function setPermisos(dir) {
+  try { fs.chmodSync(dir, 0o777); } catch (e) {}
+  if (IS_WINDOWS) {
+    try { require('child_process').execSync(`icacls "${dir}" /grant Everyone:F /T`, { stdio: 'ignore', windowsHide: true }); } catch (e) {}
+  }
+}
+
 function ensureDirSync(dir) {
   try {
     fs.mkdirSync(dir, { recursive: true });
@@ -29,11 +38,7 @@ function ensureDirSync(dir) {
       console.warn(`[storage] Advertencia al crear carpeta ${dir}:`, e.message);
     }
   }
-  try {
-    try { fs.chmodSync(dir, 0o777); } catch (e) {}
-    try { require('child_process').execSync(`icacls "${dir}" /grant Everyone:F /T`, { stdio: 'ignore' }); } catch (e) {}
-    try { require('child_process').execSync(`icacls "${dir}" /grant Users:F /T`, { stdio: 'ignore' }); } catch (e) {}
-  } catch (e) {
+  try { setPermisos(dir); } catch (e) {
     console.warn(`[storage] No se pudo establecer permisos en ${dir}:`, e.message);
   }
 }
@@ -44,29 +49,20 @@ function ensureUploadDirs() {
   ensureDirSync(path.join(UPLOAD_ABS, 'anuncios'));
 }
 
-// Inicializar carpetas al cargar el módulo
+// Inicializar carpetas al cargar el modulo
 ensureUploadDirs();
 
 /** Guarda un buffer y devuelve { url, publicId }. */
 async function saveBuffer(buffer, originalName, folder = 'anuncios') {
   const driver = env.storage.driver;
   if (driver === 'cloudinary' || driver === 's3') {
-    throw new Error(`El driver de almacenamiento "${driver}" no está configurado. Usa STORAGE_DRIVER=local.`);
+    throw new Error(`El driver de almacenamiento "${driver}" no esta configurado. Usa STORAGE_DRIVER=local.`);
   }
 
   const uploadDirName = cleanUploadDir || 'uploads';
   const subfolder = (folder || 'anuncios').replace(/^[\\/]+/, '').replace(/[\\/]+$/, '');
   const targetDir = path.resolve(UPLOAD_ABS, subfolder);
   ensureDirSync(targetDir);
-
-  try {
-    const cp = require('child_process');
-    try { cp.execSync(`icacls "${targetDir}" /grant Everyone:F /T /C /Q`, { stdio: 'ignore' }); } catch (e) {}
-    try { cp.execSync(`icacls "${UPLOAD_ABS}" /grant Everyone:F /T /C /Q`, { stdio: 'ignore' }); } catch (e) {}
-    try { cp.execSync(`icacls "${PUBLIC_DIR}" /grant Everyone:F /T /C /Q`, { stdio: 'ignore' }); } catch (e) {}
-    try { cp.execSync(`takeown /f "${targetDir}" /r /d y`, { stdio: 'ignore' }); } catch (e) {}
-    try { cp.execSync(`cacls "${targetDir}" /e /t /p Everyone:f`, { stdio: 'ignore' }); } catch (e) {}
-  } catch (e) {}
 
   const uuid = uuidv4();
   const date = new Date().toISOString().split('T')[0];
@@ -75,8 +71,8 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
   let ext = extFromName && allowed.includes(extFromName) ? (extFromName === '.jpeg' ? '.jpg' : extFromName) : null;
   let filename = ext ? `${date}-${uuid}${ext}` : `${date}-${uuid}.webp`;
   let filePath = path.join(targetDir, filename);
-
   let dataToWrite = buffer;
+
   if (!ext) {
     try {
       dataToWrite = await sharp(buffer).jpeg({ quality: 85 }).toBuffer();
@@ -88,60 +84,30 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
         filename = `${date}-${uuid}.png`;
         filePath = path.join(targetDir, filename);
       } catch (e2) {
-        throw new Error('Formato de imagen no válido.');
+        throw new Error('Formato de imagen no valido.');
       }
     }
-  } else {
-    filename = `${date}-${uuid}${ext}`;
-    filePath = path.join(targetDir, filename);
-    dataToWrite = buffer;
   }
 
   const cp = require('child_process');
   const writeToPath = async (p) => {
     await fsp.writeFile(p, dataToWrite);
     try { fs.chmodSync(p, 0o666); } catch (e) {}
-    try { cp.execSync(`icacls "${p}" /grant Everyone:F`, { stdio: 'ignore' }); } catch (e) {}
+    if (IS_WINDOWS) {
+      try { cp.execSync(`icacls "${p}" /grant Everyone:F`, { stdio: 'ignore', windowsHide: true }); } catch (e) {}
+    }
   };
 
   try {
     await writeToPath(filePath);
-    const rel = `${subfolder}/${filename}`;
-    const publicId = `${uploadDirName}/${rel}`;
-    const url = `/${uploadDirName}/${rel}`;
-    return { url, publicId };
   } catch (e) {
-    console.warn('[storage] write falló:', e.message);
+    throw new Error(`No se pudo guardar la imagen en ${filePath}: ${e.message}`);
   }
 
-  try {
-    const tmpDir = path.join(process.env.TEMP || process.env.TMP || require('os').tmpdir(), 'dc-uploads');
-    ensureDirSync(tmpDir);
-    const tmpFile = path.join(tmpDir, filename);
-    await fsp.writeFile(tmpFile, dataToWrite);
-    try { cp.execSync(`icacls "${tmpFile}" /grant Everyone:F`, { stdio: 'ignore' }); } catch (e) {}
-    try {
-      try { await fsp.copyFile(tmpFile, filePath); } catch (e2) {
-        try { fs.copyFileSync(tmpFile, filePath); } catch (e3) {
-          try { await fsp.rename(tmpFile, filePath); } catch (e4) {
-            const fd = fs.openSync(filePath, 'w', 0o666);
-            fs.writeSync(fd, dataToWrite);
-            fs.closeSync(fd);
-          }
-        }
-      }
-    } finally {
-      await fsp.unlink(tmpFile).catch(() => {});
-    }
-    try { fs.chmodSync(filePath, 0o666); } catch (e6) {}
-    try { cp.execSync(`icacls "${filePath}" /grant Everyone:F`, { stdio: 'ignore' }); } catch (e7) {}
-    const rel = `${subfolder}/${filename}`;
-    const publicId = `${uploadDirName}/${rel}`;
-    const url = `/${uploadDirName}/${rel}`;
-    return { url, publicId };
-  } catch (e) {
-    throw new Error('No se pudo guardar la imagen por permisos. Verifica los permisos de la carpeta public/uploads.');
-  }
+  const rel = `${subfolder}/${filename}`;
+  const publicId = `${uploadDirName}/${rel}`;
+  const url = `/${uploadDirName}/${rel}`;
+  return { url, publicId };
 }
 
 /** Elimina un archivo a partir de su publicId (ruta relativa a /public). */
@@ -162,7 +128,7 @@ async function deleteByPublicId(publicId) {
   }
 }
 
-/** Elimina un archivo a partir de su URL pública (/uploads/...). */
+/** Elimina un archivo a partir de su url pública (/uploads/...). */
 async function deleteByUrl(url) {
   if (!url || !url.startsWith(`/${env.storage.uploadDir}/`)) return;
   return deleteByPublicId(url.replace(/^\//, ''));
