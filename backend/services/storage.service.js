@@ -73,20 +73,20 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
   let filePath = path.join(targetDir, filename);
   let dataToWrite = buffer;
 
-  if (!ext) {
+  if (!ext || ext === '.webp' || ext === '.avif') {
     try {
-      dataToWrite = await sharp(buffer).jpeg({ quality: 85 }).toBuffer();
-      filename = `${date}-${uuid}.jpg`;
+      dataToWrite = await sharp(buffer).webp({ quality: 80 }).toBuffer();
+      filename = `${date}-${uuid}.webp`;
       filePath = path.join(targetDir, filename);
     } catch (e) {
-      try {
-        dataToWrite = await sharp(buffer).png().toBuffer();
-        filename = `${date}-${uuid}.png`;
-        filePath = path.join(targetDir, filename);
-      } catch (e2) {
-        throw new Error('Formato de imagen no valido.');
-      }
+      dataToWrite = buffer;
+      filename = `${date}-${uuid}${ext || '.jpg'}`;
+      filePath = path.join(targetDir, filename);
     }
+  } else {
+    dataToWrite = buffer;
+    filename = `${date}-${uuid}${ext}`;
+    filePath = path.join(targetDir, filename);
   }
 
   const cp = require('child_process');
