@@ -68,6 +68,10 @@ async function saveUploadedFotos(anuncioId, files) {
   for (const file of files.slice(0, restantes)) {
     // eslint-disable-next-line no-await-in-loop
     const { url, publicId } = await storage.saveBuffer(file.buffer, file.originalname, 'anuncios');
+    
+    // AQUI ESTA EL CAMBIO: 
+    // La url que devuelve storage.service.js es un Data URI (Base64).
+    // Lo guardamos directamente en la base de datos.
     // eslint-disable-next-line no-await-in-loop
     await fotoModel.add(anuncioId, url, publicId, orden);
     orden += 1;
