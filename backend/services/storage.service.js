@@ -8,6 +8,7 @@
 
 const fs = require('fs');
 const fsp = require('fs/promises');
+const os = require('os'); // <-- AGREGADO AQUI
 const path = require('path');
 const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
@@ -19,12 +20,12 @@ const cleanUploadDir = (env.storage.uploadDir || 'uploads')
   .replace(/[\\/]+$/, '');
 
 const PUBLIC_DIR = path.resolve(__dirname, '..', '..', 'public');
-const UPLOAD_ABS = path.resolve(PUBLIC_DIR, cleanUploadDir || 'uploads');
+const UPLOAD_ABS = path.join(os.tmpdir(), cleanUploadDir || 'uploads');
 
 const IS_WINDOWS = process.platform === 'win32';
 
 function setPermisos(dir) {
-  try { fs.chmodSync(dir, 0o777); } catch (e) {}
+  // Se elimina fs.chmodSync que causaba el error EACCES en Pxxl
   if (IS_WINDOWS) {
     try { require('child_process').execSync(`icacls "${dir}" /grant Everyone:F /T`, { stdio: 'ignore', windowsHide: true }); } catch (e) {}
   }
@@ -92,7 +93,7 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
   const cp = require('child_process');
   const writeToPath = async (p) => {
     await fsp.writeFile(p, dataToWrite);
-    try { fs.chmodSync(p, 0o666); } catch (e) {}
+    // Se elimina fs.chmodSync que causaba error en el archivo
     if (IS_WINDOWS) {
       try { cp.execSync(`icacls "${p}" /grant Everyone:F`, { stdio: 'ignore', windowsHide: true }); } catch (e) {}
     }
