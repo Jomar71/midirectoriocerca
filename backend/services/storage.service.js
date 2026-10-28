@@ -1,138 +1,45 @@
 /**
  * services/storage.service.js
- * Abstraccion de almacenamiento de imagenes.
- * Implementa el driver "local". Los drivers "cloudinary" y "s3" quedan
- * preparados para conectar sin cambiar el resto del codigo.
+ * Guarda la imagen como Base64 para evitar problemas de permisos y persistencia.
  */
 'use strict';
 
-const fs = require('fs');
-const fsp = require('fs/promises');
-const os = require('os'); // <-- AGREGADO AQUI
-const path = require('path');
 const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
 const env = require('../config/env');
 
-const cleanUploadDir = (env.storage.uploadDir || 'uploads')
-  .replace(/^[\\/]+/, '')
-  .replace(/^public[\\/]+/, '')
-  .replace(/[\\/]+$/, '');
-
-const PUBLIC_DIR = path.resolve(__dirname, '..', '..', 'public');
-const UPLOAD_ABS = path.join(os.tmpdir(), cleanUploadDir || 'uploads');
-
-const IS_WINDOWS = process.platform === 'win32';
-
-function setPermisos(dir) {
-  // Se elimina fs.chmodSync que causaba el error EACCES en Pxxl
-  if (IS_WINDOWS) {
-    try { require('child_process').execSync(`icacls "${dir}" /grant Everyone:F /T`, { stdio: 'ignore', windowsHide: true }); } catch (e) {}
-  }
-}
-
-function ensureDirSync(dir) {
-  try {
-    fs.mkdirSync(dir, { recursive: true });
-  } catch (e) {
-    if (e.code !== 'EEXIST') {
-      console.warn(`[storage] Advertencia al crear carpeta ${dir}:`, e.message);
-    }
-  }
-  try { setPermisos(dir); } catch (e) {
-    console.warn(`[storage] No se pudo establecer permisos en ${dir}:`, e.message);
-  }
-}
-
-function ensureUploadDirs() {
-  ensureDirSync(PUBLIC_DIR);
-  ensureDirSync(UPLOAD_ABS);
-  ensureDirSync(path.join(UPLOAD_ABS, 'anuncios'));
-}
-
-// Inicializar carpetas al cargar el modulo
-ensureUploadDirs();
-
-/** Guarda un buffer y devuelve { url, publicId }. */
+/** Guarda un buffer convirtiéndolo a Base64 (Data URI). */
 async function saveBuffer(buffer, originalName, folder = 'anuncios') {
-  const driver = env.storage.driver;
-  if (driver === 'cloudinary' || driver === 's3') {
-    throw new Error(`El driver de almacenamiento "${driver}" no esta configurado. Usa STORAGE_DRIVER=local.`);
-  }
-
-  const uploadDirName = cleanUploadDir || 'uploads';
-  const subfolder = (folder || 'anuncios').replace(/^[\\/]+/, '').replace(/[\\/]+$/, '');
-  const targetDir = path.resolve(UPLOAD_ABS, subfolder);
-  ensureDirSync(targetDir);
-
   const uuid = uuidv4();
-  const date = new Date().toISOString().split('T')[0];
-  const extFromName = path.extname(originalName || '').toLowerCase();
-  const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
-  let ext = extFromName && allowed.includes(extFromName) ? (extFromName === '.jpeg' ? '.jpg' : extFromName) : null;
-  let filename = ext ? `${date}-${uuid}${ext}` : `${date}-${uuid}.webp`;
-  let filePath = path.join(targetDir, filename);
-  let dataToWrite = buffer;
-
-  if (!ext || ext === '.webp' || ext === '.avif') {
-    try {
-      dataToWrite = await sharp(buffer).webp({ quality: 80 }).toBuffer();
-      filename = `${date}-${uuid}.webp`;
-      filePath = path.join(targetDir, filename);
-    } catch (e) {
-      dataToWrite = buffer;
-      filename = `${date}-${uuid}${ext || '.jpg'}`;
-      filePath = path.join(targetDir, filename);
-    }
-  } else {
-    dataToWrite = buffer;
-    filename = `${date}-${uuid}${ext}`;
-    filePath = path.join(targetDir, filename);
-  }
-
-  const cp = require('child_process');
-  const writeToPath = async (p) => {
-    await fsp.writeFile(p, dataToWrite);
-    // Se elimina fs.chmodSync que causaba error en el archivo
-    if (IS_WINDOWS) {
-      try { cp.execSync(`icacls "${p}" /grant Everyone:F`, { stdio: 'ignore', windowsHide: true }); } catch (e) {}
-    }
-  };
-
+  
   try {
-    await writeToPath(filePath);
-  } catch (e) {
-    throw new Error(`No se pudo guardar la imagen en ${filePath}: ${e.message}`);
-  }
+    // Comprimimos a WebP en memoria
+    const dataToWrite = await sharp(buffer).webp({ quality: 80 }).toBuffer();
+    
+    // Convertimos a Base64 (Texto)
+    const base64Image = dataToWrite.toString('base64');
+    const dataUri = `data:image/webp;base64,${base64Image}`;
 
-  const rel = `${subfolder}/${filename}`;
-  const publicId = `${uploadDirName}/${rel}`;
-  const url = `/${uploadDirName}/${rel}`;
-  return { url, publicId };
+    // Devolvemos el texto. El controlador lo guardará en la BD.
+    return { 
+      url: dataUri, 
+      publicId: uuid 
+    };
+  } catch (error) {
+    console.error('[storage] Error procesando imagen:', error);
+    throw new Error(`No se pudo procesar la imagen: ${error.message}`);
+  }
 }
 
-/** Elimina un archivo a partir de su publicId (ruta relativa a /public). */
+// Estas funciones quedan vacías porque ya no guardamos archivos físicos
 async function deleteByPublicId(publicId) {
-  if (!publicId) return;
-  const driver = env.storage.driver;
-  if (driver !== 'local') {
-    console.warn('[storage] Borrado no implementado para driver:', driver);
-    return;
-  }
-  const abs = path.join(PUBLIC_DIR, publicId);
-  // Seguridad: evita salir del directorio de subidas
-  if (!abs.startsWith(UPLOAD_ABS)) return;
-  try {
-    await fsp.unlink(abs);
-  } catch (e) {
-    if (e.code !== 'ENOENT') console.warn('[storage] No se pudo borrar:', publicId);
-  }
+  return; 
 }
 
-/** Elimina un archivo a partir de su url pública (/uploads/...). */
 async function deleteByUrl(url) {
-  if (!url || !url.startsWith(`/${env.storage.uploadDir}/`)) return;
-  return deleteByPublicId(url.replace(/^\//, ''));
+  return;
 }
+
+function ensureUploadDirs() {}
 
 module.exports = { saveBuffer, deleteByPublicId, deleteByUrl, ensureUploadDirs };
