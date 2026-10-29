@@ -62,3 +62,6 @@ Promociona Empresas, Negocios, Profesionales, Productos y Servicios a nivel Loca
 - **Solucion:** se elimino el bloque Base64 y se restauro el guardado local (sharp->webp, fsp.writeFile en public/uploads/anuncios/, deleteByUrl y ensureUploadDirs operativos).
 - **Verificado:** 
 ode --check, modulo storage carga y save/delete OK.
+## Fix EACCES uploads en Linux/Pxxl (2026-10-29)
+- **Causa raiz:** tras el cambio a guardado fisico, setPermisos solo aplicaba icacls en Windows; en Linux/Pxxl no habia rama else, por lo que public/uploads/anuncios/ quedaba sin permisos de escritura -> EACCES al subir.
+- **Solucion:** rama else con s.chmodSync(dir, 0o777) best-effort en storage.service.js.

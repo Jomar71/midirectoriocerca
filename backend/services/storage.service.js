@@ -1,4 +1,4 @@
-﻿/**
+/**
  * services/storage.service.js
  * Abstraccion de almacenamiento de imagenes.
  * Implementa el driver "local". Los drivers "cloudinary" y "s3" quedan
@@ -24,9 +24,12 @@ const UPLOAD_ABS = path.resolve(PUBLIC_DIR, cleanUploadDir || 'uploads');
 const IS_WINDOWS = process.platform === 'win32';
 
 function setPermisos(dir) {
-  // Se elimina fs.chmodSync que causaba el error EACCES en Pxxl
+  // Se elimina fs.chmodSync que causaba error en el archivo
   if (IS_WINDOWS) {
     try { require('child_process').execSync(`icacls "${dir}" /grant Everyone:F /T`, { stdio: 'ignore', windowsHide: true }); } catch (e) {}
+  } else {
+    // Best-effort en Linux/Pxxl: evitar EACCES al guardar uploads.
+    try { fs.chmodSync(dir, 0o777); } catch (e) {}
   }
 }
 
