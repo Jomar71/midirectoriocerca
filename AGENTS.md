@@ -18,7 +18,7 @@ Single-admin business directory. Node 18+ / Express 4, EJS server-rendered for S
 - Deployed on **Pxxl** (`app.pxxl.app`): pipeline install → build → start → health check. Config: install `npm install`, build `npm run build` (no-op), start `npm start`, health check `GET /health` (returns `{ ok: true, uptime }` without touching the DB). Required secrets: `NODE_ENV=production`, `JWT_SECRET`, `APP_URL`, `DATABASE_URL`, `PGSSL=true`. On managed Postgres apply the schema with `npm run db:load`, never `db:init`. Server binds `0.0.0.0` and reads `PORT`. A failed deploy shows on GitHub as a failed commit check (a red X), not a Git problem.
 - **All env access goes through `backend/config/env.js`** (it loads `.env` from the repo root). Do not read `process.env` directly elsewhere.
 - **DB access goes through `backend/config/db.js`** (`query`, `pool`, `withTransaction`). Always use parameterized queries (`$1`, `$2`), never string interpolation.
-- `STORAGE_DRIVER` only supports `local`; `cloudinary`/`s3` are stubs that throw. Local uploads land in `public/uploads/` (gitignored).
+- `STORAGE_DRIVER` only supports `local`; `cloudinary`/`s3` are stubs that throw. Local uploads land in `public/uploads/` (gitignored) or, if that path is not writable (Pxxl/read-only), in `<project>/uploads/` or `os.tmpdir()/directoriocerca/uploads/`; all are served at `/uploads`. `UPLOAD_DIR` may be relative to `public/` or an absolute path.
 - Redirects/cookies assume `NODE_ENV=production` for `secure` cookies, `trust proxy`, and CSP `upgrade-insecure-requests` — set it in production.
 
 ## Architecture

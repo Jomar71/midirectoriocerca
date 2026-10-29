@@ -84,6 +84,9 @@ En `.env` define `MAIL_TRANSPORT`:
 ## Almacenamiento de imágenes
 
 Por defecto `STORAGE_DRIVER=local` guarda en `public/uploads/anuncios/` (gratis, ideal para probar).
+Si esa carpeta no es escribible (por ejemplo en Pxxl o un sistema de solo lectura), se usa
+automáticamente `<proyecto>/uploads/` o `os.tmpdir()/directoriocerca/uploads/`, y todas se sirven
+en `/uploads`. También puedes fijar una ruta absoluta persistente con `UPLOAD_DIR`.
 La abstracción en `backend/services/storage.service.js` permite conectar **Cloudinary** o **S3**
 cambiando `STORAGE_DRIVER` y las credenciales, sin tocar el resto del código.
 

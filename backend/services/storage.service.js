@@ -8,22 +8,44 @@
 
 const fs = require('fs');
 const fsp = require('fs/promises');
+const os = require('os');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const env = require('../config/env');
 
-const cleanUploadDir = (env.storage.uploadDir || 'uploads')
-  .replace(/^[\\/]+/, '')
-  .replace(/^public[\\/]+/, '')
-  .replace(/[\\/]+$/, '');
-
 const PUBLIC_DIR = path.resolve(__dirname, '..', '..', 'public');
-const UPLOAD_ABS = path.resolve(PUBLIC_DIR, cleanUploadDir || 'uploads');
+const PROJECT_DIR = path.resolve(__dirname, '..', '..');
+
+const rawUploadDir = (env.storage.uploadDir || 'uploads').trim() || 'uploads';
+const isAbsoluteUploadDir = path.isAbsolute(rawUploadDir);
+// Segmento usado en las URLs públicas (/uploads/...). Si UPLOAD_DIR es una
+// ruta absoluta se mantiene "uploads" para no exponer la ruta del servidor.
+const uploadDirName = isAbsoluteUploadDir
+  ? 'uploads'
+  : (rawUploadDir
+    .replace(/^[\\/]+/, '')
+    .replace(/^public[\\/]+/, '')
+    .replace(/[\\/]+$/, '') || 'uploads');
+
+// Carpetas candidatas, en orden de preferencia. Si la primera no es
+// escribible (Pxxl monta public/ como solo lectura, EACCES, etc.) se usa
+// la siguiente.
+const UPLOAD_CANDIDATES = isAbsoluteUploadDir
+  ? [
+    path.resolve(rawUploadDir),
+    path.join(os.tmpdir(), 'directoriocerca', uploadDirName),
+  ]
+  : [
+    path.resolve(PUBLIC_DIR, uploadDirName),
+    path.resolve(PROJECT_DIR, uploadDirName),
+    path.join(os.tmpdir(), 'directoriocerca', uploadDirName),
+  ];
+
+let uploadRoot = UPLOAD_CANDIDATES[0];
 
 const IS_WINDOWS = process.platform === 'win32';
 
 function setPermisos(dir) {
-  // Se elimina fs.chmodSync que causaba error en el archivo
   if (IS_WINDOWS) {
     try { require('child_process').execSync(`icacls "${dir}" /grant Everyone:F /T`, { stdio: 'ignore', windowsHide: true }); } catch (e) {}
   } else {
@@ -45,10 +67,44 @@ function ensureDirSync(dir) {
   }
 }
 
+/** Comprueba que se pueda crear y borrar un archivo en la carpeta. */
+function isWritable(dir) {
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    setPermisos(dir);
+    const probe = path.join(dir, `.dc-write-test-${process.pid}-${Date.now()}`);
+    fs.writeFileSync(probe, 'ok');
+    fs.unlinkSync(probe);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function ensureUploadDirs() {
-  ensureDirSync(PUBLIC_DIR);
-  ensureDirSync(UPLOAD_ABS);
-  ensureDirSync(path.join(UPLOAD_ABS, 'anuncios'));
+  const found = UPLOAD_CANDIDATES.find((dir) => isWritable(dir));
+  uploadRoot = found || UPLOAD_CANDIDATES[0];
+  ensureDirSync(path.join(uploadRoot, 'anuncios'));
+  if (!found) {
+    console.warn('[storage] Ninguna carpeta de subidas es escribible:', UPLOAD_CANDIDATES.join(', '));
+  } else {
+    console.log('[storage] Carpeta de subidas activa:', uploadRoot);
+  }
+  return uploadRoot;
+}
+
+/** Carpeta física activa que corresponde a la URL /<uploadDirName>. */
+function getUploadRoot() {
+  return uploadRoot;
+}
+
+/** Carpetas que se sirven en /<uploadDirName> (activa, alternativas y legado). */
+function getUploadRoots() {
+  return [...new Set([
+    uploadRoot,
+    ...UPLOAD_CANDIDATES,
+    path.resolve(PUBLIC_DIR, uploadDirName),
+  ])];
 }
 
 // Inicializar carpetas al cargar el modulo
@@ -91,30 +147,43 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios', mimetype = 
     throw new Error(`El driver de almacenamiento "${driver}" no esta configurado. Usa STORAGE_DRIVER=local.`);
   }
 
-  const uploadDirName = cleanUploadDir || 'uploads';
   const subfolder = (folder || 'anuncios').replace(/^[\\/]+/, '').replace(/[\\/]+$/, '');
-  const targetDir = path.resolve(UPLOAD_ABS, subfolder);
-  ensureDirSync(targetDir);
-
   const uuid = uuidv4();
   const date = new Date().toISOString().split('T')[0];
   const ext = resolveExtension(originalName, mimetype);
   const filename = `${date}-${uuid}${ext}`;
-  const filePath = path.join(targetDir, filename);
 
   const cp = require('child_process');
   const writeToPath = async (p) => {
     await fsp.writeFile(p, buffer);
-    // Se elimina fs.chmodSync que causaba error en el archivo
     if (IS_WINDOWS) {
       try { cp.execSync(`icacls "${p}" /grant Everyone:F`, { stdio: 'ignore', windowsHide: true }); } catch (e) {}
     }
   };
 
-  try {
-    await writeToPath(filePath);
-  } catch (e) {
-    throw new Error(`No se pudo guardar la imagen en ${filePath}: ${e.message}`);
+  // Intenta la carpeta activa y, si falla, las alternativas escribibles.
+  const roots = [...new Set([uploadRoot, ...UPLOAD_CANDIDATES])];
+  let lastError = null;
+  let savedPath = null;
+  for (const root of roots) {
+    const targetDir = path.resolve(root, subfolder);
+    const filePath = path.join(targetDir, filename);
+    try {
+      fs.mkdirSync(targetDir, { recursive: true });
+      setPermisos(targetDir);
+      // eslint-disable-next-line no-await-in-loop
+      await writeToPath(filePath);
+      uploadRoot = root;
+      savedPath = filePath;
+      break;
+    } catch (e) {
+      lastError = e;
+    }
+  }
+
+  if (!savedPath) {
+    const attempted = path.join(uploadRoot, subfolder, filename);
+    throw new Error(`No se pudo guardar la imagen en ${attempted}: ${lastError ? lastError.message : 'sin carpeta escribible'}`);
   }
 
   const rel = `${subfolder}/${filename}`;
@@ -131,20 +200,37 @@ async function deleteByPublicId(publicId) {
     console.warn('[storage] Borrado no implementado para driver:', driver);
     return;
   }
-  const abs = path.join(PUBLIC_DIR, publicId);
-  // Seguridad: evita salir del directorio de subidas
-  if (!abs.startsWith(UPLOAD_ABS)) return;
-  try {
-    await fsp.unlink(abs);
-  } catch (e) {
-    if (e.code !== 'ENOENT') console.warn('[storage] No se pudo borrar:', publicId);
+
+  // Normaliza "uploads/anuncios/x.png" -> "anuncios/x.png"
+  let rel = String(publicId).replace(/^[\\/]+/, '');
+  const firstSep = rel.search(/[\\/]/);
+  if (firstSep !== -1 && rel.slice(0, firstSep) === uploadDirName) {
+    rel = rel.slice(firstSep + 1);
+  }
+  rel = rel.replace(/^[\\/]+/, '');
+  if (!rel) return;
+
+  for (const root of getUploadRoots()) {
+    const rootAbs = path.resolve(root);
+    const abs = path.resolve(rootAbs, rel);
+    // Seguridad: evita salir del directorio de subidas
+    if (abs !== rootAbs && !abs.startsWith(rootAbs + path.sep)) continue;
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await fsp.unlink(abs);
+      return;
+    } catch (e) {
+      if (e.code !== 'ENOENT') console.warn('[storage] No se pudo borrar:', abs, e.message);
+    }
   }
 }
 
 /** Elimina un archivo a partir de su url pública (/uploads/...). */
 async function deleteByUrl(url) {
-  if (!url || !url.startsWith(`/${env.storage.uploadDir}/`)) return;
-  return deleteByPublicId(url.replace(/^\//, ''));
+  if (!url || !url.startsWith(`/${uploadDirName}/`)) return;
+  return deleteByPublicId(url.slice(1));
 }
 
-module.exports = { saveBuffer, deleteByPublicId, deleteByUrl, ensureUploadDirs };
+module.exports = {
+  saveBuffer, deleteByPublicId, deleteByUrl, ensureUploadDirs, getUploadRoot, getUploadRoots,
+};

@@ -18,7 +18,7 @@ const { testConnection } = require('./config/db');
 const { initRedis } = require('./config/redis');
 const mailService = require('./services/mail.service');
 const { startCron } = require('./services/cron.service');
-const { ensureUploadDirs } = require('./services/storage.service');
+const { ensureUploadDirs, getUploadRoots } = require('./services/storage.service');
 
 const publicRoutes = require('./routes/public.routes');
 const authRoutes = require('./routes/auth.routes');
@@ -78,6 +78,17 @@ if (!env.isProd) app.use(morgan('dev'));
 
 // ── Archivos estáticos ──────────────────────────────────────────────────
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
+
+// Subidas: sirve la carpeta activa y, como respaldo, la de public/uploads
+// (archivos antiguos). La carpeta activa puede estar fuera de public/ cuando
+// el hosting no permite escribir ahí (Pxxl, sistemas de solo lectura).
+getUploadRoots().forEach((root) => {
+  app.use('/uploads', express.static(root, {
+    maxAge: env.isProd ? '7d' : 0,
+    fallthrough: true,
+  }));
+});
+
 app.use(express.static(PUBLIC_DIR, {
   maxAge: env.isProd ? '7d' : 0,
   setHeaders: (res, filePath) => {
