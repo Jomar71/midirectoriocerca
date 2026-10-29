@@ -56,3 +56,9 @@ Promociona Empresas, Negocios, Profesionales, Productos y Servicios a nivel Loca
 - **Causa raiz:** `saveBuffer` en `backend/services/storage.service.js` tenia cadena de fallbacks (escritura directa -> tmp dir + copy) y catch final que enmascaraba el error real, lanzando generico "No se pudo guardar la imagen por permisos...".
 - **Solucion:** se elimino el fallback complejo y se reescribio el guardado local directo (mkdir recursive + chmod + icacls best-effort en Windows + fsp.writeFile). El error ahora incluye la causa real (`No se pudo guardar la imagen en <path>: <err>`).
 - **Verificado:** `saveBuffer` probado con JPG real (sharp + escritura OK) en entorno Linux.
+
+## Fix guardado de fotos restaurado (2026-10-29)
+- **Causa raiz:** commits 9e687b2+1b7915f reemplazaron el guardado fisico de imagenes por Base64 Data URI en storage.service.js; el INSERT a otos.url VARCHAR(500) fallaba por longitud y rompia las subidas.
+- **Solucion:** se elimino el bloque Base64 y se restauro el guardado local (sharp->webp, fsp.writeFile en public/uploads/anuncios/, deleteByUrl y ensureUploadDirs operativos).
+- **Verificado:** 
+ode --check, modulo storage carga y save/delete OK.
