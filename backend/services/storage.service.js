@@ -9,7 +9,6 @@
 const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
-const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
 const env = require('../config/env');
 
@@ -72,29 +71,12 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
   const extFromName = path.extname(originalName || '').toLowerCase();
   const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
   let ext = extFromName && allowed.includes(extFromName) ? (extFromName === '.jpeg' ? '.jpg' : extFromName) : null;
-  let filename = ext ? `${date}-${uuid}${ext}` : `${date}-${uuid}.webp`;
+  let filename = ext ? `${date}-${uuid}${ext}` : `${date}-${uuid}.jpg`;
   let filePath = path.join(targetDir, filename);
-  let dataToWrite = buffer;
-
-  if (!ext || ext === '.webp' || ext === '.avif') {
-    try {
-      dataToWrite = await sharp(buffer).webp({ quality: 80 }).toBuffer();
-      filename = `${date}-${uuid}.webp`;
-      filePath = path.join(targetDir, filename);
-    } catch (e) {
-      dataToWrite = buffer;
-      filename = `${date}-${uuid}${ext || '.jpg'}`;
-      filePath = path.join(targetDir, filename);
-    }
-  } else {
-    dataToWrite = buffer;
-    filename = `${date}-${uuid}${ext}`;
-    filePath = path.join(targetDir, filename);
-  }
 
   const cp = require('child_process');
   const writeToPath = async (p) => {
-    await fsp.writeFile(p, dataToWrite);
+    await fsp.writeFile(p, buffer);
     // Se elimina fs.chmodSync que causaba error en el archivo
     if (IS_WINDOWS) {
       try { cp.execSync(`icacls "${p}" /grant Everyone:F`, { stdio: 'ignore', windowsHide: true }); } catch (e) {}

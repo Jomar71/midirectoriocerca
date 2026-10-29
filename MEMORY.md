@@ -65,3 +65,6 @@ ode --check, modulo storage carga y save/delete OK.
 ## Fix EACCES uploads en Linux/Pxxl (2026-10-29)
 - **Causa raiz:** tras el cambio a guardado fisico, setPermisos solo aplicaba icacls en Windows; en Linux/Pxxl no habia rama else, por lo que public/uploads/anuncios/ quedaba sin permisos de escritura -> EACCES al subir.
 - **Solucion:** rama else con s.chmodSync(dir, 0o777) best-effort en storage.service.js.
+## Sin conversion a WebP en uploads (2026-10-29)
+- **Cambio:** se elimino el bloque de conversion a WebP en saveBuffer (storage.service.js); ahora guarda el buffer original con su extension original (fallback .jpg). sharp ya no se usa en el guardado.
+- **Motivo:** pedido del usuario para que las fotos subidas se guarden tal cual sin pasar por WebP.
