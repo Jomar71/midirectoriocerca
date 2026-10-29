@@ -5,16 +5,8 @@
  */
 'use strict';
 
-const os = require('os');
-const path = require('path');
-
 const multer = require('multer');
 const env = require('../config/env');
-
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype && file.mimetype.startsWith('image/')) return cb(null, true);
-  return cb(new Error('Formato de imagen no permitido.'));
-};
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -23,7 +15,6 @@ const upload = multer({
     files: 11,
     fieldSize: 50 * 1024 * 1024,
   },
-  fileFilter,
 });
 
 /** Sube el campo "fotos" (hasta 11). Acepta también un único campo "foto". */

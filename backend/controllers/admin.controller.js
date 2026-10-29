@@ -67,7 +67,7 @@ async function saveUploadedFotos(anuncioId, files) {
   let restantes = Math.max(0, 11 - actuales);
   for (const file of files.slice(0, restantes)) {
     // eslint-disable-next-line no-await-in-loop
-    const { url, publicId } = await storage.saveBuffer(file.buffer, file.originalname, 'anuncios');
+    const { url, publicId } = await storage.saveBuffer(file.buffer, file.originalname, 'anuncios', file.mimetype);
     
     // eslint-disable-next-line no-await-in-loop
     await fotoModel.add(anuncioId, url, publicId, orden);

@@ -68,3 +68,7 @@ ode --check, modulo storage carga y save/delete OK.
 ## Sin conversion a WebP en uploads (2026-10-29)
 - **Cambio:** se elimino el bloque de conversion a WebP en saveBuffer (storage.service.js); ahora guarda el buffer original con su extension original (fallback .jpg). sharp ya no se usa en el guardado.
 - **Motivo:** pedido del usuario para que las fotos subidas se guarden tal cual sin pasar por WebP.
+
+## Subida de imagenes sin restriccion de formato (2026-10-29)
+- **Cambio:** se elimino el `fileFilter` de `middlewares/upload.js` (antes solo aceptaba `image/*`). Ahora multer acepta cualquier archivo y `storage.saveBuffer` recibe el `mimetype`, resuelve una extension segura (nombre o tabla `MIME_EXT`) y guarda el buffer original.
+- **Motivo:** el usuario pidio poder subir imagenes de cualquier tipo (png, jpeg, etc.). Ojo: formatos que el navegador no renderiza (HEIC/SVG) se guardan pero pueden no mostrarse sin conversion.

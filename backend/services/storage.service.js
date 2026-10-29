@@ -54,8 +54,38 @@ function ensureUploadDirs() {
 // Inicializar carpetas al cargar el modulo
 ensureUploadDirs();
 
+const MIME_EXT = {
+  'image/jpeg': '.jpg',
+  'image/jpg': '.jpg',
+  'image/pjpeg': '.jpg',
+  'image/png': '.png',
+  'image/apng': '.png',
+  'image/gif': '.gif',
+  'image/webp': '.webp',
+  'image/avif': '.avif',
+  'image/bmp': '.bmp',
+  'image/x-ms-bmp': '.bmp',
+  'image/tiff': '.tiff',
+  'image/svg+xml': '.svg',
+  'image/x-icon': '.ico',
+  'image/vnd.microsoft.icon': '.ico',
+  'image/heic': '.heic',
+  'image/heif': '.heif',
+  'image/jxl': '.jxl',
+  'image/x-canon-cr2': '.cr2',
+  'image/x-adobe-dng': '.dng',
+};
+
+/** Obtiene una extension segura a partir del nombre o del MIME. */
+function resolveExtension(originalName, mimetype) {
+  const raw = path.extname(originalName || '').toLowerCase();
+  const clean = raw.replace(/^\./, '').replace(/[^a-z0-9]/g, '');
+  if (clean && clean.length <= 10) return clean === 'jpeg' ? '.jpg' : `.${clean}`;
+  return MIME_EXT[(mimetype || '').toLowerCase()] || '.jpg';
+}
+
 /** Guarda un buffer y devuelve { url, publicId }. */
-async function saveBuffer(buffer, originalName, folder = 'anuncios') {
+async function saveBuffer(buffer, originalName, folder = 'anuncios', mimetype = '') {
   const driver = env.storage.driver;
   if (driver === 'cloudinary' || driver === 's3') {
     throw new Error(`El driver de almacenamiento "${driver}" no esta configurado. Usa STORAGE_DRIVER=local.`);
@@ -68,10 +98,9 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
 
   const uuid = uuidv4();
   const date = new Date().toISOString().split('T')[0];
-  const extFromName = path.extname(originalName || '').toLowerCase();
-  let ext = extFromName ? (extFromName === '.jpeg' ? '.jpg' : extFromName) : null;
-  let filename = ext ? `${date}-${uuid}${ext}` : `${date}-${uuid}.jpg`;
-  let filePath = path.join(targetDir, filename);
+  const ext = resolveExtension(originalName, mimetype);
+  const filename = `${date}-${uuid}${ext}`;
+  const filePath = path.join(targetDir, filename);
 
   const cp = require('child_process');
   const writeToPath = async (p) => {
