@@ -69,8 +69,7 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios') {
   const uuid = uuidv4();
   const date = new Date().toISOString().split('T')[0];
   const extFromName = path.extname(originalName || '').toLowerCase();
-  const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
-  let ext = extFromName && allowed.includes(extFromName) ? (extFromName === '.jpeg' ? '.jpg' : extFromName) : null;
+  let ext = extFromName ? (extFromName === '.jpeg' ? '.jpg' : extFromName) : null;
   let filename = ext ? `${date}-${uuid}${ext}` : `${date}-${uuid}.jpg`;
   let filePath = path.join(targetDir, filename);
 

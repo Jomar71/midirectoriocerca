@@ -11,11 +11,9 @@ const path = require('path');
 const multer = require('multer');
 const env = require('../config/env');
 
-const ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
-
 const fileFilter = (req, file, cb) => {
-  if (ALLOWED.includes(file.mimetype)) return cb(null, true);
-  return cb(new Error('Formato de imagen no permitido (usa JPG, PNG, WEBP, GIF o AVIF).'));
+  if (file.mimetype && file.mimetype.startsWith('image/')) return cb(null, true);
+  return cb(new Error('Formato de imagen no permitido.'));
 };
 
 const upload = multer({
