@@ -83,3 +83,12 @@ ode --check, modulo storage carga y save/delete OK.
 ## Correo del servicio actualizado (2026-10-29)
 - **Cambio:** correo unificado a `midirectoriocerca@proton.me` en vistas públicas (`contacto`, `privacidad`, `terminos`, `index`), `env.js`, `.env.example`, `database.sql`, `README.md` y cuenta de administrador local en BD.
 - **Avisos:** `ADMIN_EMAIL` y `MAIL_FROM` ahora usan `midirectoriocerca@proton.me`. Los mensajes de contacto y avisos de vencimiento van dirigidos a este correo.
+
+## Ajuste galeria de anuncio (2026-10-30)
+- `public/js/anuncio.js` se conserva porque controla la galería/lightbox y el formulario de contacto.
+- Las flechas del lightbox se ocultan cuando el anuncio solo tiene una foto; validado con `node --check` y sin errores del editor.
+- En `views/anuncio.ejs`, los colores de redes sociales usan clases Tailwind arbitrarias en vez de interpolación EJS dentro de `style`; se evita el aviso CSS «Property value expected» sin cambiar los hexadecimales.
+
+## Destino de formularios por correo (2026-10-30)
+- Notificaciones de contacto y afiliación usan `midirectoriocerca@proton.me` como destinatario fijo.
+- En producción se fuerza SMTP para evitar el modo JSON, que solo registra correos en consola; el despliegue necesita configurar credenciales SMTP válidas para entregar mensajes.

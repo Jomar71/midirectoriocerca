@@ -16,6 +16,7 @@ let etherealPreview = '';
 
 async function initMailer() {
   if (env.mail.transport === 'smtp') {
+    if (!env.mail.host) throw new Error('MAIL_HOST es obligatorio para enviar correos por SMTP.');
     transporter = nodemailer.createTransport({
       host: env.mail.host,
       port: env.mail.port,

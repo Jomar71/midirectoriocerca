@@ -38,6 +38,9 @@
     if (!lightbox) return;
     lastFocused = document.activeElement;
     if (lbImg) lbImg.src = sources[current] || (main && main.src);
+    const showNavigation = sources.length > 1;
+    if (lbPrev) lbPrev.classList.toggle('hidden', !showNavigation);
+    if (lbNext) lbNext.classList.toggle('hidden', !showNavigation);
     lightbox.classList.remove('hidden');
     lightbox.classList.add('flex');
     if (lbClose) lbClose.focus();

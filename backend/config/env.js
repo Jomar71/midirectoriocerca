@@ -59,14 +59,14 @@ const env = {
   },
 
   mail: {
-    transport: process.env.MAIL_TRANSPORT || 'json', // smtp | json | ethereal
+    transport: process.env.NODE_ENV === 'production' ? 'smtp' : (process.env.MAIL_TRANSPORT || 'json'), // smtp | json | ethereal
     host: process.env.MAIL_HOST || '',
     port: num(process.env.MAIL_PORT, 587),
     secure: bool(process.env.MAIL_SECURE, false),
     user: process.env.MAIL_USER || '',
     pass: process.env.MAIL_PASS || '',
     from: process.env.MAIL_FROM || 'DirectorioCerca <midirectoriocerca@proton.me>',
-    adminEmail: process.env.ADMIN_EMAIL || 'midirectoriocerca@proton.me',
+    adminEmail: 'midirectoriocerca@proton.me',
   },
 
   seed: {

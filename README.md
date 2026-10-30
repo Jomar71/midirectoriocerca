@@ -72,18 +72,18 @@ Contraseña: Admin123!
 
 ## Configuración del correo (envío real)
 
-En `.env` define `MAIL_TRANSPORT`:
+En producción configura `MAIL_TRANSPORT=smtp` y define:
 
-- `json` (por defecto): no envía, imprime el correo en consola — para desarrollo.
+- `json`: no envía, imprime el correo en consola — solo para desarrollo. Es el valor predeterminado fuera de producción.
 - `ethereal`: crea una cuenta de prueba **gratis** y muestra una URL para ver el correo.
-- `smtp`: envío real. Completa `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS`, `MAIL_FROM` y `ADMIN_EMAIL`.
+- `smtp`: envío real. Completa `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS` y `MAIL_FROM`. Producción fuerza SMTP aunque `MAIL_TRANSPORT` tenga otro valor.
   Ejemplos de proveedores: Gmail (App Password), Brevo, SendGrid, Mailgun, Zoho.
 
-El correo de contacto y de avisos es `midirectoriocerca@proton.me`. Proton Mail no ofrece SMTP en cuentas
+El correo de destino para contactos, afiliaciones y avisos es `midirectoriocerca@proton.me`. Proton Mail no ofrece SMTP en cuentas
 gratuitas: para enviar desde esa dirección necesitas **Proton Mail Bridge** (servidor local) o un plan
 **Proton Business** con SMTP. Si usas otro proveedor (Brevo, Gmail, etc.) para enviar, configura
-`MAIL_FROM` con una dirección verificada del proveedor y `ADMIN_EMAIL=midirectoriocerca@proton.me`
-para que los avisos lleguen a tu Proton.
+`MAIL_FROM` con una dirección verificada del proveedor; el destinatario está fijado a
+`midirectoriocerca@proton.me`.
 
 ---
 
