@@ -65,13 +65,13 @@ const env = {
     secure: bool(process.env.MAIL_SECURE, false),
     user: process.env.MAIL_USER || '',
     pass: process.env.MAIL_PASS || '',
-    from: process.env.MAIL_FROM || 'DirectorioCerca <no-reply@directoriocerca.com>',
-    adminEmail: process.env.ADMIN_EMAIL || 'admin@directoriocerca.com',
+    from: process.env.MAIL_FROM || 'DirectorioCerca <midirectoriocerca@proton.me>',
+    adminEmail: process.env.ADMIN_EMAIL || 'midirectoriocerca@proton.me',
   },
 
   seed: {
     adminName: process.env.SEED_ADMIN_NAME || 'Propietario',
-    adminEmail: process.env.SEED_ADMIN_EMAIL || 'admin@directoriocerca.com',
+    adminEmail: process.env.SEED_ADMIN_EMAIL || 'midirectoriocerca@proton.me',
     adminPassword: process.env.SEED_ADMIN_PASSWORD || 'Admin123!',
   },
 

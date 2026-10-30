@@ -64,7 +64,7 @@ Panel de administración: `http://localhost:3000/admin/login` (acceso solo por U
 **Credenciales por defecto** (cámbialas en `.env` antes de `db:seed`):
 
 ```
-Email:      admin@directoriocerca.com
+Email:      midirectoriocerca@proton.me
 Contraseña: Admin123!
 ```
 
@@ -78,6 +78,12 @@ En `.env` define `MAIL_TRANSPORT`:
 - `ethereal`: crea una cuenta de prueba **gratis** y muestra una URL para ver el correo.
 - `smtp`: envío real. Completa `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS`, `MAIL_FROM` y `ADMIN_EMAIL`.
   Ejemplos de proveedores: Gmail (App Password), Brevo, SendGrid, Mailgun, Zoho.
+
+El correo de contacto y de avisos es `midirectoriocerca@proton.me`. Proton Mail no ofrece SMTP en cuentas
+gratuitas: para enviar desde esa dirección necesitas **Proton Mail Bridge** (servidor local) o un plan
+**Proton Business** con SMTP. Si usas otro proveedor (Brevo, Gmail, etc.) para enviar, configura
+`MAIL_FROM` con una dirección verificada del proveedor y `ADMIN_EMAIL=midirectoriocerca@proton.me`
+para que los avisos lleguen a tu Proton.
 
 ---
 

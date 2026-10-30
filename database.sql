@@ -212,7 +212,7 @@ ON CONFLICT (slug) DO NOTHING;
 -- ── NOTA SOBRE EL ADMINISTRADOR ─────────────────────────────────────────
 -- El administrador se crea/actualiza con "npm run db:seed" usando las
 -- variables SEED_ADMIN_* del archivo .env (la contraseña se hashea con bcrypt).
--- Credenciales por defecto: admin@directoriocerca.com / Admin123!
+-- Credenciales por defecto: midirectoriocerca@proton.me / Admin123!
 
 -- ───────────────────────────────────────────────────────────────────────────
 -- ── DEPARTAMENTOS Y CIUDADES DE COLOMBIA (fuente: DANE – DIVIPOLA) ───────

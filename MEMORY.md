@@ -79,3 +79,7 @@ ode --check, modulo storage carga y save/delete OK.
 - **Problema:** `No se pudo guardar la imagen en /workspace/app/public/uploads/anuncios/...` (public/ no escribible o EACCES en Pxxl).
 - **Solucion:** `storage.service.js` prueba carpetas en orden: `public/uploads` -> `<proyecto>/uploads` -> `os.tmpdir()/directoriocerca/uploads`; usa la primera escribible (probe real de escritura/borrado) y reintenta en `saveBuffer` si falla. `server.js` sirve todas esas rutas en `/uploads`. `UPLOAD_DIR` ahora admite ruta absoluta (URL sigue siendo `/uploads`). Se loguea `[storage] Carpeta de subidas activa: ...`.
 - **Ojo:** en Pxxl `/tmp` puede borrarse al reiniciar; para persistencia configurar `UPLOAD_DIR` a una ruta absoluta persistente/montada.
+
+## Correo del servicio actualizado (2026-10-29)
+- **Cambio:** correo unificado a `midirectoriocerca@proton.me` en vistas públicas (`contacto`, `privacidad`, `terminos`, `index`), `env.js`, `.env.example`, `database.sql`, `README.md` y cuenta de administrador local en BD.
+- **Avisos:** `ADMIN_EMAIL` y `MAIL_FROM` ahora usan `midirectoriocerca@proton.me`. Los mensajes de contacto y avisos de vencimiento van dirigidos a este correo.
