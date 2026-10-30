@@ -97,8 +97,8 @@
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo enviar');
-      msg.textContent = '¡Mensaje enviado! Te contactaremos pronto.';
-      msg.className = 'text-sm text-success-600';
+      msg.textContent = data.message || 'Solicitud recibida.';
+      msg.className = data.emailSent ? 'text-sm text-success-600' : 'text-sm text-error-600';
       form.reset();
     } catch (err) {
       msg.textContent = err.message || 'Error al enviar el mensaje';

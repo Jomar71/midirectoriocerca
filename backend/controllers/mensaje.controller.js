@@ -36,13 +36,21 @@ async function crear(req, res, next) {
     const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip;
     await mensajeModel.create({ anuncioId, nombre, email, telefono, mensaje, ip });
 
-    // Envío de correos: no bloqueamos la respuesta si el correo falla.
-    mailService.notifyNewMessage({ anuncio: anuncioNombre, nombre, email, telefono, mensaje })
-      .catch((e) => console.warn('[mail] No se pudo notificar al admin:', e.message));
+    let emailSent = false;
+    try {
+      const result = await mailService.notifyNewMessage({ anuncio: anuncioNombre, nombre, email, telefono, mensaje });
+      emailSent = result.sent;
+      if (!emailSent) console.warn('[mail] La solicitud se guardó, pero el transporte actual no envía correo real.');
+    } catch (e) {
+      console.warn('[mail] No se pudo notificar al admin:', e.message);
+    }
     mailService.autoReply({ to: email, nombre, anuncio: anuncioNombre })
       .catch((e) => console.warn('[mail] No se pudo enviar autorrespuesta:', e.message));
 
-    return res.status(201).json({ ok: true, message: 'Mensaje enviado. Te contactaremos pronto.' });
+    const responseMessage = emailSent
+      ? 'Solicitud guardada y aviso enviado al correo de DirectorioCerca.'
+      : 'Solicitud guardada en la página, pero no se pudo enviar el aviso por correo. Revisa la configuración SMTP.';
+    return res.status(201).json({ ok: true, emailSent, message: responseMessage });
   } catch (e) {
     return next(e);
   }

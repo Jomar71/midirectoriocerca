@@ -52,7 +52,7 @@ async function send({ to, subject, html, replyTo }) {
   }
   const url = nodemailer.getTestMessageUrl(info);
   if (url) etherealPreview = url;
-  return { info, previewUrl: url || etherealPreview };
+  return { info, previewUrl: url || etherealPreview, sent: env.mail.transport === 'smtp' };
 }
 
 const base = (title, body) => `

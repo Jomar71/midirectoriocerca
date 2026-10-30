@@ -92,3 +92,4 @@ ode --check, modulo storage carga y save/delete OK.
 ## Destino de formularios por correo (2026-10-30)
 - Notificaciones de contacto y afiliación usan `midirectoriocerca@proton.me` como destinatario fijo.
 - En producción se fuerza SMTP para evitar el modo JSON, que solo registra correos en consola; el despliegue necesita configurar credenciales SMTP válidas para entregar mensajes.
+- El formulario ahora informa si SMTP aceptó el aviso; las solicitudes continúan guardándose aunque falle el email, para no perderlas.
