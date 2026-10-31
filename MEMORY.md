@@ -31,7 +31,7 @@
 - Tema publico usa `localStorage['dc-theme']`; admin/login permanecen claros.
 - Busqueda publica pagina hasta 20 resultados; resultados se muestran en `/resultados`.
 - Colombia: departamentos/ciudades vienen de DANE; matching de ciudades tolera acentos y sufijos.
-- Las fichas usan Leaflet desde unpkg + teselas OpenStreetMap; zoom por rueda/pellizco sin controles de flechas. El mapa se muestra inline, con nombre del negocio en el marcador y enlace opcional a Google Maps; si faltan coordenadas exactas, usa Bogota como centro de respaldo.
+- Las fichas usan Leaflet desde unpkg + teselas MapTiler; zoom por rueda/pellizco sin controles de zoom. Geocodifica y guarda coordenadas al crear/editar si faltan; no muestra un punto falso si no hay resultados. `MAPTILER_API_KEY` se restringe al dominio y tambien se usa desde backend para geocodificar.
 - El boton de correo abre un `mailto:` dirigido al email del anuncio, con asunto fijo "Contacto desde la web"; el destino se codifica en `data-email-href`, no se muestra en texto ni en datos estructurados, y se activa al clic para evitar la reescritura de Cloudflare. El destinatario no configura nada. Depende de una app de correo del visitante; el formulario web es la alternativa y usa SMTP configurado una vez para el sitio.
 
 ## Decisiones recientes
@@ -42,6 +42,6 @@
 - Para WhatsApp, preservar codigo de pais si el telefono ya trae prefijo `+` o `00`; numeros nacionales usan Colombia (+57).
 - 2026-10-31: fichas SEO/estado/WhatsApp; contacto de ficha redirigido al email del anuncio con copia oculta al admin y enlace mailto con asunto/cuerpo.
 - 2026-10-31: URLs del sitio se basan en el origen de `APP_URL`; el correo de nueva consulta no incluye enlaces.
-- 2026-10-31: boton abre mailto al email publicado (sin config del destinatario); formulario web usa SMTP global. Para mapas, Leaflet cuando hay coordenadas y Google Maps iframe interactivo como respaldo o cuando no hay coordenadas.
+- 2026-10-31: boton abre mailto al email publicado (sin config del destinatario); formulario web usa SMTP global.
 - 2026-10-31: Cloudflare reescribia el `href` del boton de correo a `/cdn-cgi/l/email-protection`; la ficha ahora codifica el destino y lo abre en el clic para evitar esa transformacion.
-- 2026-10-31: mapa de ficha cambiado de iframes y assets locales a Leaflet unpkg inline; CSP permite unpkg y coordenadas incompletas usan Bogota.
+- 2026-10-31: mapa de ficha usa MapTiler en Leaflet; geocodifica al guardar anuncios sin coordenadas y evita el fallback geográfico incorrecto.

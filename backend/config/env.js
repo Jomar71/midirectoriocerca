@@ -23,6 +23,9 @@ const env = {
   isProd: (process.env.NODE_ENV || 'development') === 'production',
   port: num(process.env.PORT, 3000),
   appUrl: appUrl.origin,
+  maptiler: {
+    apiKey: process.env.MAPTILER_API_KEY || '',
+  },
 
   jwt: {
     secret: process.env.JWT_SECRET || 'cambia_este_secreto',

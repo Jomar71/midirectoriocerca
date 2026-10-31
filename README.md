@@ -17,7 +17,7 @@ Directorio empresarial en línea, escalable y listo para producción. Sitio **p�
 4. Enlaces a **web, YouTube, Facebook, Instagram, TikTok**.
 5. **Formulario de consultas**: guarda los mensajes en el panel, los envía al correo de la ficha y copia al administrador cuando SMTP está configurado. El botón «Enviar correo» abre el correo dirigido al email del anuncio con el asunto «Contacto desde la web»; el destino va codificado en un atributo `data-` y no se imprime como texto ni en los datos estructurados de la ficha. El destinatario no necesita configurar nada. Si el visitante no tiene una aplicación de correo, puede usar el formulario, cuyo envío usa el SMTP configurado una sola vez para el sitio.
 6. **SEO**: metaetiquetas, Open Graph, Twitter Card y **Schema.org LocalBusiness**.
-7. **Mapa interactivo visible en la ficha** con Leaflet desde unpkg y teselas de OpenStreetMap: zoom con la rueda del ratón y gesto de pellizco en móviles, sin botones de flechas. Usa las coordenadas de la ficha o el centro de Bogotá como respaldo; el enlace **Abrir en Google Maps** permite navegar a la dirección.
+7. **Mapa interactivo visible en la ficha** con Leaflet y teselas de MapTiler: zoom con la rueda del ratón y gesto de pellizco en móviles, sin botones de zoom. Usa coordenadas guardadas en la ficha; si faltan, se intenta geocodificar la dirección al crear o guardar el anuncio. Si falla, no inventa una ubicación y permite ingresar coordenadas manualmente.
 8. **Traducción** a todos los idiomas (Google Translate Widget).
 9. **10 palabras clave** de búsqueda.
 10. **6 cambios** gratis por anuncio (contador + auditoría en el panel).
@@ -84,6 +84,14 @@ gratuitas: para enviar desde esa dirección necesitas **Proton Mail Bridge** (se
 **Proton Business** con SMTP. Si usas otro proveedor (Brevo, Gmail, etc.) para enviar, configura
 `MAIL_FROM` con una dirección verificada del proveedor. `APP_URL` debe ser el origen del sitio (por ejemplo, `https://midirectoriocerca.pxxlspace.cv`), sin rutas como `/admin/panel`.
 El correo de nueva consulta no contiene enlaces a fichas ni al panel. Los enlaces del sitio se generan desde el origen configurado en `APP_URL`.
+
+---
+
+## Configuración de mapas y geocodificación
+
+Define `MAPTILER_API_KEY` en el entorno del servidor. La clave se utiliza para las teselas del mapa y para geocodificar dirección, ciudad y país al crear o guardar una ficha que no tenga coordenadas. Restringe la clave desde MapTiler al dominio de producción y, durante desarrollo, al host local correspondiente. La clave para mostrar teselas se envía al navegador y por eso debe tratarse como una clave pública restringida, no como una contraseña.
+
+Las fichas existentes sin coordenadas pueden actualizarse y guardarse desde el panel para intentar geocodificarlas. Si MapTiler no encuentra la dirección o no está configurado, la ficha no muestra un marcador de otra ciudad: el administrador recibe un aviso y puede ingresar latitud y longitud manualmente. El mapa ofrece además un enlace a Google Maps.
 
 ---
 
@@ -239,7 +247,7 @@ Pxxl construye con el pipeline **install → build → start** y luego hace un *
 | Puerto           | el que asigne Pxxl (la app lee `PORT`)           |
 | Health check     | `/health` (responde `200` sin tocar la BD)       |
 
-**Secretos** obligatorios en el panel (no van en el repo): `NODE_ENV=production`, `JWT_SECRET`, `APP_URL` (tu dominio público), `DATABASE_URL` (cadena del Postgres gestionado) y `PGSSL=true`.
+**Secretos** obligatorios en el panel (no van en el repo): `NODE_ENV=production`, `JWT_SECRET`, `APP_URL` (tu dominio público), `DATABASE_URL` (cadena del Postgres gestionado) y `PGSSL=true`. Configura además la clave pública `MAPTILER_API_KEY` y restríngela al dominio publicado desde el panel de MapTiler.
 
 > El servidor escucha en `0.0.0.0` y lee `PORT`, requisito de las PaaS. Antes de la primera petición hay que aplicar `database.sql` sobre la base provisionada: copia la cadena de conexión de Pxxl y ejecuta desde tu máquina `DATABASE_URL=... PGSSL=true npm run db:load` (no uses `db:init`, intenta crear la base y en un Postgres gestionado no está permitido).
 

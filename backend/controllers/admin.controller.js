@@ -14,6 +14,8 @@ const { parsePagination, buildMeta } = require('../utils/pagination');
 const { invalidatePublicCache } = require('../middlewares/cache');
 const { withTransaction } = require('../config/db');
 const S = require('../utils/sanitize');
+const env = require('../config/env');
+const { geocodeAddress } = require('../services/geocoding.service');
 
 const ESTADOS = ['activo', 'vencido', 'deshabilitado', 'pendiente'];
 
@@ -51,6 +53,46 @@ function payloadFromBody(b) {
     fecha_inicio: inicio,
     fecha_vencimiento: vencimiento,
   };
+}
+
+function validCoordinates(latitud, longitud) {
+  if (latitud == null || latitud === '' || longitud == null || longitud === '') return false;
+  const lat = Number(latitud);
+  const lng = Number(longitud);
+  return Number.isFinite(lat) && lat >= -90 && lat <= 90
+    && Number.isFinite(lng) && lng >= -180 && lng <= 180;
+}
+
+async function resolveCoordinates(data, existing = null) {
+  const hasCoordinates = validCoordinates(data.latitud, data.longitud);
+  const locationChanged = existing && ['direccion', 'ciudad', 'pais']
+    .some((field) => String(data[field] || '').trim() !== String(existing[field] || '').trim());
+  const coordinatesChanged = existing
+    && ((data.latitud == null) !== (existing.latitud == null)
+      || (data.longitud == null) !== (existing.longitud == null)
+      || (data.latitud != null && Number(data.latitud) !== Number(existing.latitud))
+      || (data.longitud != null && Number(data.longitud) !== Number(existing.longitud)));
+
+  if (hasCoordinates && (!locationChanged || coordinatesChanged)) return null;
+  data.latitud = null;
+  data.longitud = null;
+
+  if (!env.maptiler.apiKey) {
+    return 'No se pudieron calcular las coordenadas. Configura MAPTILER_API_KEY o ingrésalas manualmente.';
+  }
+
+  try {
+    const coordinates = await geocodeAddress(data);
+    if (coordinates) {
+      data.latitud = coordinates.latitud;
+      data.longitud = coordinates.longitud;
+      return null;
+    }
+    return 'No se encontró la ubicación. Revisa la dirección o ingresa las coordenadas manualmente.';
+  } catch (error) {
+    console.error(`[admin] Geocodificación de anuncio fallida: ${error.message}`);
+    return 'No se pudo consultar MapTiler. El anuncio se guardó sin coordenadas; puedes ingresarlas manualmente.';
+  }
 }
 
 function collectFiles(req) {
@@ -122,12 +164,17 @@ async function createAnuncio(req, res, next) {
     if (!data.razon_social || !data.descripcion_50) {
       return res.status(422).json({ ok: false, error: 'Razón social y descripción son obligatorias.' });
     }
+    const locationWarning = await resolveCoordinates(data);
     data.slug = await uniqueSlug(data.razon_social, (s) => anuncioModel.slugExists(s));
 
     const id = await anuncioModel.create(data);
     await saveUploadedFotos(id, collectFiles(req));
     await invalidatePublicCache();
-    return res.status(201).json({ ok: true, id, message: 'Anuncio creado.' });
+    return res.status(201).json({
+      ok: true,
+      id,
+      message: `Anuncio creado.${locationWarning ? ` ${locationWarning}` : ''}`,
+    });
   } catch (e) { next(e); }
 }
 
@@ -140,6 +187,7 @@ async function updateAnuncio(req, res, next) {
     if (!data.razon_social || !data.descripcion_50) {
       return res.status(422).json({ ok: false, error: 'Razón social y descripción son obligatorias.' });
     }
+    const locationWarning = await resolveCoordinates(data, existing);
     // Mantiene el slug si la razón social no cambió; si cambió, genera uno nuevo.
     data.slug = data.razon_social === existing.razon_social
       ? existing.slug
@@ -156,7 +204,11 @@ async function updateAnuncio(req, res, next) {
     ));
 
     await invalidatePublicCache();
-    return res.json({ ok: true, message: 'Anuncio actualizado.', cambios_usados: usados });
+    return res.json({
+      ok: true,
+      message: `Anuncio actualizado.${locationWarning ? ` ${locationWarning}` : ''}`,
+      cambios_usados: usados,
+    });
   } catch (e) { next(e); }
 }
 

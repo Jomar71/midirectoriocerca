@@ -21,21 +21,23 @@
     <meta name="twitter:title" content="<%= meta.title %>">
     <meta name="twitter:description" content="<%= meta.description %>">
   <% } %>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <style>
-    #mapa {
-      width: 100%;
-      height: 400px;
-      max-width: 100%;
-    }
-
-    @media (max-width: 640px) {
+  <% if (mapCoordinates && maptilerPublicKey) { %>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
       #mapa {
-        height: min(400px, 60vh);
-        min-height: 300px;
+        width: 100%;
+        height: 400px;
+        max-width: 100%;
       }
-    }
-  </style>
+
+      @media (max-width: 640px) {
+        #mapa {
+          height: min(400px, 60vh);
+          min-height: 300px;
+        }
+      }
+    </style>
+  <% } %>
   <% if (typeof jsonLd !== 'undefined' && jsonLd) { %>
     <script type="application/ld+json"><%- jsonLd %></script>
   <% } %>
@@ -107,45 +109,74 @@
           <% if (anuncio.direccion) { %>
             <p class="text-neutral-500 dark:text-slate-400 mt-1 mb-4 break-words"><%= [anuncio.direccion, anuncio.ciudad, anuncio.pais].filter(Boolean).join(', ') %></p>
           <% } %>
-          <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">
-            Arrastra para moverte; usa la rueda del ratón o pellizca la pantalla para acercar o alejar.
-          </p>
-          <div id="mapa"
-            data-latitud="<%= anuncio.latitud %>"
-            data-longitud="<%= anuncio.longitud %>"
-            data-nombre="<%= anuncio.razon_social %>"
-            aria-label="Mapa interactivo de la ubicación del negocio"
-            class="rounded-xl overflow-hidden border border-neutral-200 dark:border-slate-700"></div>
-          <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-          <script>
-            (() => {
-              const container = document.getElementById('mapa');
-              const latValue = container.dataset.latitud.trim();
-              const lngValue = container.dataset.longitud.trim();
-              const lat = latValue === '' ? NaN : Number(latValue);
-              const lng = lngValue === '' ? NaN : Number(lngValue);
-              const validCoordinates = Number.isFinite(lat) && lat >= -90 && lat <= 90
-                && Number.isFinite(lng) && lng >= -180 && lng <= 180;
-              const center = validCoordinates ? [lat, lng] : [4.6097, -74.0817];
-              const map = L.map(container, {
-                center,
-                zoom: 15,
-                scrollWheelZoom: true,
-                touchZoom: true,
-                dragging: true,
-                zoomControl: false,
-              });
+          <% if (mapCoordinates && maptilerPublicKey) { %>
+            <% if (approximateMapLocation) { %>
+              <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">Ubicación aproximada del municipio. Arrastra para moverte; usa la rueda o pellizca para acercar.</p>
+            <% } else { %>
+              <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">Arrastra para moverte; usa la rueda del ratón o pellizca la pantalla para acercar o alejar.</p>
+            <% } %>
+            <div id="mapa"
+              data-latitud="<%= mapCoordinates.latitud %>"
+              data-longitud="<%= mapCoordinates.longitud %>"
+              data-nombre="<%= anuncio.razon_social %>"
+              data-api-key="<%= maptilerPublicKey %>"
+              aria-label="Mapa interactivo de la ubicación del negocio"
+              class="rounded-xl overflow-hidden border border-neutral-200 dark:border-slate-700"></div>
+            <p id="mapa-error" class="hidden mt-2 text-sm text-error-600" role="status"></p>
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <script>
+              (() => {
+                const container = document.getElementById('mapa');
+                const error = document.getElementById('mapa-error');
+                if (!window.L) {
+                  error.textContent = 'No se pudo cargar Leaflet. Comprueba tu conexión e inténtalo de nuevo.';
+                  error.classList.remove('hidden');
+                  return;
+                }
 
-              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-              }).addTo(map);
+                const center = [
+                  Number(container.dataset.latitud),
+                  Number(container.dataset.longitud),
+                ];
+                const map = L.map(container, {
+                  center,
+                  zoom: 15,
+                  scrollWheelZoom: true,
+                  touchZoom: true,
+                  dragging: true,
+                  zoomControl: false,
+                });
+                const tiles = L.tileLayer(
+                  `https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png?key=${encodeURIComponent(container.dataset.apiKey)}`,
+                  {
+                    tileSize: 512,
+                    zoomOffset: -1,
+                    minZoom: 1,
+                    maxZoom: 20,
+                    attribution: '&copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
+                    crossOrigin: true,
+                  },
+                );
+                tiles.on('tileerror', () => {
+                  error.textContent = 'No se pudieron cargar las teselas del mapa. Verifica la clave y el dominio permitido en MapTiler.';
+                  error.classList.remove('hidden');
+                });
+                tiles.addTo(map);
 
-              const name = document.createElement('span');
-              name.textContent = container.dataset.nombre;
-              L.marker(center).addTo(map).bindPopup(name);
-            })();
-          </script>
+                const name = document.createElement('span');
+                name.textContent = container.dataset.nombre;
+                L.marker(center).addTo(map).bindPopup(name);
+              })();
+            </script>
+          <% } else { %>
+            <p class="text-sm text-neutral-600 dark:text-slate-300">
+              <% if (!maptilerPublicKey) { %>
+                El mapa todavía no está configurado. Si administras el sitio, agrega MAPTILER_API_KEY con un dominio autorizado.
+              <% } else { %>
+                No hay coordenadas disponibles para mostrar el mapa. Actualiza la ficha para geocodificar la dirección o agrega latitud y longitud.
+              <% } %>
+            </p>
+          <% } %>
           <% if (mapsLink) { %>
             <a href="<%= mapsLink %>" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex min-h-10 items-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2">
               Abrir en Google Maps

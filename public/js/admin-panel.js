@@ -297,12 +297,13 @@
     const fd = new FormData(formAnuncio);
 
     try {
+      let result;
       if (state.anuncioEditando) {
-        await api(`/anuncios/${state.anuncioEditando}`, { method: 'PUT', body: fd });
+        result = await api(`/anuncios/${state.anuncioEditando}`, { method: 'PUT', body: fd });
       } else {
-        await api('/anuncios', { method: 'POST', body: fd });
+        result = await api('/anuncios', { method: 'POST', body: fd });
       }
-      toast('Anuncio guardado');
+      toast(result.message || 'Anuncio guardado');
       closeAnuncioModal();
       loadAnuncios();
     } catch (err) {
