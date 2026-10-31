@@ -17,7 +17,7 @@ Directorio empresarial en línea, escalable y listo para producción. Sitio **p�
 4. Enlaces a **web, YouTube, Facebook, Instagram, TikTok**.
 5. **Formulario de consultas**: guarda los mensajes en el panel, los envía al correo de la ficha y copia al administrador cuando SMTP está configurado. El botón «Enviar correo» abre el correo dirigido al email del anuncio con el asunto «Contacto desde la web»; el destino va codificado en un atributo `data-` y no se imprime como texto ni en los datos estructurados de la ficha. El destinatario no necesita configurar nada. Si el visitante no tiene una aplicación de correo, puede usar el formulario, cuyo envío usa el SMTP configurado una sola vez para el sitio.
 6. **SEO**: metaetiquetas, Open Graph, Twitter Card y **Schema.org LocalBusiness**.
-7. **Mapa interactivo visible en la ficha** con Leaflet y teselas de MapTiler: zoom con la rueda del ratón y gesto de pellizco en móviles, sin botones de zoom. Usa coordenadas guardadas en la ficha; si faltan, se intenta geocodificar la dirección al crear o guardar el anuncio. Si falla, no inventa una ubicación y permite ingresar coordenadas manualmente.
+7. **Mapa interactivo visible en la ficha** con Leaflet y teselas de MapTiler: inicia en vista satélite e incluye selector de vista de calles, zoom con la rueda del ratón y gesto de pellizco en móviles, sin botones de zoom. Usa coordenadas guardadas en la ficha; si faltan, se intenta geocodificar la dirección al crear o guardar el anuncio. Si falla, no inventa una ubicación y permite ingresar coordenadas manualmente.
 8. **Traducción** a todos los idiomas (Google Translate Widget).
 9. **10 palabras clave** de búsqueda.
 10. **6 cambios** gratis por anuncio (contador + auditoría en el panel).
