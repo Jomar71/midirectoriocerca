@@ -99,6 +99,11 @@
           maxZoom: 19,
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         });
+        const revealMap = () => {
+          const fallback = mapElement.querySelector('[data-map-fallback]');
+          if (fallback) fallback.style.display = 'none';
+        };
+        tiles.on('load', revealMap);
         tiles.addTo(map);
         const marker = window.L.marker([lat, lng]).addTo(map);
         if (mapElement.dataset.address) {

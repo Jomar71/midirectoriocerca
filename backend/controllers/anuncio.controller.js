@@ -154,9 +154,13 @@ async function renderAnuncio(req, res, next) {
     const emailHref = anuncio.email
       ? `mailto:${anuncio.email}?subject=${encodeURIComponent(emailSubject)}`
       : null;
-    const webmailHref = anuncio.email
-      ? `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(anuncio.email)}&su=${encodeURIComponent(emailSubject)}`
-      : null;
+    const mapQuery = [
+      anuncio.direccion,
+      anuncio.ciudad,
+      anuncio.pais,
+    ].filter(Boolean).join(', ') || (mapCoordinates
+      ? `${mapCoordinates.latitud},${mapCoordinates.longitud}`
+      : '');
     return res.render('anuncio', {
       title: `${anuncio.razon_social} | DirectorioCerca`,
       meta: seo.metaFor({
@@ -172,7 +176,9 @@ async function renderAnuncio(req, res, next) {
       mapCoordinates,
       approximateMapLocation,
       emailHref,
-      webmailHref,
+      mapsEmbedLink: mapQuery
+        ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`
+        : null,
       jsonLd: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
       keywords,
       cleanMobile: (anuncio.telefono_movil || '').replace(/[^0-9]/g, ''),
@@ -180,12 +186,8 @@ async function renderAnuncio(req, res, next) {
         ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hola, vi su anuncio "${anuncio.razon_social}" en DirectorioCerca y deseo información.`)}`
         : null,
       whatsappText: encodeURIComponent(`Mira este negocio en DirectorioCerca: ${anuncio.razon_social} → ${env.appUrl}/anuncio/${anuncio.slug}`),
-      mapsLink: anuncio.direccion || mapCoordinates
-        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([
-          anuncio.direccion,
-          anuncio.ciudad,
-          anuncio.pais,
-        ].filter(Boolean).join(', ') || `${mapCoordinates.latitud},${mapCoordinates.longitud}`)}`
+      mapsLink: mapQuery
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`
         : null,
     });
   } catch (e) {
