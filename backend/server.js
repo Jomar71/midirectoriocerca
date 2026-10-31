@@ -37,6 +37,7 @@ app.set('views', path.join(__dirname, '..', 'views'));
 
 // ── Seguridad ───────────────────────────────────────────────────────────
 app.use(helmet({
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],

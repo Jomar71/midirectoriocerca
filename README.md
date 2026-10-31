@@ -89,7 +89,7 @@ El correo de nueva consulta no contiene enlaces a fichas ni al panel. Los enlace
 
 ## Configuración de mapas y geocodificación
 
-Define `MAPTILER_API_KEY` en el entorno del servidor. La clave se utiliza para las teselas del mapa y para geocodificar dirección, ciudad y país al crear un anuncio o cambiar su ubicación. No se solicitan coordenadas manuales. Restringe la clave desde MapTiler al dominio de producción y, durante desarrollo, al host local correspondiente. La clave para mostrar teselas se envía al navegador y por eso debe tratarse como una clave pública restringida, no como una contraseña.
+Define `MAPTILER_API_KEY` en el entorno del servidor. La clave se utiliza para las teselas del mapa y para geocodificar dirección, ciudad y país al crear un anuncio o cambiar su ubicación. No se solicitan coordenadas manuales. Restringe la clave desde MapTiler al dominio de producción y, durante desarrollo, al host local correspondiente. El servidor envía solo el origen del sitio en el encabezado `Referer`, necesario para validar una clave restringida por dominio; no envía la ruta de la ficha. La clave para mostrar teselas se envía al navegador y por eso debe tratarse como una clave pública restringida, no como una contraseña.
 
 Las fichas existentes sin coordenadas pueden actualizarse y guardarse desde el panel para intentar geocodificarlas. La importación CSV también geocodifica cada fila y reporta las ubicaciones pendientes. Si MapTiler no encuentra la dirección, las coordenadas quedan nulas y la ficha muestra el mapa centrado en Bogotá como referencia, sin un marcador del negocio. El mapa ofrece además un enlace a Google Maps.
 
