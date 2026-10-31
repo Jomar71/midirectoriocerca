@@ -45,14 +45,16 @@ app.use(helmet({
         'https://cdn.tailwindcss.com',
         'https://translate.google.com', 'https://translate.googleapis.com',
         'https://www.google.com', 'https://www.gstatic.com',
+        'https://unpkg.com',
       ],
       scriptSrcElem: [
         "'self'", "'unsafe-inline'",
         'https://cdn.tailwindcss.com',
         'https://translate.google.com', 'https://translate.googleapis.com',
         'https://www.google.com', 'https://www.gstatic.com',
+        'https://unpkg.com',
       ],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdn.tailwindcss.com', 'https://translate.googleapis.com', 'https://www.gstatic.com'],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdn.tailwindcss.com', 'https://translate.googleapis.com', 'https://www.gstatic.com', 'https://unpkg.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
       imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
       connectSrc: ["'self'", 'https://translate.googleapis.com'],
@@ -104,13 +106,6 @@ app.use('/vendor/shaders', express.static(SHADERS_DIST, {
   immutable: true,
   index: false,
   setHeaders: (res) => { res.setHeader('Content-Type', 'text/javascript; charset=utf-8'); },
-}));
-
-const LEAFLET_DIST = path.join(__dirname, '..', 'node_modules', 'leaflet', 'dist');
-app.use('/vendor/leaflet', express.static(LEAFLET_DIST, {
-  maxAge: env.isProd ? '30d' : 0,
-  immutable: env.isProd,
-  index: false,
 }));
 
 // ── Health check (Pxxl y balanceadores) ─────────────────────────────────

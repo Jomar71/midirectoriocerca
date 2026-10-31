@@ -17,7 +17,7 @@ Directorio empresarial en línea, escalable y listo para producción. Sitio **p�
 4. Enlaces a **web, YouTube, Facebook, Instagram, TikTok**.
 5. **Formulario de consultas**: guarda los mensajes en el panel, los envía al correo de la ficha y copia al administrador cuando SMTP está configurado. El botón «Enviar correo» abre el correo dirigido al email del anuncio con el asunto «Contacto desde la web»; el destino va codificado en un atributo `data-` y no se imprime como texto ni en los datos estructurados de la ficha. El destinatario no necesita configurar nada. Si el visitante no tiene una aplicación de correo, puede usar el formulario, cuyo envío usa el SMTP configurado una sola vez para el sitio.
 6. **SEO**: metaetiquetas, Open Graph, Twitter Card y **Schema.org LocalBusiness**.
-7. **Mapa interactivo visible en la ficha** sin botones de flechas: zoom con la rueda del ratón y gesto de pellizco en móviles. Usa coordenadas de la ficha o, en Colombia, el centro municipal DANE; si faltan coordenadas, incrusta Google Maps buscando la dirección. El enlace **Mirar mapa** abre la ubicación completa.
+7. **Mapa interactivo visible en la ficha** con Leaflet desde unpkg y teselas de OpenStreetMap: zoom con la rueda del ratón y gesto de pellizco en móviles, sin botones de flechas. Usa las coordenadas de la ficha o el centro de Bogotá como respaldo; el enlace **Abrir en Google Maps** permite navegar a la dirección.
 8. **Traducción** a todos los idiomas (Google Translate Widget).
 9. **10 palabras clave** de búsqueda.
 10. **6 cambios** gratis por anuncio (contador + auditoría en el panel).

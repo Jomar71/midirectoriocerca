@@ -77,46 +77,6 @@
     }
   });
 
-  // ── Mapa interactivo ────────────────────────────────────────────────
-  const mapElement = document.getElementById('anuncio-mapa');
-  if (mapElement) {
-    if (window.L) {
-      const lat = Number(mapElement.dataset.latitud);
-      const lng = Number(mapElement.dataset.longitud);
-      if (!Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lng) || lng < -180 || lng > 180) {
-        console.error('[anuncio] Las coordenadas del mapa no son válidas.');
-      } else {
-        const map = window.L.map(mapElement, {
-          center: [lat, lng],
-          zoom: 15,
-          scrollWheelZoom: true,
-          touchZoom: true,
-          dragging: true,
-          zoomControl: false,
-        });
-
-        const tiles = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        });
-        const revealMap = () => {
-          const fallback = mapElement.querySelector('[data-map-fallback]');
-          if (fallback) fallback.style.display = 'none';
-        };
-        tiles.on('load', revealMap);
-        tiles.addTo(map);
-        const marker = window.L.marker([lat, lng]).addTo(map);
-        if (mapElement.dataset.address) {
-          const address = document.createElement('span');
-          address.textContent = mapElement.dataset.address;
-          marker.bindPopup(address);
-        }
-      }
-    } else {
-      console.error('[anuncio] No se pudo cargar el mapa interactivo.');
-    }
-  }
-
   const emailLink = document.querySelector('[data-email-href]');
   if (emailLink) {
     emailLink.addEventListener('click', (event) => {
