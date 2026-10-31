@@ -23,6 +23,8 @@
 - En Postgres administrado usar `npm run db:load`, no `db:init`.
 - `MAIL_TRANSPORT=json` solo registra mensajes; produccion necesita SMTP configurado.
 - Los mensajes de una ficha se guardan y envian al correo de contacto del anuncio; el admin recibe copia oculta. Si SMTP falla, el API lo comunica y conserva el mensaje.
+- `APP_URL` se normaliza al origen HTTP(S); configurarlo solo con dominio, sin rutas. Evita enlaces internos duplicados como `/admin/panel/admin/panel`.
+- El correo de nueva consulta no debe incluir enlaces; algunos clientes convierten automaticamente nombres de negocio que parecen dominios en enlaces externos.
 - `STORAGE_DRIVER` solo admite local. Fotos se guardan originales, sin conversion WebP.
 - En Pxxl, `UPLOAD_DIR` persistente evita perder archivos si el fallback usa `/tmp`.
 - Tailwind y Google Translate usan CDN; dominios externos nuevos requieren actualizar CSP.
@@ -37,3 +39,4 @@
 - Fichas deben renderizar las etiquetas SEO y JSON-LD preparados por el controlador.
 - Para WhatsApp, preservar codigo de pais si el telefono ya trae prefijo `+` o `00`; numeros nacionales usan Colombia (+57).
 - 2026-10-31: fichas SEO/estado/WhatsApp; contacto de ficha redirigido al email del anuncio con copia oculta al admin y enlace mailto con asunto/cuerpo.
+- 2026-10-31: URLs del sitio se basan en el origen de `APP_URL`; el correo de nueva consulta no incluye enlaces.

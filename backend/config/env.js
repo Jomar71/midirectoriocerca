@@ -12,12 +12,17 @@ const bool = (v, def = false) =>
   v === undefined ? def : ['1', 'true', 'yes', 'on'].includes(String(v).toLowerCase());
 
 const num = (v, def) => (v === undefined || v === '' ? def : Number(v));
+const appUrl = new URL(process.env.APP_URL || 'http://localhost:3000');
+
+if (!['http:', 'https:'].includes(appUrl.protocol)) {
+  throw new Error('APP_URL debe usar el protocolo HTTP o HTTPS.');
+}
 
 const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   isProd: (process.env.NODE_ENV || 'development') === 'production',
   port: num(process.env.PORT, 3000),
-  appUrl: (process.env.APP_URL || 'http://localhost:3000').replace(/\/$/, ''),
+  appUrl: appUrl.origin,
 
   jwt: {
     secret: process.env.JWT_SECRET || 'cambia_este_secreto',

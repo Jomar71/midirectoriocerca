@@ -82,7 +82,8 @@ En producción configura `MAIL_TRANSPORT=smtp` y define:
 Los mensajes desde una ficha se envían al correo de contacto del anuncio y el administrador recibe una copia oculta. Los demás formularios y avisos se envían a `midirectoriocerca@proton.me`. Proton Mail no ofrece SMTP en cuentas
 gratuitas: para enviar desde esa dirección necesitas **Proton Mail Bridge** (servidor local) o un plan
 **Proton Business** con SMTP. Si usas otro proveedor (Brevo, Gmail, etc.) para enviar, configura
-`MAIL_FROM` con una dirección verificada del proveedor. El enlace de correo de cada ficha abre la aplicación de correo configurada en el dispositivo.
+`MAIL_FROM` con una dirección verificada del proveedor. `APP_URL` debe ser el origen del sitio (por ejemplo, `https://midirectoriocerca.pxxlspace.cv`), sin rutas como `/admin/panel`.
+El correo de nueva consulta no contiene enlaces a fichas ni al panel. Los enlaces del sitio se generan desde el origen configurado en `APP_URL`.
 
 ---
 

@@ -88,14 +88,13 @@ async function notifyNewMessage({ anuncio, anuncioEmail, nombre, email, telefono
     ? env.mail.adminEmail
     : undefined;
   const body = `
-    <p>Has recibido un mensaje en el anuncio <strong>${escapeHtml(anuncio)}</strong>.</p>
+    <p>Has recibido un nuevo mensaje a través del formulario de una ficha de DirectorioCerca.</p>
     <table style="width:100%;border-collapse:collapse">
       <tr><td style="padding:6px 0;color:#6b7280">Nombre</td><td>${escapeHtml(nombre)}</td></tr>
       <tr><td style="padding:6px 0;color:#6b7280">Email</td><td>${escapeHtml(email)}</td></tr>
       <tr><td style="padding:6px 0;color:#6b7280">Teléfono</td><td>${escapeHtml(telefono || '—')}</td></tr>
     </table>
-    <p style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;white-space:pre-wrap">${escapeHtml(mensaje)}</p>
-    <p><a href="${env.appUrl}/admin/panel" style="color:#2563eb">Abrir el panel de administración</a></p>`;
+    <p style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;white-space:pre-wrap">${escapeHtml(mensaje)}</p>`;
   return send({
     to,
     bcc,
