@@ -3,6 +3,27 @@
 <html lang="es">
 <head>
   <%- include('partials/head', { titulo: titulo }) %>
+  <% if (typeof meta !== 'undefined' && meta) { %>
+    <meta name="description" content="<%= meta.description %>">
+    <% if (meta.keywords) { %><meta name="keywords" content="<%= meta.keywords %>"><% } %>
+    <link rel="canonical" href="<%= meta.url %>">
+    <meta property="og:type" content="<%= meta.type %>">
+    <meta property="og:title" content="<%= meta.title %>">
+    <meta property="og:description" content="<%= meta.description %>">
+    <meta property="og:url" content="<%= meta.url %>">
+    <% if (meta.image) { %>
+      <meta property="og:image" content="<%= meta.image %>">
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:image" content="<%= meta.image %>">
+    <% } else { %>
+      <meta name="twitter:card" content="summary">
+    <% } %>
+    <meta name="twitter:title" content="<%= meta.title %>">
+    <meta name="twitter:description" content="<%= meta.description %>">
+  <% } %>
+  <% if (typeof jsonLd !== 'undefined' && jsonLd) { %>
+    <script type="application/ld+json"><%- jsonLd %></script>
+  <% } %>
 </head>
 <body class="bg-neutral-50 text-neutral-800 dark:bg-slate-900 dark:text-slate-100 font-sans">
   <%- include('partials/header') %>
@@ -81,7 +102,7 @@
         <!-- Formulario de contacto -->
         <section class="bg-white dark:bg-slate-800 rounded-2xl border border-neutral-200 dark:border-slate-700 p-4 sm:p-6 lg:p-7 shadow-sm min-w-0">
           <h2 class="font-display text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100 break-words">Escribe a este negocio</h2>
-          <p class="text-neutral-500 dark:text-slate-400 mt-1 break-words">Tu mensaje llega directamente al anunciante, con asistencia 24/7.</p>
+          <p class="text-neutral-500 dark:text-slate-400 mt-1 break-words">Tu mensaje queda registrado para que el equipo de DirectorioCerca pueda dar seguimiento a tu consulta.</p>
           <form id="contacto-form" class="mt-6 grid gap-4 sm:grid-cols-2 w-full min-w-0">
             <input type="hidden" name="anuncio_slug" value="<%= anuncio.slug %>">
             <input name="nombre" required placeholder="Tu nombre" aria-label="Tu nombre" autocomplete="name" class="h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0">

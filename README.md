@@ -15,7 +15,7 @@ Directorio empresarial en línea, escalable y listo para producción. Sitio **p�
 2. **Portafolio empresarial** (~50 palabras).
 3. Datos direccionales, teléfonos fijo y móvil, correos.
 4. Enlaces a **web, YouTube, Facebook, Instagram, TikTok**.
-5. **Formulario de contacto** (secretaría 24/7) que envía **correo real**.
+5. **Formulario de consultas**: guarda los mensajes en el panel y notifica al administrador por email cuando el transporte SMTP está configurado.
 6. **SEO**: metaetiquetas, Open Graph, Twitter Card y **Schema.org LocalBusiness**.
 7. **Mapa geosatelital** (Google Maps Embed).
 8. **Traducción** a todos los idiomas (Google Translate Widget).
@@ -173,6 +173,7 @@ El administrador decide manualmente **renovar** (12 meses) o **deshabilitar** de
 - URLs amigables: `/anuncio/nombre-empresa`.
 - `sitemap.xml` dinámico y `robots.txt`.
 - Metaetiquetas, Open Graph, Twitter Card y **JSON-LD LocalBusiness** por anuncio (renderizados en el servidor).
+- Solo los anuncios en estado **activo** se muestran en las fichas y la API pública.
 
 ---
 

@@ -111,11 +111,20 @@ function buildQueryString(query, overrides = {}) {
   return params.toString();
 }
 
+function whatsappPhoneNumber(phone) {
+  const value = String(phone || '').trim();
+  const digits = value.replace(/\D/g, '');
+  if (!digits) return '';
+  if (/^(?:\+|00)/.test(value)) return digits.replace(/^00/, '');
+  if (digits.startsWith('57')) return digits;
+  return `57${digits.replace(/^0+/, '')}`;
+}
+
 /** GET /anuncio/:slug → Ficha del anuncio. */
 async function renderAnuncio(req, res, next) {
   try {
     const anuncio = await anuncioModel.findBySlug(req.params.slug);
-    if (!anuncio || anuncio.estado === 'deshabilitado') {
+    if (!anuncio || anuncio.estado !== 'activo') {
       return res.status(404).render('404', { title: 'Anuncio no encontrado' });
     }
 
@@ -123,6 +132,7 @@ async function renderAnuncio(req, res, next) {
     const jsonLd = seo.localBusinessJsonLd(anuncio, fotos);
     const keywords = seo.keywordsArray(anuncio.palabras_clave, anuncio.razon_social);
     const imgPrincipal = fotos[0]?.url || '/img/placeholder.jpg';
+    const whatsappNumber = whatsappPhoneNumber(anuncio.telefono_movil);
 
     return res.render('anuncio', {
       title: `${anuncio.razon_social} | DirectorioCerca`,
@@ -136,11 +146,11 @@ async function renderAnuncio(req, res, next) {
       }),
       anuncio,
       fotos,
-      jsonLd: JSON.stringify(jsonLd),
+      jsonLd: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
       keywords,
       cleanMobile: (anuncio.telefono_movil || '').replace(/[^0-9]/g, ''),
-      whatsappDirectUrl: (anuncio.telefono_movil || '').replace(/[^0-9]/g, '')
-        ? `https://wa.me/${(anuncio.telefono_movil || '').replace(/[^0-9]/g, '').startsWith('57') ? (anuncio.telefono_movil || '').replace(/[^0-9]/g, '') : '57' + (anuncio.telefono_movil || '').replace(/[^0-9]/g, '').replace(/^0+/, '')}?text=${encodeURIComponent(`Hola, vi su anuncio "${anuncio.razon_social}" en DirectorioCerca y deseo información.`)}`
+      whatsappDirectUrl: whatsappNumber
+        ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hola, vi su anuncio "${anuncio.razon_social}" en DirectorioCerca y deseo información.`)}`
         : null,
       whatsappText: encodeURIComponent(`Mira este negocio en DirectorioCerca: ${anuncio.razon_social} → ${env.appUrl}/anuncio/${anuncio.slug}`),
       mapsEmbed: anuncio.latitud != null && anuncio.longitud != null
@@ -176,7 +186,7 @@ async function apiList(req, res, next) {
 async function apiGet(req, res, next) {
   try {
     const anuncio = await anuncioModel.findBySlug(req.params.slug);
-    if (!anuncio || anuncio.estado === 'deshabilitado') {
+    if (!anuncio || anuncio.estado !== 'activo') {
       return res.status(404).json({ ok: false, error: 'Anuncio no encontrado.' });
     }
     const fotos = await fotoModel.listByAnuncio(anuncio.id);
