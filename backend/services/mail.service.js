@@ -41,11 +41,12 @@ async function initMailer() {
   }
 }
 
-async function send({ to, subject, html, replyTo }) {
+async function send({ to, bcc, subject, html, replyTo }) {
   if (!transporter) await initMailer();
   const info = await transporter.sendMail({
     from: env.mail.from,
     to,
+    bcc,
     subject,
     html,
     replyTo,
@@ -72,18 +73,36 @@ const base = (title, body) => `
     </div>
   </div>`;
 
-/** Notifica al administrador de un nuevo mensaje de contacto. */
-async function notifyNewMessage({ anuncio, nombre, email, telefono, mensaje }) {
+const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+})[char]);
+
+/** Notifica al correo de contacto del anuncio y copia al administrador. */
+async function notifyNewMessage({ anuncio, anuncioEmail, nombre, email, telefono, mensaje }) {
+  const to = anuncioEmail || env.mail.adminEmail;
+  const bcc = anuncioEmail && anuncioEmail.toLowerCase() !== env.mail.adminEmail.toLowerCase()
+    ? env.mail.adminEmail
+    : undefined;
   const body = `
-    <p>Has recibido un mensaje en el anuncio <strong>${anuncio}</strong>.</p>
+    <p>Has recibido un mensaje en el anuncio <strong>${escapeHtml(anuncio)}</strong>.</p>
     <table style="width:100%;border-collapse:collapse">
-      <tr><td style="padding:6px 0;color:#6b7280">Nombre</td><td>${nombre}</td></tr>
-      <tr><td style="padding:6px 0;color:#6b7280">Email</td><td>${email}</td></tr>
-      <tr><td style="padding:6px 0;color:#6b7280">Teléfono</td><td>${telefono || '—'}</td></tr>
+      <tr><td style="padding:6px 0;color:#6b7280">Nombre</td><td>${escapeHtml(nombre)}</td></tr>
+      <tr><td style="padding:6px 0;color:#6b7280">Email</td><td>${escapeHtml(email)}</td></tr>
+      <tr><td style="padding:6px 0;color:#6b7280">Teléfono</td><td>${escapeHtml(telefono || '—')}</td></tr>
     </table>
-    <p style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;white-space:pre-wrap">${mensaje}</p>
+    <p style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;white-space:pre-wrap">${escapeHtml(mensaje)}</p>
     <p><a href="${env.appUrl}/admin/panel" style="color:#2563eb">Abrir el panel de administración</a></p>`;
-  return send({ to: env.mail.adminEmail, subject: `Nuevo mensaje en "${anuncio}"`, html: base('Nuevo mensaje de contacto', body), replyTo: email });
+  return send({
+    to,
+    bcc,
+    subject: `Nuevo mensaje en "${anuncio}"`,
+    html: base('Nuevo mensaje de contacto', body),
+    replyTo: email,
+  });
 }
 
 /** Aviso al administrador: anuncios próximos a vencer. */

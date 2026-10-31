@@ -15,7 +15,7 @@ Directorio empresarial en línea, escalable y listo para producción. Sitio **p�
 2. **Portafolio empresarial** (~50 palabras).
 3. Datos direccionales, teléfonos fijo y móvil, correos.
 4. Enlaces a **web, YouTube, Facebook, Instagram, TikTok**.
-5. **Formulario de consultas**: guarda los mensajes en el panel y notifica al administrador por email cuando el transporte SMTP está configurado.
+5. **Formulario de consultas**: guarda los mensajes en el panel, los envía al correo de la ficha y copia al administrador cuando SMTP está configurado.
 6. **SEO**: metaetiquetas, Open Graph, Twitter Card y **Schema.org LocalBusiness**.
 7. **Mapa geosatelital** (Google Maps Embed).
 8. **Traducción** a todos los idiomas (Google Translate Widget).
@@ -79,11 +79,10 @@ En producción configura `MAIL_TRANSPORT=smtp` y define:
 - `smtp`: envío real. Completa `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS` y `MAIL_FROM`. Producción fuerza SMTP aunque `MAIL_TRANSPORT` tenga otro valor.
   Ejemplos de proveedores: Gmail (App Password), Brevo, SendGrid, Mailgun, Zoho.
 
-El correo de destino para contactos, afiliaciones y avisos es `midirectoriocerca@proton.me`. Proton Mail no ofrece SMTP en cuentas
+Los mensajes desde una ficha se envían al correo de contacto del anuncio y el administrador recibe una copia oculta. Los demás formularios y avisos se envían a `midirectoriocerca@proton.me`. Proton Mail no ofrece SMTP en cuentas
 gratuitas: para enviar desde esa dirección necesitas **Proton Mail Bridge** (servidor local) o un plan
 **Proton Business** con SMTP. Si usas otro proveedor (Brevo, Gmail, etc.) para enviar, configura
-`MAIL_FROM` con una dirección verificada del proveedor; el destinatario está fijado a
-`midirectoriocerca@proton.me`.
+`MAIL_FROM` con una dirección verificada del proveedor. El enlace de correo de cada ficha abre la aplicación de correo configurada en el dispositivo.
 
 ---
 

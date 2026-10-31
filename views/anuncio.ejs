@@ -102,7 +102,13 @@
         <!-- Formulario de contacto -->
         <section class="bg-white dark:bg-slate-800 rounded-2xl border border-neutral-200 dark:border-slate-700 p-4 sm:p-6 lg:p-7 shadow-sm min-w-0">
           <h2 class="font-display text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100 break-words">Escribe a este negocio</h2>
-          <p class="text-neutral-500 dark:text-slate-400 mt-1 break-words">Tu mensaje queda registrado para que el equipo de DirectorioCerca pueda dar seguimiento a tu consulta.</p>
+          <p class="text-neutral-500 dark:text-slate-400 mt-1 break-words">
+            <% if (anuncio.email) { %>
+              Tu mensaje será enviado al correo de contacto de este anuncio.
+            <% } else { %>
+              Tu mensaje será recibido por el equipo de DirectorioCerca.
+            <% } %>
+          </p>
           <form id="contacto-form" class="mt-6 grid gap-4 sm:grid-cols-2 w-full min-w-0">
             <input type="hidden" name="anuncio_slug" value="<%= anuncio.slug %>">
             <input name="nombre" required placeholder="Tu nombre" aria-label="Tu nombre" autocomplete="name" class="h-11 px-4 rounded-xl bg-neutral-100 dark:bg-slate-700 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 w-full min-w-0">
@@ -150,10 +156,11 @@
                 <span class="sr-only">(se abre en una pestaña nueva)</span>
               </a>
             <% } %>
-            <% if (anuncio.email) { %>
-              <a href="mailto:<%= anuncio.email %>" class="flex items-center gap-3 px-3 sm:px-4 py-3 rounded-xl border border-neutral-200 dark:border-slate-600 text-neutral-700 dark:text-slate-200 hover:bg-neutral-50 dark:hover:bg-slate-700 font-medium transition-colors">
+            <% if (emailHref) { %>
+              <a href="<%= emailHref %>" aria-label="Escribir un correo a <%= anuncio.email %>" title="Abre tu aplicación de correo" class="flex items-center gap-3 px-3 sm:px-4 py-3 rounded-xl border border-neutral-200 dark:border-slate-600 text-neutral-700 dark:text-slate-200 hover:bg-neutral-50 dark:hover:bg-slate-700 font-medium transition-colors">
                 <svg class="w-5 h-5 shrink-0 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="m3 7 9 6 9-6"/></svg>
                 <span class="truncate text-sm sm:text-base"><%= anuncio.email %></span>
+                <span class="sr-only">(se abre tu aplicación de correo)</span>
               </a>
             <% } %>
             <% if (anuncio.sitio_web) { %>

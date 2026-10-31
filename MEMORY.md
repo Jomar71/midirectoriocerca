@@ -22,7 +22,7 @@
 - `database.sql` empieza con `DROP TABLE ... CASCADE`: nunca ejecutar `db:init` contra datos existentes.
 - En Postgres administrado usar `npm run db:load`, no `db:init`.
 - `MAIL_TRANSPORT=json` solo registra mensajes; produccion necesita SMTP configurado.
-- Notificaciones se guardan aunque falle el correo; no se envia acuse automatico al cliente.
+- Los mensajes de una ficha se guardan y envian al correo de contacto del anuncio; el admin recibe copia oculta. Si SMTP falla, el API lo comunica y conserva el mensaje.
 - `STORAGE_DRIVER` solo admite local. Fotos se guardan originales, sin conversion WebP.
 - En Pxxl, `UPLOAD_DIR` persistente evita perder archivos si el fallback usa `/tmp`.
 - Tailwind y Google Translate usan CDN; dominios externos nuevos requieren actualizar CSP.
@@ -31,9 +31,9 @@
 - Colombia: departamentos/ciudades vienen de DANE; matching de ciudades tolera acentos y sufijos.
 
 ## Decisiones recientes
-- Correo de contacto/avisos va al admin; este responde manualmente desde el panel/Proton.
-- El mensaje de confirmacion no debe prometer entrega directa al anunciante ni entrega SMTP.
+- Correos generales/avisos van al admin; consultas de ficha van al correo del anuncio y copia oculta al admin.
+- Confirmar al visitante el envio solo cuando SMTP acepta el correo; avisar si se guardo pero el envio fallo.
 - Fichas publicas deben exponer solo anuncios `activo`, igual que los listados publicos.
 - Fichas deben renderizar las etiquetas SEO y JSON-LD preparados por el controlador.
 - Para WhatsApp, preservar codigo de pais si el telefono ya trae prefijo `+` o `00`; numeros nacionales usan Colombia (+57).
-- 2026-10-31: se corrigio la salida SEO de las fichas, el filtrado por estado, el texto del formulario y la normalizacion internacional de WhatsApp.
+- 2026-10-31: fichas SEO/estado/WhatsApp; contacto de ficha redirigido al email del anuncio con copia oculta al admin y enlace mailto con asunto/cuerpo.

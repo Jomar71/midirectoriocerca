@@ -133,6 +133,9 @@ async function renderAnuncio(req, res, next) {
     const keywords = seo.keywordsArray(anuncio.palabras_clave, anuncio.razon_social);
     const imgPrincipal = fotos[0]?.url || '/img/placeholder.jpg';
     const whatsappNumber = whatsappPhoneNumber(anuncio.telefono_movil);
+    const emailHref = anuncio.email
+      ? `mailto:${anuncio.email}?subject=${encodeURIComponent(`Consulta sobre ${anuncio.razon_social}`)}&body=${encodeURIComponent(`Hola, vi el anuncio de ${anuncio.razon_social} en DirectorioCerca y deseo más información.`)}`
+      : null;
 
     return res.render('anuncio', {
       title: `${anuncio.razon_social} | DirectorioCerca`,
@@ -146,6 +149,7 @@ async function renderAnuncio(req, res, next) {
       }),
       anuncio,
       fotos,
+      emailHref,
       jsonLd: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
       keywords,
       cleanMobile: (anuncio.telefono_movil || '').replace(/[^0-9]/g, ''),

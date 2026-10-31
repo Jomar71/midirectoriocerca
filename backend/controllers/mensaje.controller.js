@@ -25,24 +25,62 @@ async function crear(req, res, next) {
     }
 
     let anuncioNombre = 'DirectorioCerca';
+    let anuncioEmail = null;
     if (!anuncioId && slug) {
       const a = await anuncioModel.findBySlug(slug);
-      if (a) { anuncioId = a.id; anuncioNombre = a.razon_social; }
+      if (a && a.estado === 'activo') {
+        anuncioId = a.id;
+        anuncioNombre = a.razon_social;
+        const contacto = S.cleanText(a.email, 190);
+        anuncioEmail = S.isEmail(contacto) ? contacto : null;
+      } else {
+        return res.status(404).json({ ok: false, error: 'El anuncio ya no está disponible.' });
+      }
     } else if (anuncioId) {
       const a = await anuncioModel.findById(anuncioId);
-      if (a) anuncioNombre = a.razon_social;
+      if (a && a.estado === 'activo') {
+        anuncioNombre = a.razon_social;
+        const contacto = S.cleanText(a.email, 190);
+        anuncioEmail = S.isEmail(contacto) ? contacto : null;
+      } else {
+        return res.status(404).json({ ok: false, error: 'El anuncio ya no está disponible.' });
+      }
     }
 
     const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip;
     await mensajeModel.create({ anuncioId, nombre, email, telefono, mensaje, ip });
 
-    mailService.notifyNewMessage({ anuncio: anuncioNombre, nombre, email, telefono, mensaje })
-      .then((result) => {
-        if (!result.sent) console.warn('[mail] La solicitud se guardó, pero el transporte actual no envía correo real.');
-      })
-      .catch((e) => console.warn('[mail] No se pudo notificar al admin:', e.message));
+    let notification;
+    try {
+      notification = await mailService.notifyNewMessage({
+        anuncio: anuncioNombre,
+        anuncioEmail,
+        nombre,
+        email,
+        telefono,
+        mensaje,
+      });
+    } catch (e) {
+      console.error('[mail] El mensaje quedó guardado, pero no se pudo enviar:', e.message);
+      return res.status(503).json({
+        ok: false,
+        saved: true,
+        error: 'Tu mensaje quedó guardado, pero no se pudo enviar por correo. Inténtalo de nuevo más tarde.',
+      });
+    }
 
-    const responseMessage = '¡Gracias! Recibimos tu solicitud y nos pondremos en contacto contigo pronto.';
+    if (!notification.sent) {
+      console.warn('[mail] El mensaje quedó guardado, pero el transporte actual no envía correo real.');
+      return res.status(503).json({
+        ok: false,
+        saved: true,
+        error: 'Tu mensaje quedó guardado, pero no se pudo enviar por correo. Inténtalo de nuevo más tarde.',
+      });
+    }
+
+    const responseMessage = anuncioEmail
+      ? '¡Gracias! Tu mensaje fue enviado al correo de contacto del anuncio.'
+      : '¡Gracias! Recibimos tu solicitud y nos pondremos en contacto contigo pronto.';
     return res.status(201).json({ ok: true, message: responseMessage });
   } catch (e) {
     return next(e);
