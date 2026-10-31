@@ -36,17 +36,14 @@ async function crear(req, res, next) {
     const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip;
     await mensajeModel.create({ anuncioId, nombre, email, telefono, mensaje, ip });
 
-    let emailSent = false;
-    try {
-      const result = await mailService.notifyNewMessage({ anuncio: anuncioNombre, nombre, email, telefono, mensaje });
-      emailSent = result.sent;
-      if (!emailSent) console.warn('[mail] La solicitud se guardó, pero el transporte actual no envía correo real.');
-    } catch (e) {
-      console.warn('[mail] No se pudo notificar al admin:', e.message);
-    }
+    mailService.notifyNewMessage({ anuncio: anuncioNombre, nombre, email, telefono, mensaje })
+      .then((result) => {
+        if (!result.sent) console.warn('[mail] La solicitud se guardó, pero el transporte actual no envía correo real.');
+      })
+      .catch((e) => console.warn('[mail] No se pudo notificar al admin:', e.message));
 
     const responseMessage = '¡Gracias! Recibimos tu solicitud y nos pondremos en contacto contigo pronto.';
-    return res.status(201).json({ ok: true, emailSent, message: responseMessage });
+    return res.status(201).json({ ok: true, message: responseMessage });
   } catch (e) {
     return next(e);
   }

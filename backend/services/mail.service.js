@@ -22,6 +22,9 @@ async function initMailer() {
       port: env.mail.port,
       secure: env.mail.secure,
       auth: env.mail.user ? { user: env.mail.user, pass: env.mail.pass } : undefined,
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 20000,
     });
     console.log(`[mail] SMTP configurado (${env.mail.host}:${env.mail.port}).`);
   } else if (env.mail.transport === 'ethereal') {
@@ -49,6 +52,8 @@ async function send({ to, subject, html, replyTo }) {
   });
   if (env.mail.transport === 'json' && info.message) {
     console.log('[mail] (json) →', to, '|', subject);
+  } else if (env.mail.transport === 'smtp') {
+    console.log(`[mail] SMTP aceptó el mensaje para ${to} (id: ${info.messageId || 'sin id'}).`);
   }
   const url = nodemailer.getTestMessageUrl(info);
   if (url) etherealPreview = url;

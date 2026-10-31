@@ -97,3 +97,4 @@ ode --check, modulo storage carga y save/delete OK.
 - No se envían acuses automáticos a los clientes; el administrador responde manualmente desde Proton usando Reply-To del email recibido.
 - El formulario aclara que SMTP aceptó el correo, sin afirmar entrega final a Proton; la entrega se confirma en el registro del proveedor.
 - El mensaje visible tras enviar un formulario debe ser una confirmación dirigida al cliente y no mencionar la configuración SMTP ni el buzón del administrador.
+- El envío de notificaciones SMTP corre en segundo plano con timeouts acotados, para no demorar la respuesta del formulario; el log registra aceptación y message-id para diagnóstico.
