@@ -45,9 +45,7 @@ async function crear(req, res, next) {
       console.warn('[mail] No se pudo notificar al admin:', e.message);
     }
 
-    const responseMessage = emailSent
-      ? 'Solicitud guardada y correo aceptado por el servidor de envío. Revisa Proton y la carpeta de spam.'
-      : 'Solicitud guardada en la página, pero no se pudo enviar el aviso por correo. Revisa la configuración SMTP.';
+    const responseMessage = '¡Gracias! Recibimos tu solicitud y nos pondremos en contacto contigo pronto.';
     return res.status(201).json({ ok: true, emailSent, message: responseMessage });
   } catch (e) {
     return next(e);
