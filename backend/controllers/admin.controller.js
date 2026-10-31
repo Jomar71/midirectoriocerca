@@ -46,8 +46,6 @@ function payloadFromBody(b) {
     categoria_id: parseInt(b.categoria_id, 10) || null,
     ciudad: S.cleanText(b.ciudad, 120),
     pais: S.cleanText(b.pais, 120),
-    latitud: S.cleanNumber(b.latitud),
-    longitud: S.cleanNumber(b.longitud),
     palabras_clave: S.cleanText(b.palabras_clave, 600),
     estado: ESTADOS.includes(b.estado) ? b.estado : 'activo',
     fecha_inicio: inicio,
@@ -64,21 +62,19 @@ function validCoordinates(latitud, longitud) {
 }
 
 async function resolveCoordinates(data, existing = null) {
-  const hasCoordinates = validCoordinates(data.latitud, data.longitud);
-  const locationChanged = existing && ['direccion', 'ciudad', 'pais']
+  const locationChanged = !existing || ['direccion', 'ciudad', 'pais']
     .some((field) => String(data[field] || '').trim() !== String(existing[field] || '').trim());
-  const coordinatesChanged = existing
-    && ((data.latitud == null) !== (existing.latitud == null)
-      || (data.longitud == null) !== (existing.longitud == null)
-      || (data.latitud != null && Number(data.latitud) !== Number(existing.latitud))
-      || (data.longitud != null && Number(data.longitud) !== Number(existing.longitud)));
+  if (existing && !locationChanged && validCoordinates(existing.latitud, existing.longitud)) {
+    data.latitud = existing.latitud;
+    data.longitud = existing.longitud;
+    return null;
+  }
 
-  if (hasCoordinates && (!locationChanged || coordinatesChanged)) return null;
   data.latitud = null;
   data.longitud = null;
 
   if (!env.maptiler.apiKey) {
-    return 'No se pudieron calcular las coordenadas. Configura MAPTILER_API_KEY o ingrésalas manualmente.';
+    return 'No se pudieron calcular las coordenadas. Configura MAPTILER_API_KEY para ubicar el anuncio automáticamente.';
   }
 
   try {
@@ -88,10 +84,10 @@ async function resolveCoordinates(data, existing = null) {
       data.longitud = coordinates.longitud;
       return null;
     }
-    return 'No se encontró la ubicación. Revisa la dirección o ingresa las coordenadas manualmente.';
+    return 'No se encontró la dirección. Revisa la dirección, ciudad y país; las coordenadas quedaron vacías.';
   } catch (error) {
     console.error(`[admin] Geocodificación de anuncio fallida: ${error.message}`);
-    return 'No se pudo consultar MapTiler. El anuncio se guardó sin coordenadas; puedes ingresarlas manualmente.';
+    return 'No se pudo consultar MapTiler. El anuncio se guardó sin coordenadas; revisa la configuración del servicio.';
   }
 }
 

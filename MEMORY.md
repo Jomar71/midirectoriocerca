@@ -31,7 +31,7 @@
 - Tema publico usa `localStorage['dc-theme']`; admin/login permanecen claros.
 - Busqueda publica pagina hasta 20 resultados; resultados se muestran en `/resultados`.
 - Colombia: departamentos/ciudades vienen de DANE; matching de ciudades tolera acentos y sufijos.
-- Las fichas usan Leaflet desde unpkg + teselas MapTiler, inician en Satelite con selector Calles/Satelite; zoom por rueda/pellizco sin controles de zoom. Geocodifica y guarda coordenadas al crear/editar si faltan; no muestra un punto falso si no hay resultados. `MAPTILER_API_KEY` se restringe al dominio y tambien se usa desde backend para geocodificar.
+- Las fichas usan Leaflet desde unpkg + teselas MapTiler, inician en Satelite con selector Calles/Satelite; zoom por rueda/pellizco sin controles de zoom. Geocodifica direccion/ciudad/pais al crear o al cambiar ubicacion (tambien por CSV); si no encuentra, guarda coordenadas nulas y muestra Bogota de referencia sin marcador falso. No se piden coordenadas manuales. `MAPTILER_API_KEY` se restringe al dominio y tambien se usa desde backend.
 - El boton de correo abre un `mailto:` dirigido al email del anuncio, con asunto fijo "Contacto desde la web"; el destino se codifica en `data-email-href`, no se muestra en texto ni en datos estructurados, y se activa al clic para evitar la reescritura de Cloudflare. El destinatario no configura nada. Depende de una app de correo del visitante; el formulario web es la alternativa y usa SMTP configurado una vez para el sitio.
 
 ## Decisiones recientes

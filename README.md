@@ -17,7 +17,7 @@ Directorio empresarial en línea, escalable y listo para producción. Sitio **p�
 4. Enlaces a **web, YouTube, Facebook, Instagram, TikTok**.
 5. **Formulario de consultas**: guarda los mensajes en el panel, los envía al correo de la ficha y copia al administrador cuando SMTP está configurado. El botón «Enviar correo» abre el correo dirigido al email del anuncio con el asunto «Contacto desde la web»; el destino va codificado en un atributo `data-` y no se imprime como texto ni en los datos estructurados de la ficha. El destinatario no necesita configurar nada. Si el visitante no tiene una aplicación de correo, puede usar el formulario, cuyo envío usa el SMTP configurado una sola vez para el sitio.
 6. **SEO**: metaetiquetas, Open Graph, Twitter Card y **Schema.org LocalBusiness**.
-7. **Mapa interactivo visible en la ficha** con Leaflet y teselas de MapTiler: inicia en vista satélite e incluye selector de vista de calles, zoom con la rueda del ratón y gesto de pellizco en móviles, sin botones de zoom. Usa coordenadas guardadas en la ficha; si faltan, se intenta geocodificar la dirección al crear o guardar el anuncio. Si falla, no inventa una ubicación y permite ingresar coordenadas manualmente.
+7. **Mapa interactivo visible en la ficha** con Leaflet y teselas de MapTiler: inicia en vista satélite e incluye selector de vista de calles, zoom con la rueda del ratón y gesto de pellizco en móviles, sin botones de zoom. Al crear un anuncio o cambiar su dirección, ciudad o país, se calculan las coordenadas automáticamente. Si no se encuentra la ubicación, las coordenadas quedan nulas y el mapa muestra Bogotá como referencia, sin un marcador que indique falsamente dónde está el negocio.
 8. **Traducción** a todos los idiomas (Google Translate Widget).
 9. **10 palabras clave** de búsqueda.
 10. **6 cambios** gratis por anuncio (contador + auditoría en el panel).
@@ -89,9 +89,9 @@ El correo de nueva consulta no contiene enlaces a fichas ni al panel. Los enlace
 
 ## Configuración de mapas y geocodificación
 
-Define `MAPTILER_API_KEY` en el entorno del servidor. La clave se utiliza para las teselas del mapa y para geocodificar dirección, ciudad y país al crear o guardar una ficha que no tenga coordenadas. Restringe la clave desde MapTiler al dominio de producción y, durante desarrollo, al host local correspondiente. La clave para mostrar teselas se envía al navegador y por eso debe tratarse como una clave pública restringida, no como una contraseña.
+Define `MAPTILER_API_KEY` en el entorno del servidor. La clave se utiliza para las teselas del mapa y para geocodificar dirección, ciudad y país al crear un anuncio o cambiar su ubicación. No se solicitan coordenadas manuales. Restringe la clave desde MapTiler al dominio de producción y, durante desarrollo, al host local correspondiente. La clave para mostrar teselas se envía al navegador y por eso debe tratarse como una clave pública restringida, no como una contraseña.
 
-Las fichas existentes sin coordenadas pueden actualizarse y guardarse desde el panel para intentar geocodificarlas. Si MapTiler no encuentra la dirección o no está configurado, la ficha no muestra un marcador de otra ciudad: el administrador recibe un aviso y puede ingresar latitud y longitud manualmente. El mapa ofrece además un enlace a Google Maps.
+Las fichas existentes sin coordenadas pueden actualizarse y guardarse desde el panel para intentar geocodificarlas. La importación CSV también geocodifica cada fila y reporta las ubicaciones pendientes. Si MapTiler no encuentra la dirección, las coordenadas quedan nulas y la ficha muestra el mapa centrado en Bogotá como referencia, sin un marcador del negocio. El mapa ofrece además un enlace a Google Maps.
 
 ---
 

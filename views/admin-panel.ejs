@@ -135,7 +135,7 @@
           <p class="text-sm text-neutral-500 mt-0.5">Carga listados en lote desde un archivo.</p>
         </div>
         <div class="bg-white rounded-2xl border border-neutral-200 p-6">
-          <p class="text-sm text-neutral-500">Cabeceras requeridas: <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">razon_social, descripcion_50</code>. Opcionales: dirección, teléfonos, email, redes, categoría, ciudad, país, latitud, longitud, <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">palabras_clave</code>, fechas y <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">fotos</code> (URLs separadas por <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">|</code>).</p>
+          <p class="text-sm text-neutral-500">Cabeceras requeridas: <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">razon_social, descripcion_50</code>. Opcionales: dirección, teléfonos, email, redes, categoría, ciudad, país, <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">palabras_clave</code>, fechas y <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">fotos</code> (URLs separadas por <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">|</code>). Las coordenadas se calculan a partir de la dirección, ciudad y país.</p>
           <a href="/templates/anuncios-plantilla.csv" download class="inline-flex items-center gap-2 mt-3 text-primary-600 text-sm font-semibold hover:text-primary-700">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0 4-4m-4 4-4-4"/><path stroke-linecap="round" d="M4 20h16"/></svg>
             Descargar plantilla CSV
@@ -218,8 +218,7 @@
               <datalist id="lista-ciudades"></datalist>
             </div>
             <div><label for="in-pais" class="text-sm font-medium text-neutral-700">País</label><input name="pais" id="in-pais" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
-            <div><label for="in-latitud" class="text-sm font-medium text-neutral-700">Latitud</label><input id="in-latitud" name="latitud" inputmode="decimal" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
-            <div><label for="in-longitud" class="text-sm font-medium text-neutral-700">Longitud</label><input id="in-longitud" name="longitud" inputmode="decimal" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
+            <p class="sm:col-span-2 text-sm text-neutral-500">Las coordenadas se calculan automáticamente a partir de la dirección, ciudad y país.</p>
           </div>
         </fieldset>
 

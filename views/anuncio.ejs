@@ -110,8 +110,8 @@
             <p class="text-neutral-500 dark:text-slate-400 mt-1 mb-4 break-words"><%= [anuncio.direccion, anuncio.ciudad, anuncio.pais].filter(Boolean).join(', ') %></p>
           <% } %>
           <% if (mapCoordinates && maptilerPublicKey) { %>
-            <% if (approximateMapLocation) { %>
-              <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">Ubicación aproximada del municipio. Arrastra para moverte; usa la rueda o pellizca para acercar.</p>
+            <% if (mapUsesDefault) { %>
+              <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">No se encontró la dirección. Se muestra Bogotá como ubicación de referencia, sin un marcador del negocio.</p>
             <% } else { %>
               <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">Arrastra para moverte; usa la rueda del ratón o pellizca la pantalla para acercar o alejar.</p>
             <% } %>
@@ -127,6 +127,7 @@
               data-latitud="<%= mapCoordinates.latitud %>"
               data-longitud="<%= mapCoordinates.longitud %>"
               data-nombre="<%= anuncio.razon_social %>"
+              data-mostrar-marcador="<%= !mapUsesDefault %>"
               data-api-key="<%= maptilerPublicKey %>"
               aria-label="Mapa interactivo de la ubicación del negocio"
               class="rounded-xl overflow-hidden border border-neutral-200 dark:border-slate-700"></div>
@@ -202,7 +203,9 @@
 
                 const name = document.createElement('span');
                 name.textContent = container.dataset.nombre;
-                L.marker(center).addTo(map).bindPopup(name);
+                if (container.dataset.mostrarMarcador === 'true') {
+                  L.marker(center).addTo(map).bindPopup(name);
+                }
               })();
             </script>
           <% } else { %>
@@ -210,7 +213,7 @@
               <% if (!maptilerPublicKey) { %>
                 El mapa todavía no está configurado. Si administras el sitio, agrega MAPTILER_API_KEY con un dominio autorizado.
               <% } else { %>
-                No hay coordenadas disponibles para mostrar el mapa. Actualiza la ficha para geocodificar la dirección o agrega latitud y longitud.
+                No hay coordenadas disponibles para mostrar el mapa. Revisa la dirección, ciudad y país de la ficha.
               <% } %>
             </p>
           <% } %>

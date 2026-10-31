@@ -4,8 +4,7 @@
  * Cabeceras aceptadas (fila 1):
  *   razon_social, descripcion_50, direccion, telefono_fijo, telefono_movil,
  *   email, sitio_web, youtube, facebook, instagram, tiktok, categoria,
- *   ciudad, pais, latitud, longitud, palabras_clave, fecha_inicio,
- *   fecha_vencimiento, fotos
+ *   ciudad, pais, palabras_clave, fecha_inicio, fecha_vencimiento, fotos
  * "fotos": URLs separadas por "|" (opcional).
  */
 'use strict';
@@ -16,6 +15,8 @@ const categoriaModel = require('../models/categoria.model');
 const fotoModel = require('../models/foto.model');
 const { uniqueSlug, slugify } = require('../utils/slug');
 const S = require('../utils/sanitize');
+const env = require('../config/env');
+const { geocodeAddress } = require('./geocoding.service');
 
 const REQUIRED = ['razon_social', 'descripcion_50'];
 
@@ -44,7 +45,7 @@ async function importCsv(buffer, { defaultEstado = 'activo' } = {}) {
   const catBySlug = new Map(cats.map((c) => [c.slug, c.id]));
   const catByName = new Map(cats.map((c) => [c.nombre.toLowerCase(), c.id]));
 
-  const report = { total: records.length, inserted: 0, errors: [] };
+  const report = { total: records.length, inserted: 0, errors: [], warnings: [] };
 
   for (let i = 0; i < records.length; i += 1) {
     const row = records[i];
@@ -66,11 +67,43 @@ async function importCsv(buffer, { defaultEstado = 'activo' } = {}) {
       const vencimiento = S.cleanDate(row.fecha_vencimiento)
         || addMonths(new Date(inicio), 12).toISOString().slice(0, 10);
 
+      const location = {
+        direccion: S.cleanText(row.direccion, 300),
+        ciudad: S.cleanText(row.ciudad, 120),
+        pais: S.cleanText(row.pais, 120),
+      };
+      let coordinates = null;
+      if (!env.maptiler.apiKey) {
+        report.warnings.push({
+          line,
+          razon_social: razon,
+          warning: 'Falta MAPTILER_API_KEY; las coordenadas quedaron vacías.',
+        });
+      } else {
+        try {
+          coordinates = await geocodeAddress(location);
+          if (!coordinates) {
+            report.warnings.push({
+              line,
+              razon_social: razon,
+              warning: 'No se encontró la ubicación; las coordenadas quedaron vacías.',
+            });
+          }
+        } catch (error) {
+          console.error(`[csv] Geocodificación de anuncio fallida en línea ${line}: ${error.message}`);
+          report.warnings.push({
+            line,
+            razon_social: razon,
+            warning: 'No se pudo consultar MapTiler; las coordenadas quedaron vacías.',
+          });
+        }
+      }
+
       const id = await anuncioModel.create({
         razon_social: razon,
         slug,
         descripcion_50: S.cleanMultiline(row.descripcion_50, 700) || razon,
-        direccion: S.cleanText(row.direccion, 300),
+        direccion: location.direccion,
         telefono_fijo: S.cleanText(row.telefono_fijo, 40),
         telefono_movil: S.cleanText(row.telefono_movil, 40),
         email: S.isEmail(row.email) ? S.cleanText(row.email, 190) : null,
@@ -80,10 +113,10 @@ async function importCsv(buffer, { defaultEstado = 'activo' } = {}) {
         instagram: S.cleanUrl(row.instagram),
         tiktok: S.cleanUrl(row.tiktok),
         categoria_id: categoriaId,
-        ciudad: S.cleanText(row.ciudad, 120),
-        pais: S.cleanText(row.pais, 120),
-        latitud: S.cleanNumber(row.latitud),
-        longitud: S.cleanNumber(row.longitud),
+        ciudad: location.ciudad,
+        pais: location.pais,
+        latitud: coordinates?.latitud ?? null,
+        longitud: coordinates?.longitud ?? null,
         palabras_clave: S.cleanText(row.palabras_clave, 600),
         estado: defaultEstado,
         fecha_inicio: inicio,

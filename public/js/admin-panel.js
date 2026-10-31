@@ -423,7 +423,8 @@
       const r = data.report;
       out.innerHTML = `
         <p class="text-success-600 font-medium">${esc(data.message)}</p>
-        ${r.errors.length ? `<div class="mt-2 text-sm text-error-600"><p class="font-medium">Errores:</p><ul class="list-disc ml-5">${r.errors.map((x) => `<li>Línea ${x.line}: ${esc(x.error)}</li>`).join('')}</ul></div>` : ''}`;
+        ${r.errors.length ? `<div class="mt-2 text-sm text-error-600"><p class="font-medium">Errores:</p><ul class="list-disc ml-5">${r.errors.map((x) => `<li>Línea ${x.line}: ${esc(x.error)}</li>`).join('')}</ul></div>` : ''}
+        ${r.warnings?.length ? `<div class="mt-2 text-sm text-amber-700"><p class="font-medium">Ubicaciones sin coordenadas:</p><ul class="list-disc ml-5">${r.warnings.map((x) => `<li>Línea ${x.line}: ${esc(x.razon_social)} — ${esc(x.warning)}</li>`).join('')}</ul></div>` : ''}`;
       toast('Importación completada');
     } catch (err) {
       out.innerHTML = `<p class="text-error-600 text-sm">${esc(err.message)}</p>`;

@@ -137,18 +137,10 @@ async function renderAnuncio(req, res, next) {
     const longitud = anuncio.longitud == null || anuncio.longitud === '' ? NaN : Number(anuncio.longitud);
     const hasExactCoordinates = Number.isFinite(latitud) && Number.isFinite(longitud)
       && latitud >= -90 && latitud <= 90 && longitud >= -180 && longitud <= 180;
+    const mapUsesDefault = !hasExactCoordinates;
     let mapCoordinates = hasExactCoordinates ? { latitud, longitud } : null;
-    let approximateMapLocation = false;
-    const isColombia = !anuncio.pais || /^(colombia|colombia\s*)$/i.test(anuncio.pais.trim());
-    if (!mapCoordinates && anuncio.ciudad && isColombia) {
-      const cityCoordinates = await ubicacionModel.findCityCoordinates(anuncio.ciudad);
-      if (cityCoordinates) {
-        mapCoordinates = {
-          latitud: Number(cityCoordinates.latitud),
-          longitud: Number(cityCoordinates.longitud),
-        };
-        approximateMapLocation = true;
-      }
+    if (mapUsesDefault) {
+      mapCoordinates = { latitud: 4.6097, longitud: -74.0817 };
     }
     const emailSubject = 'Contacto desde la web';
     const emailHref = anuncio.email
@@ -177,7 +169,7 @@ async function renderAnuncio(req, res, next) {
       anuncio,
       fotos,
       mapCoordinates,
-      approximateMapLocation,
+      mapUsesDefault,
       maptilerPublicKey: env.maptiler.apiKey,
       emailHrefEncoded,
       jsonLd: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
