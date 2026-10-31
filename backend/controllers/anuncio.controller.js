@@ -150,8 +150,12 @@ async function renderAnuncio(req, res, next) {
         approximateMapLocation = true;
       }
     }
+    const emailSubject = `Consulta sobre ${anuncio.razon_social}`;
     const emailHref = anuncio.email
-      ? `mailto:${anuncio.email}?subject=${encodeURIComponent(`Consulta sobre ${anuncio.razon_social}`)}`
+      ? `mailto:${anuncio.email}?subject=${encodeURIComponent(emailSubject)}`
+      : null;
+    const webmailHref = anuncio.email
+      ? `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(anuncio.email)}&su=${encodeURIComponent(emailSubject)}`
       : null;
     return res.render('anuncio', {
       title: `${anuncio.razon_social} | DirectorioCerca`,
@@ -168,6 +172,7 @@ async function renderAnuncio(req, res, next) {
       mapCoordinates,
       approximateMapLocation,
       emailHref,
+      webmailHref,
       jsonLd: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
       keywords,
       cleanMobile: (anuncio.telefono_movil || '').replace(/[^0-9]/g, ''),

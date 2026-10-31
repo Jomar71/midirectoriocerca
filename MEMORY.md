@@ -32,7 +32,7 @@
 - Busqueda publica pagina hasta 20 resultados; resultados se muestran en `/resultados`.
 - Colombia: departamentos/ciudades vienen de DANE; matching de ciudades tolera acentos y sufijos.
 - Las fichas usan Leaflet local + teselas OpenStreetMap; zoom por rueda/pellizco sin controles de flechas. El mapa se muestra inline, con direccion en el marcador y enlace "Mirar mapa" a Google Maps; usa coordenadas precisas o el centro municipal DANE aproximado.
-- El boton de correo es `mailto:` dirigido al email publicado; depende de que el visitante tenga una aplicacion de correo configurada.
+- El boton de correo abre una redaccion Gmail dirigida al email publicado para no depender de un handler local; `mailto:` queda como alternativa y requiere una aplicacion de correo configurada.
 
 ## Decisiones recientes
 - Correos generales/avisos van al admin; consultas de ficha van al correo del anuncio y copia oculta al admin.
@@ -42,4 +42,4 @@
 - Para WhatsApp, preservar codigo de pais si el telefono ya trae prefijo `+` o `00`; numeros nacionales usan Colombia (+57).
 - 2026-10-31: fichas SEO/estado/WhatsApp; contacto de ficha redirigido al email del anuncio con copia oculta al admin y enlace mailto con asunto/cuerpo.
 - 2026-10-31: URLs del sitio se basan en el origen de `APP_URL`; el correo de nueva consulta no incluye enlaces.
-- 2026-10-31: boton de correo abre el cliente predeterminado directamente al email publicado; mapa inline sin panel que lo tape, con marcador rotulado y enlace "Mirar mapa" a la direccion completa.
+- 2026-10-31: boton principal abre redaccion Gmail con destinatario publicado; alternativa mailto requiere handler local. Mapa inline comprobado en produccion con wheel zoom, gestos tactiles y enlace "Mirar mapa".
