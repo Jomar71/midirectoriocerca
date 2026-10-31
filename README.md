@@ -15,9 +15,9 @@ Directorio empresarial en línea, escalable y listo para producción. Sitio **p�
 2. **Portafolio empresarial** (~50 palabras).
 3. Datos direccionales, teléfonos fijo y móvil, correos.
 4. Enlaces a **web, YouTube, Facebook, Instagram, TikTok**.
-5. **Formulario de consultas**: guarda los mensajes en el panel, los envía al correo de la ficha y copia al administrador cuando SMTP está configurado. El botón de correo abre este formulario; `mailto:` queda como alternativa y requiere una aplicación de correo configurada.
+5. **Formulario de consultas**: guarda los mensajes en el panel, los envía al correo de la ficha y copia al administrador cuando SMTP está configurado. El botón de correo abre directamente un mensaje dirigido al email publicado mediante `mailto:`.
 6. **SEO**: metaetiquetas, Open Graph, Twitter Card y **Schema.org LocalBusiness**.
-7. **Mapa interactivo** sin botones de flechas: zoom con la rueda del ratón y gesto de pellizco en móviles. Usa coordenadas de la ficha o, en Colombia, el centro municipal DANE; incluye un enlace de respaldo a Google Maps mientras carga o si no se puede mostrar.
+7. **Mapa interactivo visible en la ficha** sin botones de flechas: zoom con la rueda del ratón y gesto de pellizco en móviles. Usa coordenadas de la ficha o, en Colombia, el centro municipal DANE; incluye el enlace **Mirar mapa** para abrir la dirección en Google Maps.
 8. **Traducción** a todos los idiomas (Google Translate Widget).
 9. **10 palabras clave** de búsqueda.
 10. **6 cambios** gratis por anuncio (contador + auditoría en el panel).

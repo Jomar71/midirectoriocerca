@@ -151,9 +151,8 @@ async function renderAnuncio(req, res, next) {
       }
     }
     const emailHref = anuncio.email
-      ? `mailto:${anuncio.email}`
+      ? `mailto:${anuncio.email}?subject=${encodeURIComponent(`Consulta sobre ${anuncio.razon_social}`)}`
       : null;
-
     return res.render('anuncio', {
       title: `${anuncio.razon_social} | DirectorioCerca`,
       meta: seo.metaFor({
@@ -176,11 +175,13 @@ async function renderAnuncio(req, res, next) {
         ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hola, vi su anuncio "${anuncio.razon_social}" en DirectorioCerca y deseo información.`)}`
         : null,
       whatsappText: encodeURIComponent(`Mira este negocio en DirectorioCerca: ${anuncio.razon_social} → ${env.appUrl}/anuncio/${anuncio.slug}`),
-      mapsLink: mapCoordinates
-        ? `https://www.google.com/maps/search/?api=1&query=${mapCoordinates.latitud},${mapCoordinates.longitud}`
-        : (anuncio.direccion
-          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${anuncio.direccion} ${anuncio.ciudad || ''} ${anuncio.pais || ''}`)}`
-          : null),
+      mapsLink: anuncio.direccion || mapCoordinates
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([
+          anuncio.direccion,
+          anuncio.ciudad,
+          anuncio.pais,
+        ].filter(Boolean).join(', ') || `${mapCoordinates.latitud},${mapCoordinates.longitud}`)}`
+        : null,
     });
   } catch (e) {
     return next(e);

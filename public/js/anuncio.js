@@ -90,6 +90,8 @@
           center: [lat, lng],
           zoom: 15,
           scrollWheelZoom: true,
+          touchZoom: true,
+          dragging: true,
           zoomControl: false,
         });
 
@@ -97,12 +99,13 @@
           maxZoom: 19,
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         });
-        tiles.on('load', () => {
-          const fallback = mapElement.querySelector('[data-map-fallback]');
-          if (fallback) fallback.hidden = true;
-        });
         tiles.addTo(map);
-        window.L.marker([lat, lng]).addTo(map);
+        const marker = window.L.marker([lat, lng]).addTo(map);
+        if (mapElement.dataset.address) {
+          const address = document.createElement('span');
+          address.textContent = mapElement.dataset.address;
+          marker.bindPopup(address);
+        }
       }
     } else {
       console.error('[anuncio] No se pudo cargar el mapa interactivo.');
