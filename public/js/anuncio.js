@@ -83,18 +83,27 @@
     if (window.L) {
       const lat = Number(mapElement.dataset.latitud);
       const lng = Number(mapElement.dataset.longitud);
-      const map = window.L.map(mapElement, {
-        center: [lat, lng],
-        zoom: 15,
-        scrollWheelZoom: true,
-        zoomControl: false,
-      });
+      if (!Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lng) || lng < -180 || lng > 180) {
+        console.error('[anuncio] Las coordenadas del mapa no son válidas.');
+      } else {
+        const map = window.L.map(mapElement, {
+          center: [lat, lng],
+          zoom: 15,
+          scrollWheelZoom: true,
+          zoomControl: false,
+        });
 
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      }).addTo(map);
-      window.L.marker([lat, lng]).addTo(map);
+        const tiles = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        });
+        tiles.on('load', () => {
+          const fallback = mapElement.querySelector('[data-map-fallback]');
+          if (fallback) fallback.hidden = true;
+        });
+        tiles.addTo(map);
+        window.L.marker([lat, lng]).addTo(map);
+      }
     } else {
       console.error('[anuncio] No se pudo cargar el mapa interactivo.');
     }
