@@ -46,7 +46,7 @@ async function crear(req, res, next) {
     }
 
     const responseMessage = emailSent
-      ? 'Solicitud guardada y aviso enviado al correo de DirectorioCerca.'
+      ? 'Solicitud guardada y correo aceptado por el servidor de envío. Revisa Proton y la carpeta de spam.'
       : 'Solicitud guardada en la página, pero no se pudo enviar el aviso por correo. Revisa la configuración SMTP.';
     return res.status(201).json({ ok: true, emailSent, message: responseMessage });
   } catch (e) {

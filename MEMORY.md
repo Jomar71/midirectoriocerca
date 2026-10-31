@@ -95,3 +95,4 @@ ode --check, modulo storage carga y save/delete OK.
 - El formulario ahora informa si SMTP aceptó el aviso; las solicitudes continúan guardándose aunque falle el email, para no perderlas.
 - Las páginas de contacto y afiliación versionan la URL de `index.js` para evitar que el navegador conserve el mensaje de éxito antiguo.
 - No se envían acuses automáticos a los clientes; el administrador responde manualmente desde Proton usando Reply-To del email recibido.
+- El formulario aclara que SMTP aceptó el correo, sin afirmar entrega final a Proton; la entrega se confirma en el registro del proveedor.
