@@ -33,6 +33,7 @@
 - Colombia: departamentos/ciudades vienen de DANE; matching de ciudades tolera acentos y sufijos.
 - Las fichas usan Leaflet local + teselas OpenStreetMap; zoom por rueda/pellizco sin controles de flechas. El mapa se muestra inline, con direccion en el marcador y enlace "Mirar mapa"; ante falla de tiles usa Google Maps iframe y, si no hay coordenadas, incrusta Google Maps buscando la direccion.
 - El boton de correo es `mailto:` dirigido al email publicado; el destinatario no configura nada. Depende de una app de correo del visitante; el formulario web es la alternativa y usa SMTP configurado una vez para el sitio.
+- Cloudflare puede reescribir `mailto:` en el HTML; la ficha transporta el destino codificado y lo activa en el clic para evitar que su proteccion rompa el boton. Si JavaScript no carga, el enlace lleva al formulario.
 
 ## Decisiones recientes
 - Correos generales/avisos van al admin; consultas de ficha van al correo del anuncio y copia oculta al admin.
@@ -43,3 +44,4 @@
 - 2026-10-31: fichas SEO/estado/WhatsApp; contacto de ficha redirigido al email del anuncio con copia oculta al admin y enlace mailto con asunto/cuerpo.
 - 2026-10-31: URLs del sitio se basan en el origen de `APP_URL`; el correo de nueva consulta no incluye enlaces.
 - 2026-10-31: boton abre mailto al email publicado (sin config del destinatario); formulario web usa SMTP global. Para mapas, Leaflet cuando hay coordenadas y Google Maps iframe interactivo como respaldo o cuando no hay coordenadas.
+- 2026-10-31: Cloudflare reescribia el `href` del boton de correo a `/cdn-cgi/l/email-protection`; la ficha ahora codifica el destino y lo abre en el clic para evitar esa transformacion.

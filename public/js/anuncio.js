@@ -117,6 +117,24 @@
     }
   }
 
+  const emailLink = document.querySelector('[data-email-href]');
+  if (emailLink) {
+    emailLink.addEventListener('click', (event) => {
+      let emailHref;
+      try {
+        const encodedHref = emailLink.dataset.emailHref;
+        const bytes = Uint8Array.from(window.atob(encodedHref), (char) => char.charCodeAt(0));
+        emailHref = new TextDecoder().decode(bytes);
+        if (!emailHref.startsWith('mailto:')) throw new Error('El enlace de correo no es válido.');
+      } catch (error) {
+        console.error('[anuncio] No se pudo abrir el enlace de correo.', error);
+        return;
+      }
+      event.preventDefault();
+      window.location.assign(emailHref);
+    });
+  }
+
   // ── Formulario de contacto 24/7 ──────────────────────────────────────
   const form = document.getElementById('contacto-form');
   const msg = document.getElementById('contacto-msg');

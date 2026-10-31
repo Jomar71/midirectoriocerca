@@ -154,6 +154,9 @@ async function renderAnuncio(req, res, next) {
     const emailHref = anuncio.email
       ? `mailto:${anuncio.email}?subject=${encodeURIComponent(emailSubject)}`
       : null;
+    const emailHrefEncoded = emailHref
+      ? Buffer.from(emailHref, 'utf8').toString('base64')
+      : null;
     const mapQuery = [
       anuncio.direccion,
       anuncio.ciudad,
@@ -175,7 +178,7 @@ async function renderAnuncio(req, res, next) {
       fotos,
       mapCoordinates,
       approximateMapLocation,
-      emailHref,
+      emailHrefEncoded,
       mapsEmbedLink: mapQuery
         ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`
         : null,
