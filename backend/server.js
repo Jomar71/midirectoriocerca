@@ -106,6 +106,13 @@ app.use('/vendor/shaders', express.static(SHADERS_DIST, {
   setHeaders: (res) => { res.setHeader('Content-Type', 'text/javascript; charset=utf-8'); },
 }));
 
+const LEAFLET_DIST = path.join(__dirname, '..', 'node_modules', 'leaflet', 'dist');
+app.use('/vendor/leaflet', express.static(LEAFLET_DIST, {
+  maxAge: env.isProd ? '30d' : 0,
+  immutable: env.isProd,
+  index: false,
+}));
+
 // ── Health check (Pxxl y balanceadores) ─────────────────────────────────
 app.get('/health', (_req, res) => res.status(200).json({ ok: true, uptime: process.uptime() }));
 

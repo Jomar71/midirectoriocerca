@@ -31,6 +31,8 @@
 - Tema publico usa `localStorage['dc-theme']`; admin/login permanecen claros.
 - Busqueda publica pagina hasta 20 resultados; resultados se muestran en `/resultados`.
 - Colombia: departamentos/ciudades vienen de DANE; matching de ciudades tolera acentos y sufijos.
+- Las fichas usan Leaflet local + teselas OpenStreetMap; zoom por rueda/pellizco sin controles de flechas. Usa coordenadas precisas del anuncio o centro municipal DANE aproximado; si no hay ubicacion calculable, muestra enlace a Google Maps, no embed con flechas.
+- El boton de email usa `mailto:` y muestra el formulario interno como alternativa si el dispositivo no tiene cliente de correo configurado.
 
 ## Decisiones recientes
 - Correos generales/avisos van al admin; consultas de ficha van al correo del anuncio y copia oculta al admin.
@@ -40,3 +42,4 @@
 - Para WhatsApp, preservar codigo de pais si el telefono ya trae prefijo `+` o `00`; numeros nacionales usan Colombia (+57).
 - 2026-10-31: fichas SEO/estado/WhatsApp; contacto de ficha redirigido al email del anuncio con copia oculta al admin y enlace mailto con asunto/cuerpo.
 - 2026-10-31: URLs del sitio se basan en el origen de `APP_URL`; el correo de nueva consulta no incluye enlaces.
+- 2026-10-31: botón mailto directo + alternativa al formulario; mapa Leaflet interactivo y sin controles de flechas.

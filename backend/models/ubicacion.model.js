@@ -58,6 +58,20 @@ const listCiudadesByDepartamento = async (slug) => {
   return rows;
 };
 
+const findCityCoordinates = async (nombre) => {
+  const { rows } = await query(
+    `SELECT latitud, longitud
+     FROM ciudades
+     WHERE (unaccent(lower(nombre)) = unaccent(lower($1))
+         OR unaccent(lower(split_part(nombre, ',', 1))) = unaccent(lower(split_part($1, ',', 1))))
+       AND latitud IS NOT NULL AND longitud IS NOT NULL
+     ORDER BY (unaccent(lower(nombre)) = unaccent(lower($1))) DESC
+     LIMIT 1`,
+    [nombre]
+  );
+  return rows[0] || null;
+};
+
 const findDepartamentoBySlug = async (slug) => {
   const { rows } = await query('SELECT * FROM departamentos WHERE slug = $1 LIMIT 1', [slug]);
   return rows[0] || null;
@@ -106,6 +120,7 @@ module.exports = {
   listDepartamentos,
   listCiudades,
   listCiudadesByDepartamento,
+  findCityCoordinates,
   findDepartamentoBySlug,
   getUbicaciones,
   groupByDepartamento,

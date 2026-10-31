@@ -21,6 +21,9 @@
     <meta name="twitter:title" content="<%= meta.title %>">
     <meta name="twitter:description" content="<%= meta.description %>">
   <% } %>
+  <% if (mapCoordinates) { %>
+    <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+  <% } %>
   <% if (typeof jsonLd !== 'undefined' && jsonLd) { %>
     <script type="application/ld+json"><%- jsonLd %></script>
   <% } %>
@@ -87,15 +90,30 @@
         </section>
 
         <!-- Mapa geosatelital -->
-        <% if (mapsEmbed) { %>
+        <% if (mapCoordinates || mapsLink) { %>
         <section class="bg-white dark:bg-slate-800 rounded-2xl border border-neutral-200 dark:border-slate-700 p-4 sm:p-6 lg:p-7 shadow-sm min-w-0">
           <h2 class="font-display text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900 dark:text-slate-100 break-words">Ubicación</h2>
           <% if (anuncio.direccion) { %>
             <p class="text-neutral-500 dark:text-slate-400 mt-1 mb-4 break-words"><%= [anuncio.direccion, anuncio.ciudad, anuncio.pais].filter(Boolean).join(', ') %></p>
           <% } %>
-          <div class="rounded-xl overflow-hidden border border-neutral-200 dark:border-slate-700 w-full min-w-0">
-            <iframe title="Mapa de ubicación" src="<%= mapsEmbed %>" width="100%" height="360" style="border:0; width:100%; min-height:260px;" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="w-full"></iframe>
-          </div>
+          <% if (mapCoordinates) { %>
+            <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">
+              <% if (approximateMapLocation) { %>
+                Ubicación aproximada del municipio. Usa la rueda del ratón para acercar o alejar.
+              <% } else { %>
+                Usa la rueda del ratón para acercar o alejar el mapa.
+              <% } %>
+            </p>
+            <div id="anuncio-mapa" data-latitud="<%= mapCoordinates.latitud %>" data-longitud="<%= mapCoordinates.longitud %>" aria-label="Mapa interactivo de ubicación. Usa la rueda del ratón para cambiar el zoom." class="h-[320px] sm:h-[360px] rounded-xl overflow-hidden border border-neutral-200 dark:border-slate-700 w-full min-w-0"></div>
+          <% } else { %>
+            <div class="flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-5 py-8 text-center dark:border-slate-700 dark:bg-slate-900">
+              <p class="max-w-md text-sm text-neutral-600 dark:text-slate-300">Agrega coordenadas a esta ficha para mostrar el mapa interactivo aquí. También puedes abrir la ubicación en Google Maps.</p>
+              <a href="<%= mapsLink %>" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-10 items-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2">
+                Abrir ubicación en Google Maps
+                <span class="sr-only">(se abre en una pestaña nueva)</span>
+              </a>
+            </div>
+          <% } %>
         </section>
         <% } %>
 
@@ -162,6 +180,10 @@
                 <span class="truncate text-sm sm:text-base"><%= anuncio.email %></span>
                 <span class="sr-only">(se abre tu aplicación de correo)</span>
               </a>
+              <p class="px-1 text-xs text-neutral-500 dark:text-slate-400">
+                ¿No se abrió tu correo?
+                <a href="#contacto-form" class="font-semibold text-primary-600 dark:text-primary-400 hover:underline">Envía tu mensaje desde el formulario</a>.
+              </p>
             <% } %>
             <% if (anuncio.sitio_web) { %>
               <a href="<%= anuncio.sitio_web %>" target="_blank" rel="noopener" class="flex items-center gap-3 px-3 sm:px-4 py-3 rounded-xl border border-neutral-200 dark:border-slate-600 text-neutral-700 dark:text-slate-200 hover:bg-neutral-50 dark:hover:bg-slate-700 font-medium transition-colors">
@@ -223,6 +245,7 @@
 
   <%- include('partials/footer') %>
   <script>window.ANUNCIO_SLUG = "<%= anuncio.slug %>";</script>
+  <% if (mapCoordinates) { %><script src="/vendor/leaflet/leaflet.js" defer></script><% } %>
   <script src="/js/anuncio.js" defer></script>
 </body>
 </html>

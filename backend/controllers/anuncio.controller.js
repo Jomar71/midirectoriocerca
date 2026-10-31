@@ -133,8 +133,25 @@ async function renderAnuncio(req, res, next) {
     const keywords = seo.keywordsArray(anuncio.palabras_clave, anuncio.razon_social);
     const imgPrincipal = fotos[0]?.url || '/img/placeholder.jpg';
     const whatsappNumber = whatsappPhoneNumber(anuncio.telefono_movil);
+    const latitud = anuncio.latitud == null || anuncio.latitud === '' ? NaN : Number(anuncio.latitud);
+    const longitud = anuncio.longitud == null || anuncio.longitud === '' ? NaN : Number(anuncio.longitud);
+    const hasExactCoordinates = Number.isFinite(latitud) && Number.isFinite(longitud)
+      && latitud >= -90 && latitud <= 90 && longitud >= -180 && longitud <= 180;
+    let mapCoordinates = hasExactCoordinates ? { latitud, longitud } : null;
+    let approximateMapLocation = false;
+    const isColombia = !anuncio.pais || /^(colombia|colombia\s*)$/i.test(anuncio.pais.trim());
+    if (!mapCoordinates && anuncio.ciudad && isColombia) {
+      const cityCoordinates = await ubicacionModel.findCityCoordinates(anuncio.ciudad);
+      if (cityCoordinates) {
+        mapCoordinates = {
+          latitud: Number(cityCoordinates.latitud),
+          longitud: Number(cityCoordinates.longitud),
+        };
+        approximateMapLocation = true;
+      }
+    }
     const emailHref = anuncio.email
-      ? `mailto:${anuncio.email}?subject=${encodeURIComponent(`Consulta sobre ${anuncio.razon_social}`)}&body=${encodeURIComponent(`Hola, vi el anuncio de ${anuncio.razon_social} en DirectorioCerca y deseo más información.`)}`
+      ? `mailto:${anuncio.email}`
       : null;
 
     return res.render('anuncio', {
@@ -149,6 +166,8 @@ async function renderAnuncio(req, res, next) {
       }),
       anuncio,
       fotos,
+      mapCoordinates,
+      approximateMapLocation,
       emailHref,
       jsonLd: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
       keywords,
@@ -157,10 +176,10 @@ async function renderAnuncio(req, res, next) {
         ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hola, vi su anuncio "${anuncio.razon_social}" en DirectorioCerca y deseo información.`)}`
         : null,
       whatsappText: encodeURIComponent(`Mira este negocio en DirectorioCerca: ${anuncio.razon_social} → ${env.appUrl}/anuncio/${anuncio.slug}`),
-      mapsEmbed: anuncio.latitud != null && anuncio.longitud != null
-        ? `https://www.google.com/maps?q=${anuncio.latitud},${anuncio.longitud}&z=15&output=embed`
+      mapsLink: mapCoordinates
+        ? `https://www.google.com/maps/search/?api=1&query=${mapCoordinates.latitud},${mapCoordinates.longitud}`
         : (anuncio.direccion
-          ? `https://www.google.com/maps?q=${encodeURIComponent(`${anuncio.direccion} ${anuncio.ciudad || ''} ${anuncio.pais || ''}`)}&output=embed`
+          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${anuncio.direccion} ${anuncio.ciudad || ''} ${anuncio.pais || ''}`)}`
           : null),
     });
   } catch (e) {

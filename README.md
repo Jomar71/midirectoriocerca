@@ -17,7 +17,7 @@ Directorio empresarial en línea, escalable y listo para producción. Sitio **p�
 4. Enlaces a **web, YouTube, Facebook, Instagram, TikTok**.
 5. **Formulario de consultas**: guarda los mensajes en el panel, los envía al correo de la ficha y copia al administrador cuando SMTP está configurado.
 6. **SEO**: metaetiquetas, Open Graph, Twitter Card y **Schema.org LocalBusiness**.
-7. **Mapa geosatelital** (Google Maps Embed).
+7. **Mapa interactivo** sin botones de flechas: zoom con la rueda del ratón y gesto de pellizco en móviles. Usa coordenadas de la ficha o, en Colombia, el centro municipal DANE; sin ubicación calculable ofrece un enlace a Google Maps.
 8. **Traducción** a todos los idiomas (Google Translate Widget).
 9. **10 palabras clave** de búsqueda.
 10. **6 cambios** gratis por anuncio (contador + auditoría en el panel).
