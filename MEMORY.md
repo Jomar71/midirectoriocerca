@@ -32,7 +32,7 @@
 - Busqueda publica pagina hasta 20 resultados; resultados se muestran en `/resultados`.
 - Colombia: departamentos/ciudades vienen de DANE; matching de ciudades tolera acentos y sufijos.
 - Las fichas usan Leaflet local + teselas OpenStreetMap; zoom por rueda/pellizco sin controles de flechas. El mapa se muestra inline, con direccion en el marcador y enlace "Mirar mapa"; ante falla de tiles usa Google Maps iframe y, si no hay coordenadas, incrusta Google Maps buscando la direccion.
-- El boton de correo es `mailto:` dirigido al email publicado; el destinatario no configura nada. Depende de una app de correo del visitante; el formulario web es la alternativa y usa SMTP configurado una vez para el sitio.
+- El boton de correo abre un `mailto:` dirigido al email del anuncio, con asunto fijo "Contacto desde la web"; el destino se codifica en HTML para evitar exponerlo en el enlace y la reescritura de Cloudflare. El destinatario no configura nada. Depende de una app de correo del visitante; el formulario web es la alternativa y usa SMTP configurado una vez para el sitio.
 - Cloudflare puede reescribir `mailto:` en el HTML; la ficha transporta el destino codificado y lo activa en el clic para evitar que su proteccion rompa el boton. Si JavaScript no carga, el enlace lleva al formulario.
 
 ## Decisiones recientes

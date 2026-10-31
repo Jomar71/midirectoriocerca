@@ -150,7 +150,7 @@ async function renderAnuncio(req, res, next) {
         approximateMapLocation = true;
       }
     }
-    const emailSubject = `Consulta sobre ${anuncio.razon_social}`;
+    const emailSubject = 'Contacto desde la web';
     const emailHref = anuncio.email
       ? `mailto:${anuncio.email}?subject=${encodeURIComponent(emailSubject)}`
       : null;
