@@ -44,8 +44,6 @@ async function crear(req, res, next) {
     } catch (e) {
       console.warn('[mail] No se pudo notificar al admin:', e.message);
     }
-    mailService.autoReply({ to: email, nombre, anuncio: anuncioNombre })
-      .catch((e) => console.warn('[mail] No se pudo enviar autorrespuesta:', e.message));
 
     const responseMessage = emailSent
       ? 'Solicitud guardada y aviso enviado al correo de DirectorioCerca.'

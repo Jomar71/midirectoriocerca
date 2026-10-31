@@ -81,15 +81,6 @@ async function notifyNewMessage({ anuncio, nombre, email, telefono, mensaje }) {
   return send({ to: env.mail.adminEmail, subject: `Nuevo mensaje en "${anuncio}"`, html: base('Nuevo mensaje de contacto', body), replyTo: email });
 }
 
-/** Autorrespuesta al visitante que usó el formulario. */
-async function autoReply({ to, nombre, anuncio }) {
-  const body = `
-    <p>Hola ${nombre},</p>
-    <p>Hemos recibido tu mensaje para <strong>${anuncio}</strong>. El propietario del negocio se pondrá en contacto contigo a la mayor brevedad.</p>
-    <p>Gracias por usar DirectorioCerca.</p>`;
-  return send({ to, subject: 'Hemos recibido tu mensaje', html: base('Gracias por contactarnos', body) });
-}
-
 /** Aviso al administrador: anuncios próximos a vencer. */
 async function notifyExpiring(anuncios) {
   const rows = anuncios.map((a) => `
@@ -118,4 +109,4 @@ async function sendReply({ to, nombre, mensajeOriginal, respuesta }) {
   return send({ to, subject: 'Respuesta a tu mensaje — DirectorioCerca', html: base('Respuesta del anunciante', body) });
 }
 
-module.exports = { initMailer, send, notifyNewMessage, autoReply, notifyExpiring, sendReply };
+module.exports = { initMailer, send, notifyNewMessage, notifyExpiring, sendReply };

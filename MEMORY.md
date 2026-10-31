@@ -94,3 +94,4 @@ ode --check, modulo storage carga y save/delete OK.
 - En producción se fuerza SMTP para evitar el modo JSON, que solo registra correos en consola; el despliegue necesita configurar credenciales SMTP válidas para entregar mensajes.
 - El formulario ahora informa si SMTP aceptó el aviso; las solicitudes continúan guardándose aunque falle el email, para no perderlas.
 - Las páginas de contacto y afiliación versionan la URL de `index.js` para evitar que el navegador conserve el mensaje de éxito antiguo.
+- No se envían acuses automáticos a los clientes; el administrador responde manualmente desde Proton usando Reply-To del email recibido.
