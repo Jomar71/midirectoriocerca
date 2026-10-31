@@ -19,7 +19,7 @@ function keywordsArray(palabrasClave, razonSocial) {
 }
 
 /** JSON-LD Schema.org LocalBusiness a partir de un anuncio. */
-function localBusinessJsonLd(anuncio, fotos = []) {
+function localBusinessJsonLd(anuncio, fotos = [], { includeEmail = true } = {}) {
   const url = `${env.appUrl}/anuncio/${anuncio.slug}`;
   const images = fotos.map((f) => (f.url.startsWith('http') ? f.url : `${env.appUrl}${f.url}`));
   const sameAs = [anuncio.sitio_web, anuncio.facebook, anuncio.instagram, anuncio.tiktok, anuncio.youtube]
@@ -33,7 +33,7 @@ function localBusinessJsonLd(anuncio, fotos = []) {
     url,
     image: images.length ? images : undefined,
     telephone: anuncio.telefono_movil || anuncio.telefono_fijo || undefined,
-    email: anuncio.email || undefined,
+    email: includeEmail ? (anuncio.email || undefined) : undefined,
     keywords: keywordsArray(anuncio.palabras_clave, anuncio.razon_social).join(', '),
     address: {
       '@type': 'PostalAddress',

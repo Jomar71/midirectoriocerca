@@ -129,7 +129,7 @@ async function renderAnuncio(req, res, next) {
     }
 
     const fotos = await fotoModel.listByAnuncio(anuncio.id);
-    const jsonLd = seo.localBusinessJsonLd(anuncio, fotos);
+    const jsonLd = seo.localBusinessJsonLd(anuncio, fotos, { includeEmail: false });
     const keywords = seo.keywordsArray(anuncio.palabras_clave, anuncio.razon_social);
     const imgPrincipal = fotos[0]?.url || '/img/placeholder.jpg';
     const whatsappNumber = whatsappPhoneNumber(anuncio.telefono_movil);
