@@ -15,7 +15,7 @@ Directorio empresarial en línea, escalable y listo para producción. Sitio **p�
 2. **Portafolio empresarial** (~50 palabras).
 3. Datos direccionales, teléfonos fijo y móvil, correos.
 4. Enlaces a **web, YouTube, Facebook, Instagram, TikTok**.
-5. **Formulario de consultas**: guarda los mensajes en el panel, los envía al correo de la ficha y copia al administrador cuando SMTP está configurado. El botón «Enviar correo» abre el correo dirigido al email del anuncio con el asunto «Contacto desde la web»; el destino va codificado en un atributo `data-` y no se imprime como texto ni en los datos estructurados de la ficha. El destinatario no necesita configurar nada. Si el visitante no tiene una aplicación de correo, puede usar el formulario, cuyo envío usa el SMTP configurado una sola vez para el sitio.
+5. **Formulario de consultas**: guarda los mensajes en el panel y los envía solo al correo de la ficha cuando SMTP está configurado (si la ficha no tiene correo, al administrador). El botón «Enviar correo» abre el correo dirigido al email del anuncio con el asunto «Contacto desde la web»; el destino va codificado en un atributo `data-` y no se imprime como texto ni en los datos estructurados de la ficha. El destinatario no necesita configurar nada. Si el visitante no tiene una aplicación de correo, puede usar el formulario, cuyo envío usa el SMTP configurado una sola vez para el sitio.
 6. **SEO**: metaetiquetas, Open Graph, Twitter Card y **Schema.org LocalBusiness**.
 7. **Mapa interactivo visible en la ficha** con Leaflet y teselas de MapTiler: inicia en vista satélite e incluye selector de vista de calles, zoom con la rueda del ratón y gesto de pellizco en móviles, sin botones de zoom. Al crear un anuncio o cambiar su dirección, ciudad o país, se calculan las coordenadas automáticamente. Si no se encuentra la ubicación, las coordenadas quedan nulas y el mapa muestra Bogotá como referencia, sin un marcador que indique falsamente dónde está el negocio.
 8. **Traducción** a todos los idiomas (Google Translate Widget).
@@ -79,7 +79,7 @@ En producción configura `MAIL_TRANSPORT=smtp` y define:
 - `smtp`: envío real. Completa `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS` y `MAIL_FROM`. Producción fuerza SMTP aunque `MAIL_TRANSPORT` tenga otro valor.
   Ejemplos de proveedores: Gmail (App Password), Brevo, SendGrid, Mailgun, Zoho.
 
-Los mensajes desde una ficha se envían al correo de contacto del anuncio y el administrador recibe una copia oculta. Los demás formularios y avisos se envían a `midirectoriocerca@proton.me`. Proton Mail no ofrece SMTP en cuentas
+Los mensajes desde una ficha se envían solo al correo de contacto del anuncio (si la ficha no tiene correo, al administrador) y quedan guardados en el panel. Los demás formularios y avisos se envían a `midirectoriocerca@proton.me`. Proton Mail no ofrece SMTP en cuentas
 gratuitas: para enviar desde esa dirección necesitas **Proton Mail Bridge** (servidor local) o un plan
 **Proton Business** con SMTP. Si usas otro proveedor (Brevo, Gmail, etc.) para enviar, configura
 `MAIL_FROM` con una dirección verificada del proveedor. `APP_URL` debe ser el origen del sitio (por ejemplo, `https://midirectoriocerca.pxxlspace.cv`), sin rutas como `/admin/panel`.

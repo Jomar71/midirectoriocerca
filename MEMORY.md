@@ -22,7 +22,7 @@
 - `database.sql` empieza con `DROP TABLE ... CASCADE`: nunca ejecutar `db:init` contra datos existentes.
 - En Postgres administrado usar `npm run db:load`, no `db:init`.
 - `MAIL_TRANSPORT=json` solo registra mensajes; produccion necesita SMTP configurado.
-- Los mensajes de una ficha se guardan y envian al correo de contacto del anuncio; el admin recibe copia oculta. Si SMTP falla, el API lo comunica y conserva el mensaje.
+- Los mensajes de una ficha se guardan y envian solo al correo de contacto del anuncio (al admin si la ficha no tiene correo); el admin los consulta en el panel. Si SMTP falla, el API lo comunica y conserva el mensaje.
 - `APP_URL` se normaliza al origen HTTP(S); configurarlo solo con dominio, sin rutas. Evita enlaces internos duplicados como `/admin/panel/admin/panel`.
 - El correo de nueva consulta no debe incluir enlaces; algunos clientes convierten automaticamente nombres de negocio que parecen dominios en enlaces externos.
 - `STORAGE_DRIVER` solo admite local. Fotos se guardan originales, sin conversion WebP.
@@ -35,12 +35,13 @@
 - El boton de correo abre un `mailto:` dirigido al email del anuncio, con asunto fijo "Contacto desde la web"; el destino se codifica en `data-email-href`, no se muestra en texto ni en datos estructurados, y se activa al clic para evitar la reescritura de Cloudflare. El destinatario no configura nada. Depende de una app de correo del visitante; el formulario web es la alternativa y usa SMTP configurado una vez para el sitio.
 
 ## Decisiones recientes
-- Correos generales/avisos van al admin; consultas de ficha van al correo del anuncio y copia oculta al admin.
+- Correos generales/avisos van al admin; consultas de ficha van solo al correo del anuncio.
 - Confirmar al visitante el envio solo cuando SMTP acepta el correo; avisar si se guardo pero el envio fallo.
 - Fichas publicas deben exponer solo anuncios `activo`, igual que los listados publicos.
 - Las paginas publicas con `meta` (inicio, resultados y fichas) deben renderizar description, canonical, Open Graph y Twitter; las fichas ademas JSON-LD.
 - Para WhatsApp, preservar codigo de pais si el telefono ya trae prefijo `+` o `00`; numeros nacionales usan Colombia (+57).
-- 2026-10-31: fichas SEO/estado/WhatsApp; contacto de ficha redirigido al email del anuncio con copia oculta al admin y enlace mailto con asunto/cuerpo.
+- 2026-10-31: fichas SEO/estado/WhatsApp; contacto de ficha redirigido al email del anuncio y enlace mailto con asunto/cuerpo.
+- 2026-11-01: se quito la copia oculta al admin en consultas de ficha; el mensaje va solo al correo del anuncio (o al admin si no hay email).
 - 2026-10-31: URLs del sitio se basan en el origen de `APP_URL`; el correo de nueva consulta no incluye enlaces.
 - 2026-10-31: boton abre mailto al email publicado (sin config del destinatario); formulario web usa SMTP global.
 - 2026-10-31: Cloudflare reescribia el `href` del boton de correo a `/cdn-cgi/l/email-protection`; la ficha ahora codifica el destino y lo abre en el clic para evitar esa transformacion.

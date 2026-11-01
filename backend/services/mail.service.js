@@ -42,12 +42,11 @@ async function initMailer() {
   }
 }
 
-async function send({ to, bcc, subject, html, replyTo }) {
+async function send({ to, subject, html, replyTo }) {
   if (!transporter) await initMailer();
   const info = await transporter.sendMail({
     from: env.mail.from,
     to,
-    bcc,
     subject,
     html,
     replyTo,
@@ -82,12 +81,9 @@ const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => 
   "'": '&#39;',
 })[char]);
 
-/** Notifica al correo de contacto del anuncio y copia al administrador. */
+/** Notifica al correo de contacto del anuncio (o al administrador si no tiene). */
 async function notifyNewMessage({ anuncio, anuncioEmail, nombre, email, telefono, mensaje }) {
   const to = anuncioEmail || env.mail.adminEmail;
-  const bcc = anuncioEmail && anuncioEmail.toLowerCase() !== env.mail.adminEmail.toLowerCase()
-    ? env.mail.adminEmail
-    : undefined;
   const body = `
     <p>Has recibido un nuevo mensaje a través del formulario de una ficha de DirectorioCerca.</p>
     <table style="width:100%;border-collapse:collapse">
@@ -98,7 +94,6 @@ async function notifyNewMessage({ anuncio, anuncioEmail, nombre, email, telefono
     <p style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;white-space:pre-wrap">${escapeHtml(mensaje)}</p>`;
   return send({
     to,
-    bcc,
     subject: `Nuevo mensaje en "${anuncio}"`,
     html: base('Nuevo mensaje de contacto', body),
     replyTo: email,
