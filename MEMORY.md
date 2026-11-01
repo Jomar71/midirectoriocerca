@@ -38,10 +38,15 @@
 - Correos generales/avisos van al admin; consultas de ficha van al correo del anuncio y copia oculta al admin.
 - Confirmar al visitante el envio solo cuando SMTP acepta el correo; avisar si se guardo pero el envio fallo.
 - Fichas publicas deben exponer solo anuncios `activo`, igual que los listados publicos.
-- Fichas deben renderizar las etiquetas SEO y JSON-LD preparados por el controlador.
+- Las paginas publicas con `meta` (inicio, resultados y fichas) deben renderizar description, canonical, Open Graph y Twitter; las fichas ademas JSON-LD.
 - Para WhatsApp, preservar codigo de pais si el telefono ya trae prefijo `+` o `00`; numeros nacionales usan Colombia (+57).
 - 2026-10-31: fichas SEO/estado/WhatsApp; contacto de ficha redirigido al email del anuncio con copia oculta al admin y enlace mailto con asunto/cuerpo.
 - 2026-10-31: URLs del sitio se basan en el origen de `APP_URL`; el correo de nueva consulta no incluye enlaces.
 - 2026-10-31: boton abre mailto al email publicado (sin config del destinatario); formulario web usa SMTP global.
 - 2026-10-31: Cloudflare reescribia el `href` del boton de correo a `/cdn-cgi/l/email-protection`; la ficha ahora codifica el destino y lo abre en el clic para evitar esa transformacion.
 - 2026-10-31: mapa de ficha usa MapTiler en Leaflet; geocodifica al guardar anuncios sin coordenadas y evita el fallback geográfico incorrecto.
+- 2026-11-01: plantilla CSV corregida a 18 columnas (sin latitud/longitud) y README alineado; las coordenadas se calculan automaticamente.
+- 2026-11-01: resultados conserva `pais`/`departamento` al buscar y muestra chips para todos los filtros activos.
+- 2026-11-01: fechas del API admin se normalizan con `S.formatDateOnly` para no enviar `"Thu Jan 01"` a los inputs date; tambien se usa en avisos de vencimiento.
+- 2026-11-01: panel deshabilita la subida al llegar a 11 fotos y maneja errores al marcar/eliminar mensajes.
+- 2026-11-01: smoke tests locales OK (publico, APIs, login, CRUD admin, CSV y contacto guardado); `MAPTILER_API_KEY` ausente deja coordenadas nulas sin romper.

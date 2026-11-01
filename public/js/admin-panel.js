@@ -241,6 +241,7 @@
     fillDepartamentosSelect();
     formAnuncio.reset();
     document.getElementById('fotos-actuales').innerHTML = '';
+    document.getElementById('in-fotos').disabled = false;
     document.getElementById('form-msg').textContent = '';
     state.anuncioEditando = id || null;
     document.getElementById('modal-title').textContent = id ? 'Editar anuncio' : 'Nuevo anuncio';
@@ -260,14 +261,25 @@
         });
         if (data.categoria_id) formAnuncio.elements['categoria_id'].value = data.categoria_id;
         syncDepartamentoFromCiudad(data.ciudad);
-        document.getElementById('fotos-actuales').innerHTML = data.fotos.map((f) => `
+        const fotosActuales = document.getElementById('fotos-actuales');
+        fotosActuales.innerHTML = data.fotos.map((f) => `
           <div class="relative w-20 h-16 rounded-lg overflow-hidden border border-neutral-200">
             <img src="${esc(f.url)}" class="w-full h-full object-cover">
             <button type="button" class="foto-del absolute top-0 right-0 bg-error-600 text-white text-xs w-5 h-5" data-id="${f.id}" aria-label="Eliminar foto">&times;</button>
           </div>`).join('');
+        if (data.fotos.length >= 11) {
+          document.getElementById('in-fotos').disabled = true;
+          fotosActuales.insertAdjacentHTML('beforeend', '<p class="w-full text-xs text-neutral-500">Límite de 11 fotos alcanzado. Elimina una para subir otra.</p>');
+        }
         document.querySelectorAll('.foto-del').forEach((b) => b.addEventListener('click', async () => {
-          try { await api(`/fotos/${b.dataset.id}`, { method: 'DELETE' }); b.closest('div').remove(); toast('Foto eliminada'); }
-          catch (e) { toast(e.message, 'err'); }
+          try {
+            await api(`/fotos/${b.dataset.id}`, { method: 'DELETE' });
+            b.closest('div').remove();
+            document.getElementById('in-fotos').disabled = false;
+            const aviso = document.querySelector('#fotos-actuales p');
+            if (aviso) aviso.remove();
+            toast('Foto eliminada');
+          } catch (e) { toast(e.message, 'err'); }
         }));
       } catch (e) { toast(e.message, 'err'); return; }
     } else {
@@ -368,8 +380,19 @@
         </div>`).join('') || '<p class="text-neutral-500 text-sm">Sin mensajes.</p>';
 
       cont.querySelectorAll('.msg-reply').forEach((b) => b.addEventListener('click', () => openMsgModal(b.dataset.id, b.dataset.nombre, b.dataset.msg)));
-      cont.querySelectorAll('.msg-read').forEach((b) => b.addEventListener('click', async () => { await api(`/mensajes/${b.dataset.id}/leido`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ leido: true }) }); loadMensajes(); }));
-      cont.querySelectorAll('.msg-del').forEach((b) => b.addEventListener('click', async () => { if (!confirm('¿Eliminar mensaje?')) return; await api(`/mensajes/${b.dataset.id}`, { method: 'DELETE' }); loadMensajes(); }));
+      cont.querySelectorAll('.msg-read').forEach((b) => b.addEventListener('click', async () => {
+        try {
+          await api(`/mensajes/${b.dataset.id}/leido`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ leido: true }) });
+          loadMensajes();
+        } catch (e) { toast(e.message, 'err'); }
+      }));
+      cont.querySelectorAll('.msg-del').forEach((b) => b.addEventListener('click', async () => {
+        if (!confirm('¿Eliminar mensaje?')) return;
+        try {
+          await api(`/mensajes/${b.dataset.id}`, { method: 'DELETE' });
+          loadMensajes();
+        } catch (e) { toast(e.message, 'err'); }
+      }));
     } catch (e) { toast(e.message, 'err'); }
   }
 

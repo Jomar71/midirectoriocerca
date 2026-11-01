@@ -2,12 +2,14 @@
   var titulo = (typeof title !== 'undefined' && title) ? title : 'Resultados de búsqueda | DirectorioCerca';
   var hayFiltros = !!(filtros.q || filtros.categoria || filtros.departamento || filtros.ciudad || filtros.pais);
 
-  var buildFilterUrl = function(removeKey) {
+  var buildFilterUrl = function(overrides) {
+    overrides = overrides || {};
     var params = new URLSearchParams();
-    if (filtros.q && removeKey !== 'q') params.set('q', filtros.q);
-    if (filtros.categoria && removeKey !== 'categoria') params.set('categoria', filtros.categoria);
-    if (filtros.ciudad && removeKey !== 'ciudad') params.set('ciudad', filtros.ciudad);
-    if (filtros.departamento && removeKey !== 'departamento') params.set('departamento', filtros.departamento);
+    ['q', 'categoria', 'departamento', 'ciudad', 'pais'].forEach(function(key) {
+      var value = Object.prototype.hasOwnProperty.call(overrides, key) ? overrides[key] : filtros[key];
+      if (value) params.set(key, value);
+    });
+    if (overrides.page) params.set('page', overrides.page);
     var qs = params.toString();
     return '/resultados' + (qs ? '?' + qs : '');
   };
@@ -16,6 +18,24 @@
 <html lang="es">
 <head>
   <%- include('partials/head', { titulo: titulo }) %>
+  <% if (typeof meta !== 'undefined' && meta) { %>
+    <meta name="description" content="<%= meta.description %>">
+    <% if (meta.keywords) { %><meta name="keywords" content="<%= meta.keywords %>"><% } %>
+    <link rel="canonical" href="<%= meta.url %>">
+    <meta property="og:type" content="<%= meta.type %>">
+    <meta property="og:title" content="<%= meta.title %>">
+    <meta property="og:description" content="<%= meta.description %>">
+    <meta property="og:url" content="<%= meta.url %>">
+    <% if (meta.image) { %>
+      <meta property="og:image" content="<%= meta.image %>">
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:image" content="<%= meta.image %>">
+    <% } else { %>
+      <meta name="twitter:card" content="summary">
+    <% } %>
+    <meta name="twitter:title" content="<%= meta.title %>">
+    <meta name="twitter:description" content="<%= meta.description %>">
+  <% } %>
 </head>
 <body class="bg-white text-neutral-800 dark:bg-slate-900 dark:text-slate-100 font-sans">
   <%- include('partials/header') %>
@@ -56,14 +76,14 @@
         <!-- Barra de categorías rápida (chips deslizables horizontalmente) -->
         <% if (typeof categorias !== 'undefined' && categorias && categorias.length) { %>
           <div class="mt-5 max-w-5xl mx-auto flex items-center gap-1.5 overflow-x-auto pb-2 scroll-smooth" style="scrollbar-width:none" aria-label="Filtrar por categoría">
-            <a href="<%= buildFilterUrl('categoria') %>"
+            <a href="<%= buildFilterUrl({ categoria: null }) %>"
                class="shrink-0 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors <%= !filtros.categoria ? 'bg-primary-600 text-white shadow-sm' : 'bg-neutral-100 dark:bg-slate-800 text-neutral-700 dark:text-slate-300 hover:bg-neutral-200 dark:hover:bg-slate-700 border border-neutral-200 dark:border-slate-700' %>">
               Todas
             </a>
             <% categorias.forEach(function(c){ %>
               <%
                 var isSelected = filtros.categoria === c.slug;
-                var catUrl = isSelected ? buildFilterUrl('categoria') : '/resultados?' + (queryString ? queryString.replace(/&?categoria=[^&]*/, '') + (queryString.replace(/&?categoria=[^&]*/, '') ? '&' : '') : '') + 'categoria=' + c.slug;
+                var catUrl = isSelected ? buildFilterUrl({ categoria: null }) : buildFilterUrl({ categoria: c.slug });
               %>
               <a href="<%= catUrl %>"
                  class="shrink-0 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors <%= isSelected ? 'bg-primary-600 text-white shadow-sm' : 'bg-neutral-100 dark:bg-slate-800 text-neutral-700 dark:text-slate-300 hover:bg-neutral-200 dark:hover:bg-slate-700 border border-neutral-200 dark:border-slate-700' %>">
@@ -111,20 +131,34 @@
         <% if (hayFiltros) { %>
           <div class="flex flex-wrap items-center gap-2">
             <% if (filtros.q) { %>
-              <a href="<%= buildFilterUrl('q') %>" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-800 dark:bg-primary-950 dark:text-primary-200 hover:bg-primary-200 dark:hover:bg-primary-900 transition-colors" title="Quitar filtro de búsqueda">
+              <a href="<%= buildFilterUrl({ q: null }) %>" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-800 dark:bg-primary-950 dark:text-primary-200 hover:bg-primary-200 dark:hover:bg-primary-900 transition-colors" title="Quitar filtro de búsqueda">
                 <span>Buscar: «<%= filtros.q %>»</span>
                 <span class="text-sm font-bold leading-none">&times;</span>
               </a>
             <% } %>
             <% if (typeof categoriaActual !== 'undefined' && categoriaActual) { %>
-              <a href="<%= buildFilterUrl('categoria') %>" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-accent-100 text-accent-900 dark:bg-accent-950 dark:text-accent-200 hover:bg-accent-200 dark:hover:bg-accent-900 transition-colors" title="Quitar filtro de categoría">
+              <a href="<%= buildFilterUrl({ categoria: null }) %>" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-accent-100 text-accent-900 dark:bg-accent-950 dark:text-accent-200 hover:bg-accent-200 dark:hover:bg-accent-900 transition-colors" title="Quitar filtro de categoría">
                 <span>Categoría: <%= categoriaActual.nombre %></span>
                 <span class="text-sm font-bold leading-none">&times;</span>
               </a>
             <% } %>
             <% if (filtros.ciudad) { %>
-              <a href="<%= buildFilterUrl('ciudad') %>" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-neutral-200 text-neutral-800 dark:bg-slate-700 dark:text-slate-200 hover:bg-neutral-300 dark:hover:bg-slate-600 transition-colors" title="Quitar filtro de ciudad">
+              <a href="<%= buildFilterUrl({ ciudad: null }) %>" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-neutral-200 text-neutral-800 dark:bg-slate-700 dark:text-slate-200 hover:bg-neutral-300 dark:hover:bg-slate-600 transition-colors" title="Quitar filtro de ciudad">
                 <span>Ciudad: <%= filtros.ciudad %></span>
+                <span class="text-sm font-bold leading-none">&times;</span>
+              </a>
+            <% } %>
+            <% if (filtros.departamento) {
+                 var depActual = (ubicaciones.departamentos || []).find(function(d) { return d.slug === filtros.departamento; });
+            %>
+              <a href="<%= buildFilterUrl({ departamento: null }) %>" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-neutral-200 text-neutral-800 dark:bg-slate-700 dark:text-slate-200 hover:bg-neutral-300 dark:hover:bg-slate-600 transition-colors" title="Quitar filtro de departamento">
+                <span>Departamento: <%= depActual ? depActual.nombre : filtros.departamento %></span>
+                <span class="text-sm font-bold leading-none">&times;</span>
+              </a>
+            <% } %>
+            <% if (filtros.pais) { %>
+              <a href="<%= buildFilterUrl({ pais: null }) %>" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-neutral-200 text-neutral-800 dark:bg-slate-700 dark:text-slate-200 hover:bg-neutral-300 dark:hover:bg-slate-600 transition-colors" title="Quitar filtro de país">
+                <span>País: <%= filtros.pais %></span>
                 <span class="text-sm font-bold leading-none">&times;</span>
               </a>
             <% } %>
@@ -187,7 +221,7 @@
         <!-- Paginación responsive -->
         <% if (pagination.totalPages > 1) { %>
           <nav class="mt-10 sm:mt-12 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-2" aria-label="Paginación de resultados">
-            <% var build = function(p){ return '/resultados?' + (queryString ? queryString.replace(/&?page=[^&]*/, '') + (queryString.replace(/&?page=[^&]*/, '') ? '&' : '') : '') + 'page=' + p; }; %>
+            <% var build = function(p){ return buildFilterUrl({ page: p }); }; %>
             <a href="<%= build(pagination.page - 1) %>"
                class="h-10 px-3.5 sm:px-4 grid place-items-center rounded-xl text-xs sm:text-sm font-semibold border border-primary-600 text-primary-600 hover:bg-primary-50 dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-500/10 transition-colors <%= pagination.hasPrev ? '' : 'pointer-events-none opacity-40' %>"
                <%= !pagination.hasPrev ? 'aria-disabled="true"' : '' %>>

@@ -56,4 +56,18 @@ function cleanDate(value) {
   return d.toISOString().slice(0, 10);
 }
 
-module.exports = { cleanText, cleanMultiline, isEmail, cleanUrl, cleanNumber, cleanDate };
+/** Convierte una fecha de PostgreSQL (Date) o texto a YYYY-MM-DD sin desfase de zona. */
+function formatDateOnly(value) {
+  if (!value) return '';
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    const y = value.getFullYear();
+    const m = String(value.getMonth() + 1).padStart(2, '0');
+    const d = String(value.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  const s = String(value).trim();
+  const iso = s.match(/^\d{4}-\d{2}-\d{2}/);
+  return iso ? iso[0] : s.slice(0, 10);
+}
+
+module.exports = { cleanText, cleanMultiline, isEmail, cleanUrl, cleanNumber, cleanDate, formatDateOnly };

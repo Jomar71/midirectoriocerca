@@ -10,6 +10,7 @@
 
 const nodemailer = require('nodemailer');
 const env = require('../config/env');
+const S = require('../utils/sanitize');
 
 let transporter = null;
 let etherealPreview = '';
@@ -109,7 +110,7 @@ async function notifyExpiring(anuncios) {
   const rows = anuncios.map((a) => `
     <tr>
       <td style="padding:6px 8px;border-bottom:1px solid #eee">${a.razon_social}</td>
-      <td style="padding:6px 8px;border-bottom:1px solid #eee">${String(a.fecha_vencimiento).slice(0, 10)}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #eee">${S.formatDateOnly(a.fecha_vencimiento)}</td>
     </tr>`).join('');
   const body = `
     <p>Los siguientes anuncios vencen pronto. Renuévalos o deshabilítalos desde el panel:</p>

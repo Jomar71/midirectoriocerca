@@ -155,7 +155,7 @@ En el panel → **Importar CSV**. Cabeceras:
 ```
 razon_social, descripcion_50, direccion, telefono_fijo, telefono_movil, email,
 sitio_web, youtube, facebook, instagram, tiktok, categoria, ciudad, pais,
-latitud, longitud, palabras_clave, fecha_inicio, fecha_vencimiento, fotos
+palabras_clave, fecha_inicio, fecha_vencimiento, fotos
 ```
 
 - Campos obligatorios: `razon_social`, `descripcion_50`.
