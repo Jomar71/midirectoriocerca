@@ -31,7 +31,7 @@
 - Tema publico usa `localStorage['dc-theme']`; admin/login permanecen claros.
 - Busqueda publica pagina hasta 20 resultados; resultados se muestran en `/resultados`.
 - Colombia: departamentos/ciudades vienen de DANE; matching de ciudades tolera acentos y sufijos.
-- Las fichas usan Leaflet desde unpkg + teselas MapTiler, inician en Satelite con selector Calles/Satelite; zoom por rueda/pellizco sin controles de zoom. Geocodifica direccion/ciudad/pais al crear o al cambiar ubicacion (tambien por CSV); si no encuentra, guarda coordenadas nulas y muestra Bogota de referencia sin marcador falso. No se piden coordenadas manuales. `MAPTILER_API_KEY` se restringe al dominio y tambien se usa desde backend; Helmet debe enviar solo el origen como Referer (`strict-origin-when-cross-origin`) para validar las solicitudes de teselas.
+- Las fichas usan Leaflet desde unpkg + teselas MapTiler, muestran solo el mapa de calles (sin selector de satelite); zoom por rueda/pellizco sin controles de zoom. Geocodifica direccion/ciudad/pais con `@maptiler/client` (`geocoding.forward`) al crear o al cambiar ubicacion (tambien por CSV); si no encuentra, guarda coordenadas nulas y muestra Bogota de referencia sin marcador falso. No se piden coordenadas manuales. `MAPTILER_API_KEY` se restringe al dominio y tambien se usa desde backend; Helmet debe enviar solo el origen como Referer (`strict-origin-when-cross-origin`) para validar las solicitudes de teselas.
 - El boton de correo abre un `mailto:` dirigido al email del anuncio, con asunto fijo "Contacto desde la web"; el destino se codifica en `data-email-href`, no se muestra en texto ni en datos estructurados, y se activa al clic para evitar la reescritura de Cloudflare. El destinatario no configura nada. Depende de una app de correo del visitante; el formulario web es la alternativa y usa SMTP configurado una vez para el sitio.
 
 ## Decisiones recientes
@@ -42,6 +42,7 @@
 - Para WhatsApp, preservar codigo de pais si el telefono ya trae prefijo `+` o `00`; numeros nacionales usan Colombia (+57).
 - 2026-10-31: fichas SEO/estado/WhatsApp; contacto de ficha redirigido al email del anuncio y enlace mailto con asunto/cuerpo.
 - 2026-11-01: se quito la copia oculta al admin en consultas de ficha; el mensaje va solo al correo del anuncio (o al admin si no hay email).
+- 2026-11-01: mapa de ficha solo con calles de MapTiler (sin capa satelital) y marcador basado en `anuncio.latitud`/`anuncio.longitud`; geocodificacion migrada a `@maptiler/client`.
 - 2026-10-31: URLs del sitio se basan en el origen de `APP_URL`; el correo de nueva consulta no incluye enlaces.
 - 2026-10-31: boton abre mailto al email publicado (sin config del destinatario); formulario web usa SMTP global.
 - 2026-10-31: Cloudflare reescribia el `href` del boton de correo a `/cdn-cgi/l/email-protection`; la ficha ahora codifica el destino y lo abre en el clic para evitar esa transformacion.

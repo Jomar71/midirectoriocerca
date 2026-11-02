@@ -115,17 +115,9 @@
             <% } else { %>
               <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">Arrastra para moverte; usa la rueda del ratón o pellizca la pantalla para acercar o alejar.</p>
             <% } %>
-            <div class="mb-3 inline-flex rounded-lg border border-neutral-200 dark:border-slate-600 p-1" role="group" aria-label="Estilo del mapa">
-              <button type="button" data-map-layer="streets" aria-pressed="false" class="rounded-md px-3 py-2 text-sm font-semibold text-neutral-600 hover:bg-neutral-100 dark:text-slate-300 dark:hover:bg-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
-                Calles
-              </button>
-              <button type="button" data-map-layer="satellite" aria-pressed="true" class="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
-                Satélite
-              </button>
-            </div>
             <div id="mapa"
-              data-latitud="<%= mapCoordinates.latitud %>"
-              data-longitud="<%= mapCoordinates.longitud %>"
+              data-latitud="<%= anuncio.latitud %>"
+              data-longitud="<%= anuncio.longitud %>"
               data-nombre="<%= anuncio.razon_social %>"
               data-mostrar-marcador="<%= !mapUsesDefault %>"
               data-api-key="<%= maptilerPublicKey %>"
@@ -143,10 +135,14 @@
                   return;
                 }
 
-                const center = [
-                  Number(container.dataset.latitud),
-                  Number(container.dataset.longitud),
-                ];
+                const DEFAULT_CENTER = [4.6097, -74.0817];
+                const latitud = Number(container.dataset.latitud);
+                const longitud = Number(container.dataset.longitud);
+                const hasCoordinates = container.dataset.latitud !== ''
+                  && container.dataset.longitud !== ''
+                  && Number.isFinite(latitud) && latitud >= -90 && latitud <= 90
+                  && Number.isFinite(longitud) && longitud >= -180 && longitud <= 180;
+                const center = hasCoordinates ? [latitud, longitud] : DEFAULT_CENTER;
                 const map = L.map(container, {
                   center,
                   zoom: 15,
@@ -164,46 +160,18 @@
                     crossOrigin: true,
                 };
                 const key = encodeURIComponent(container.dataset.apiKey);
-                const layers = {
-                  streets: L.tileLayer(
-                    `https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png?key=${key}`,
-                    tileOptions,
-                  ),
-                  satellite: L.tileLayer(
-                    `https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=${key}`,
-                    tileOptions,
-                  ),
-                };
                 const showTileError = () => {
                   error.textContent = 'No se pudieron cargar las teselas del mapa. Verifica la clave y el dominio permitido en MapTiler.';
                   error.classList.remove('hidden');
                 };
-                Object.values(layers).forEach((layer) => layer.on('tileerror', showTileError));
-                layers.satellite.addTo(map);
-
-                document.querySelectorAll('[data-map-layer]').forEach((button) => {
-                  button.addEventListener('click', () => {
-                    const selectedLayer = button.dataset.mapLayer;
-                    Object.entries(layers).forEach(([name, layer]) => {
-                      if (map.hasLayer(layer) && name !== selectedLayer) map.removeLayer(layer);
-                    });
-                    if (!map.hasLayer(layers[selectedLayer])) layers[selectedLayer].addTo(map);
-                    document.querySelectorAll('[data-map-layer]').forEach((option) => {
-                      const active = option === button;
-                      option.setAttribute('aria-pressed', String(active));
-                      option.classList.toggle('bg-primary-600', active);
-                      option.classList.toggle('text-white', active);
-                      option.classList.toggle('text-neutral-600', !active);
-                      option.classList.toggle('dark:text-slate-300', !active);
-                      option.classList.toggle('hover:bg-neutral-100', !active);
-                      option.classList.toggle('dark:hover:bg-slate-700', !active);
-                    });
-                  });
-                });
+                L.tileLayer(
+                  `https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png?key=${key}`,
+                  tileOptions,
+                ).on('tileerror', showTileError).addTo(map);
 
                 const name = document.createElement('span');
                 name.textContent = container.dataset.nombre;
-                if (container.dataset.mostrarMarcador === 'true') {
+                if (hasCoordinates && container.dataset.mostrarMarcador === 'true') {
                   L.marker(center).addTo(map).bindPopup(name);
                 }
               })();
