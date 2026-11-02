@@ -48,6 +48,8 @@ function payloadFromBody(b) {
     ciudad: S.cleanText(b.ciudad, 120),
     departamento: S.cleanText(b.departamento, 120),
     pais: S.cleanText(b.pais, 120),
+    latitud: S.cleanNumber(b.latitud),
+    longitud: S.cleanNumber(b.longitud),
     palabras_clave: S.cleanText(b.palabras_clave, 600),
     estado: ESTADOS.includes(b.estado) ? b.estado : 'activo',
     fecha_inicio: inicio,
@@ -64,6 +66,12 @@ function validCoordinates(latitud, longitud) {
 }
 
 async function resolveCoordinates(data, existing = null) {
+  if (validCoordinates(data.latitud, data.longitud)) {
+    data.latitud = Number(data.latitud);
+    data.longitud = Number(data.longitud);
+    return null;
+  }
+
   if (data.departamento) {
     const dept = await ubicacionModel.findDepartamentoBySlug(data.departamento);
     if (dept) data.departamento = dept.nombre;
@@ -98,7 +106,7 @@ async function resolveCoordinates(data, existing = null) {
     if (coordinates) {
       data.latitud = coordinates.latitud;
       data.longitud = coordinates.longitud;
-      return null;
+      return coordinates.exact ? null : 'Ubicación aproximada en la ciudad: se guardaron las coordenadas del centro.';
     }
     return 'No se encontró la dirección. Revisa la dirección, ciudad y país; las coordenadas quedaron vacías.';
   } catch (error) {

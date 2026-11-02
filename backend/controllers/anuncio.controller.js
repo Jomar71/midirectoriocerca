@@ -166,7 +166,7 @@ async function renderAnuncio(req, res, next) {
             anuncio.longitud = coordinates.longitud;
             latitud = coordinates.latitud;
             longitud = coordinates.longitud;
-            hasExactCoordinates = true;
+            hasExactCoordinates = coordinates.exact === true;
             await anuncioModel.updateCoordinates(anuncio.id, latitud, longitud);
             await invalidatePublicCache();
           }

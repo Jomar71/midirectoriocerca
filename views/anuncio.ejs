@@ -23,20 +23,24 @@
   <% } %>
   <% if (mapCoordinates && maptilerPublicKey) { %>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <style>
-      #mapa {
-        width: 100%;
-        height: 400px;
-        max-width: 100%;
-      }
+<style>
+  #mapa {
+    width: 100%;
+    height: 400px;
+    max-width: 100%;
+  }
 
-      @media (max-width: 640px) {
-        #mapa {
-          height: min(400px, 60vh);
-          min-height: 300px;
-        }
-      }
-    </style>
+  #mapa .leaflet-popup {
+    max-width: 90vw !important;
+  }
+
+  @media (max-width: 640px) {
+    #mapa {
+      height: min(400px, 60vh);
+      min-height: 300px;
+    }
+  }
+</style>
   <% } %>
   <% if (typeof jsonLd !== 'undefined' && jsonLd) { %>
     <script type="application/ld+json"><%- jsonLd %></script>
@@ -111,7 +115,7 @@
           <% } %>
           <% if (mapCoordinates && maptilerPublicKey) { %>
             <% if (mapUsesDefault) { %>
-              <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">No se encontró la dirección exacta. Se muestra <%= mapFallbackName %> como ubicación de referencia, sin un marcador del negocio.</p>
+              <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">Ubicación aproximada en la ciudad</p>
             <% } else { %>
               <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">Arrastra para moverte; usa la rueda del ratón o pellizca la pantalla para acercar o alejar. Si la ficha solo indica la ciudad, el marcador se muestra en su centro.</p>
             <% } %>

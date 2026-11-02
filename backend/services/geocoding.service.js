@@ -139,8 +139,12 @@ async function geocodeAddress({ direccion, ciudad, pais, departamento }) {
     if (!result) continue;
 
     const coordinates = { latitud: result.latitud, longitud: result.longitud };
-    if (result.precise) return coordinates;
-    if (!fallback) fallback = coordinates;
+    if (result.precise) {
+      return { ...coordinates, exact: true };
+    }
+    if (!fallback) {
+      fallback = { ...coordinates, exact: false };
+    }
   }
 
   return fallback;
