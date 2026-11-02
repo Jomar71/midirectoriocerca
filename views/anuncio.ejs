@@ -152,6 +152,12 @@
                   dragging: true,
                   zoomControl: false,
                 });
+                if (window.ResizeObserver) {
+                  new ResizeObserver(() => map.invalidateSize()).observe(container);
+                }
+                window.addEventListener('orientationchange', () => {
+                  setTimeout(() => map.invalidateSize(), 200);
+                });
                 const tileOptions = {
                     tileSize: 512,
                     zoomOffset: -1,
@@ -184,7 +190,7 @@
                 }
 
                 if (hasCoordinates && container.dataset.mostrarMarcador === 'true') {
-                  L.marker(center).addTo(map).bindPopup(popup).openPopup();
+                  L.marker(center).addTo(map).bindPopup(popup, { maxWidth: 280 }).openPopup();
                 }
               })();
             </script>

@@ -7,6 +7,7 @@
 const anuncioModel = require('../models/anuncio.model');
 const fotoModel = require('../models/foto.model');
 const categoriaModel = require('../models/categoria.model');
+const ubicacionModel = require('../models/ubicacion.model');
 const mensajeModel = require('../models/mensaje.model');
 const storage = require('../services/storage.service');
 const { uniqueSlug } = require('../utils/slug');
@@ -45,6 +46,7 @@ function payloadFromBody(b) {
     otras_redes: null,
     categoria_id: parseInt(b.categoria_id, 10) || null,
     ciudad: S.cleanText(b.ciudad, 120),
+    departamento: S.cleanText(b.departamento, 120),
     pais: S.cleanText(b.pais, 120),
     palabras_clave: S.cleanText(b.palabras_clave, 600),
     estado: ESTADOS.includes(b.estado) ? b.estado : 'activo',
@@ -62,8 +64,22 @@ function validCoordinates(latitud, longitud) {
 }
 
 async function resolveCoordinates(data, existing = null) {
-  const locationChanged = !existing || ['direccion', 'ciudad', 'pais']
-    .some((field) => String(data[field] || '').trim() !== String(existing[field] || '').trim());
+  if (data.departamento) {
+    const dept = await ubicacionModel.findDepartamentoBySlug(data.departamento);
+    if (dept) data.departamento = dept.nombre;
+  }
+
+  const existingDepartamento = existing
+    ? (await ubicacionModel.findDepartamentoByCity(existing.ciudad)) || ''
+    : '';
+  const dataDepartamento = data.departamento
+    || (await ubicacionModel.findDepartamentoByCity(data.ciudad)) || '';
+  const locationChanged = !existing || ['direccion', 'ciudad', 'departamento', 'pais']
+    .some((field) => {
+      const current = field === 'departamento' ? existingDepartamento : existing[field];
+      const next = field === 'departamento' ? dataDepartamento : data[field];
+      return String(next || '').trim() !== String(current || '').trim();
+    });
   if (existing && !locationChanged && validCoordinates(existing.latitud, existing.longitud)) {
     data.latitud = existing.latitud;
     data.longitud = existing.longitud;

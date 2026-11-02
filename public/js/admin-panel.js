@@ -222,17 +222,30 @@
     dl.innerHTML = cities.map((c) => `<option value="${esc(c.nombre)}"></option>`).join('');
   }
 
+  function syncDepartamentoHidden() {
+    const sel = document.getElementById('sel-departamento');
+    const hidden = document.getElementById('in-departamento');
+    const dept = state.ubicaciones.departamentos.find((d) => d.slug === sel.value);
+    hidden.value = dept ? dept.nombre : '';
+  }
+
   function syncDepartamentoFromCiudad(ciudad) {
     const sel = document.getElementById('sel-departamento');
     const city = state.ubicaciones.ciudades.find((c) => norm(c.nombre) === norm(ciudad));
     sel.value = city ? city.departamento_slug : '';
     fillDatalist(sel.value);
+    syncDepartamentoHidden();
   }
 
   document.getElementById('sel-departamento').addEventListener('change', (e) => {
     fillDatalist(e.target.value);
+    syncDepartamentoHidden();
     const pais = document.getElementById('in-pais');
     if (e.target.value && !pais.value) pais.value = 'Colombia';
+  });
+
+  document.getElementById('in-ciudad').addEventListener('change', (e) => {
+    if (e.target.value) syncDepartamentoFromCiudad(e.target.value);
   });
 
   async function openModal(id) {
@@ -285,6 +298,7 @@
     } else {
       document.getElementById('sel-departamento').value = '';
       fillDatalist('');
+      syncDepartamentoHidden();
     }
     modal.classList.remove('hidden');
     const firstField = document.getElementById('in-razon-social');

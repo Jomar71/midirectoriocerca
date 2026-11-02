@@ -22,7 +22,6 @@ config.fetch = (input, init = {}) => {
 };
 
 const HOUSE_NUMBER_RE = /#|\b(?:n[°ºo]\.?|nro\.?|num\.?|número|numero)\s*\d/i;
-const STREET_LETTER_RE = /\b(calle|carrera|cra|cl|avenida|avda|av|transversal|tv|diagonal|dg|circular|circ)\s+(\d+)(\s*)([a-z])(?=\s|,|$)/i;
 
 const normalize = (value) => String(value || '')
   .normalize('NFD')
@@ -42,21 +41,18 @@ function buildQuery(parts) {
     .join(', ');
 }
 
-/** Quita el número de casa y la letra de la vía para reintentar con la calle. */
+/** Quita el número de casa y conserva la vía (incluye letras). */
 function toStreetOnly(direccion) {
   const original = String(direccion || '').trim();
   if (!original) return '';
 
   const marker = original.match(HOUSE_NUMBER_RE);
-  return (marker ? original.slice(0, marker.index) : original)
+  const street = (marker ? original.slice(0, marker.index) : original)
     .replace(/[\s,;.-]+$/, '')
     .replace(/\s+/g, ' ')
-    .trim()
-    .replace(STREET_LETTER_RE, (match, type, number, space, letter) => {
-      if (space && /^[nseow]$/i.test(letter)) return match;
-      return `${type} ${number}`;
-    })
     .trim();
+
+  return street;
 }
 
 /** Busca en el catálogo DANE el departamento de una ciudad escrita por el usuario. */
@@ -125,7 +121,7 @@ async function geocodeAddress({ direccion, ciudad, pais, departamento }) {
 
   const street = toStreetOnly(direccion);
   if (street) {
-    const streetQuery = buildQuery([street, ciudad, paisNombre]);
+    const streetQuery = buildQuery([street, ciudad, departamentoNombre, paisNombre]);
     if (streetQuery) attempts.push(streetQuery);
   }
   if (ciudad) {

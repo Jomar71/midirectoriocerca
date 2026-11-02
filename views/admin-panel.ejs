@@ -211,6 +211,7 @@
               <select id="sel-departamento" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600">
                 <option value="">— Fuera de Colombia / otro —</option>
               </select>
+              <input type="hidden" name="departamento" id="in-departamento">
             </div>
             <div>
               <label for="in-ciudad" class="text-sm font-medium text-neutral-700">Ciudad / municipio</label>
@@ -218,7 +219,7 @@
               <datalist id="lista-ciudades"></datalist>
             </div>
             <div><label for="in-pais" class="text-sm font-medium text-neutral-700">País</label><input name="pais" id="in-pais" class="mt-1 w-full h-10 px-3 rounded-xl bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-600"></div>
-            <p class="sm:col-span-2 text-sm text-neutral-500">Las coordenadas se calculan automáticamente a partir de la dirección, ciudad y país.</p>
+            <p class="sm:col-span-2 text-sm text-neutral-500">Las coordenadas se calculan automáticamente a partir de la dirección, ciudad, departamento y país.</p>
           </div>
         </fieldset>
 
