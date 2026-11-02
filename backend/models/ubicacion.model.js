@@ -77,6 +77,26 @@ const findDepartamentoBySlug = async (slug) => {
   return rows[0] || null;
 };
 
+/** Nombre del departamento al que pertenece una ciudad del catálogo (tolerante a acentos). */
+const findDepartamentoByCity = async (nombre) => {
+  if (!nombre) return null;
+  const { rows } = await query(
+    `SELECT d.nombre
+     FROM ciudades c
+     JOIN departamentos d ON d.id = c.departamento_id
+     WHERE unaccent(lower(c.nombre)) = unaccent(lower($1))
+        OR unaccent(lower(split_part(c.nombre, ',', 1))) = unaccent(lower(split_part($1, ',', 1)))
+        OR unaccent(lower(c.nombre)) LIKE unaccent(lower($1)) || ' %'
+        OR unaccent(lower(c.nombre)) LIKE '% ' || unaccent(lower($1))
+     ORDER BY (unaccent(lower(c.nombre)) = unaccent(lower($1))) DESC,
+              (unaccent(lower(split_part(c.nombre, ',', 1))) = unaccent(lower(split_part($1, ',', 1)))) DESC,
+              c.es_capital DESC
+     LIMIT 1`,
+    [nombre]
+  );
+  return rows[0]?.nombre || null;
+};
+
 /**
  * Datos para los menús de filtro de la página pública.
  * @returns {{ departamentos:Array, ciudades:Array, paises:Array }}
@@ -122,6 +142,7 @@ module.exports = {
   listCiudadesByDepartamento,
   findCityCoordinates,
   findDepartamentoBySlug,
+  findDepartamentoByCity,
   getUbicaciones,
   groupByDepartamento,
 };
