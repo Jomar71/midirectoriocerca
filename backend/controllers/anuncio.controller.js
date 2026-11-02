@@ -9,8 +9,26 @@ const categoriaModel = require('../models/categoria.model');
 const ubicacionModel = require('../models/ubicacion.model');
 const fotoModel = require('../models/foto.model');
 const seo = require('../services/seo.service');
+const { geocodeAddress } = require('../services/geocoding.service');
+const { invalidatePublicCache } = require('../middlewares/cache');
 const { parsePagination, buildMeta, DEFAULT_LIMIT } = require('../utils/pagination');
 const env = require('../config/env');
+
+const GEOCODE_RETRY_MS = 5 * 60 * 1000;
+const geocodeAttempts = new Map();
+
+function buildDisplayAddress(anuncio) {
+  const normalize = (value) => String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  const direccion = String(anuncio.direccion || '').trim();
+  const parts = direccion ? [direccion] : [];
+  const includes = (value) => normalize(parts.join(' ')).includes(normalize(value));
+  if (anuncio.ciudad && !includes(anuncio.ciudad)) parts.push(anuncio.ciudad);
+  if (anuncio.pais && !includes(anuncio.pais)) parts.push(anuncio.pais);
+  return parts.join(', ');
+}
 
 /** GET /  → Página principal (portada + categorías + pauta). */
 async function renderIndex(req, res, next) {
@@ -129,19 +147,53 @@ async function renderAnuncio(req, res, next) {
     }
 
     const fotos = await fotoModel.listByAnuncio(anuncio.id);
-    const jsonLd = seo.localBusinessJsonLd(anuncio, fotos, { includeEmail: false });
     const keywords = seo.keywordsArray(anuncio.palabras_clave, anuncio.razon_social);
     const imgPrincipal = fotos[0]?.url || '/img/placeholder.jpg';
     const whatsappNumber = whatsappPhoneNumber(anuncio.telefono_movil);
-    const latitud = anuncio.latitud == null || anuncio.latitud === '' ? NaN : Number(anuncio.latitud);
-    const longitud = anuncio.longitud == null || anuncio.longitud === '' ? NaN : Number(anuncio.longitud);
-    const hasExactCoordinates = Number.isFinite(latitud) && Number.isFinite(longitud)
+    let latitud = anuncio.latitud == null || anuncio.latitud === '' ? NaN : Number(anuncio.latitud);
+    let longitud = anuncio.longitud == null || anuncio.longitud === '' ? NaN : Number(anuncio.longitud);
+    let hasExactCoordinates = Number.isFinite(latitud) && Number.isFinite(longitud)
       && latitud >= -90 && latitud <= 90 && longitud >= -180 && longitud <= 180;
+
+    if (!hasExactCoordinates && env.maptiler.apiKey && (anuncio.direccion || anuncio.ciudad)) {
+      const lastAttempt = geocodeAttempts.get(anuncio.id) || 0;
+      if (Date.now() - lastAttempt >= GEOCODE_RETRY_MS) {
+        geocodeAttempts.set(anuncio.id, Date.now());
+        try {
+          const coordinates = await geocodeAddress(anuncio);
+          if (coordinates) {
+            anuncio.latitud = coordinates.latitud;
+            anuncio.longitud = coordinates.longitud;
+            latitud = coordinates.latitud;
+            longitud = coordinates.longitud;
+            hasExactCoordinates = true;
+            await anuncioModel.updateCoordinates(anuncio.id, latitud, longitud);
+            await invalidatePublicCache();
+          }
+        } catch (error) {
+          console.warn(`[anuncio] Geocodificación de "${anuncio.slug}" fallida: ${error.message}`);
+        }
+      }
+    }
+
     const mapUsesDefault = !hasExactCoordinates;
     let mapCoordinates = hasExactCoordinates ? { latitud, longitud } : null;
-    if (mapUsesDefault) {
-      mapCoordinates = { latitud: 4.6097, longitud: -74.0817 };
+    let mapFallbackName = 'Bogotá';
+    if (!mapCoordinates) {
+      const cityFallback = anuncio.ciudad
+        ? await ubicacionModel.findCityCoordinates(anuncio.ciudad).catch(() => null)
+        : null;
+      if (cityFallback) {
+        mapCoordinates = {
+          latitud: Number(cityFallback.latitud),
+          longitud: Number(cityFallback.longitud),
+        };
+        mapFallbackName = [anuncio.ciudad, anuncio.pais].filter(Boolean).join(', ');
+      } else {
+        mapCoordinates = { latitud: 4.6097, longitud: -74.0817 };
+      }
     }
+    const jsonLd = seo.localBusinessJsonLd(anuncio, fotos, { includeEmail: false });
     const emailSubject = 'Contacto desde la web';
     const emailHref = anuncio.email
       ? `mailto:${anuncio.email}?subject=${encodeURIComponent(emailSubject)}`
@@ -168,8 +220,10 @@ async function renderAnuncio(req, res, next) {
       }),
       anuncio,
       fotos,
+      direccionCompleta: buildDisplayAddress(anuncio),
       mapCoordinates,
       mapUsesDefault,
+      mapFallbackName,
       maptilerPublicKey: env.maptiler.apiKey,
       emailHrefEncoded,
       jsonLd: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),

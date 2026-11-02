@@ -111,14 +111,15 @@
           <% } %>
           <% if (mapCoordinates && maptilerPublicKey) { %>
             <% if (mapUsesDefault) { %>
-              <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">No se encontró la dirección. Se muestra Bogotá como ubicación de referencia, sin un marcador del negocio.</p>
+              <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">No se encontró la dirección exacta. Se muestra <%= mapFallbackName %> como ubicación de referencia, sin un marcador del negocio.</p>
             <% } else { %>
-              <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">Arrastra para moverte; usa la rueda del ratón o pellizca la pantalla para acercar o alejar.</p>
+              <p class="text-xs text-neutral-500 dark:text-slate-400 mb-2">Arrastra para moverte; usa la rueda del ratón o pellizca la pantalla para acercar o alejar. Si la ficha solo indica la ciudad, el marcador se muestra en su centro.</p>
             <% } %>
             <div id="mapa"
-              data-latitud="<%= anuncio.latitud %>"
-              data-longitud="<%= anuncio.longitud %>"
+              data-latitud="<%= mapCoordinates.latitud %>"
+              data-longitud="<%= mapCoordinates.longitud %>"
               data-nombre="<%= anuncio.razon_social %>"
+              data-direccion="<%= direccionCompleta %>"
               data-mostrar-marcador="<%= !mapUsesDefault %>"
               data-api-key="<%= maptilerPublicKey %>"
               aria-label="Mapa interactivo de la ubicación del negocio"
@@ -169,10 +170,21 @@
                   tileOptions,
                 ).on('tileerror', showTileError).addTo(map);
 
-                const name = document.createElement('span');
+                const name = document.createElement('strong');
                 name.textContent = container.dataset.nombre;
+                const popup = document.createElement('div');
+                popup.appendChild(name);
+
+                const address = container.dataset.direccion;
+                if (address) {
+                  popup.appendChild(document.createElement('br'));
+                  const detail = document.createElement('span');
+                  detail.textContent = address;
+                  popup.appendChild(detail);
+                }
+
                 if (hasCoordinates && container.dataset.mostrarMarcador === 'true') {
-                  L.marker(center).addTo(map).bindPopup(name);
+                  L.marker(center).addTo(map).bindPopup(popup).openPopup();
                 }
               })();
             </script>

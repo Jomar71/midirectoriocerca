@@ -11,10 +11,15 @@ const env = require('../config/env');
 const ubicacionModel = require('../models/ubicacion.model');
 
 config.apiKey = env.maptiler.apiKey || '';
-config.fetch = (input, init) => fetch(input, {
-  ...init,
-  signal: AbortSignal.timeout(10000),
-});
+config.fetch = (input, init = {}) => {
+  const headers = new Headers(init.headers || {});
+  headers.set('Referer', `${env.appUrl}/`);
+  return fetch(input, {
+    ...init,
+    headers,
+    signal: AbortSignal.timeout(10000),
+  });
+};
 
 const HOUSE_NUMBER_RE = /#|\b(?:n[°ºo]\.?|nro\.?|num\.?|número|numero)\s*\d/i;
 const STREET_LETTER_RE = /\b(calle|carrera|cra|cl|avenida|avda|av|transversal|tv|diagonal|dg|circular|circ)\s+(\d+)(\s*)([a-z])(?=\s|,|$)/i;
@@ -65,8 +70,9 @@ async function resolveDepartamento(ciudad) {
   }
 }
 
-function readCoordinates(result) {
-  const center = result.features?.[0]?.center;
+function readResult(result) {
+  const feature = result.features?.[0];
+  const center = feature?.center;
   if (!Array.isArray(center) || center.length < 2) return null;
 
   const longitud = Number(center[0]);
@@ -76,7 +82,14 @@ function readCoordinates(result) {
     return null;
   }
 
-  return { latitud, longitud };
+  const types = Array.isArray(feature.place_type) ? feature.place_type : [];
+  const kind = feature.properties?.kind || '';
+  const precise = types.includes('address') || types.includes('street')
+    || types.includes('poi') || types.includes('venue')
+    || kind === 'street' || kind === 'address' || kind === 'road'
+    || kind === 'poi' || kind === 'venue';
+
+  return { latitud, longitud, precise };
 }
 
 async function queryMapTiler(query, countryCode) {
@@ -94,7 +107,7 @@ async function queryMapTiler(query, countryCode) {
     throw new Error(`No fue posible consultar el geocodificador de MapTiler: ${error.message}`);
   }
 
-  return readCoordinates(result);
+  return readResult(result);
 }
 
 async function geocodeAddress({ direccion, ciudad, pais, departamento }) {
@@ -121,15 +134,20 @@ async function geocodeAddress({ direccion, ciudad, pais, departamento }) {
   }
 
   const tried = new Set();
+  let fallback = null;
   for (const query of attempts) {
     if (tried.has(query)) continue;
     tried.add(query);
 
-    const coordinates = await queryMapTiler(query, countryCode);
-    if (coordinates) return coordinates;
+    const result = await queryMapTiler(query, countryCode);
+    if (!result) continue;
+
+    const coordinates = { latitud: result.latitud, longitud: result.longitud };
+    if (result.precise) return coordinates;
+    if (!fallback) fallback = coordinates;
   }
 
-  return null;
+  return fallback;
 }
 
 module.exports = { geocodeAddress };

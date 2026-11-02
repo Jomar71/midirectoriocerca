@@ -205,6 +205,10 @@ const setEstado = async (id, estado) => {
   await query('UPDATE anuncios SET estado = $2 WHERE id = $1', [id, estado]);
 };
 
+const updateCoordinates = async (id, latitud, longitud) => {
+  await query('UPDATE anuncios SET latitud = $2, longitud = $3 WHERE id = $1', [id, latitud, longitud]);
+};
+
 const setVencimiento = async (id, fecha) => {
   await query(
     `UPDATE anuncios SET fecha_vencimiento = $2, estado = 'activo', aviso_30_enviado = FALSE
@@ -274,5 +278,5 @@ const stats = async () => {
 module.exports = {
   list, listAdmin, findBySlug, findById, slugExists, create, update, remove,
   setEstado, setVencimiento, registrarCambio, findExpiring, markAvisoEnviado,
-  marcarVencidos, allActiveForSitemap, stats,
+  marcarVencidos, allActiveForSitemap, stats, updateCoordinates,
 };
