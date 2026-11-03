@@ -277,7 +277,7 @@
         const fotosActuales = document.getElementById('fotos-actuales');
         fotosActuales.innerHTML = data.fotos.map((f) => `
           <div class="relative w-20 h-16 rounded-lg overflow-hidden border border-neutral-200">
-            <img src="${esc(f.url)}" class="w-full h-full object-cover">
+            <img src="${esc(f.url)}" onerror="this.onerror=null;this.src='/img/placeholder.jpg';" class="w-full h-full object-cover">
             <button type="button" class="foto-del absolute top-0 right-0 bg-error-600 text-white text-xs w-5 h-5" data-id="${f.id}" aria-label="Eliminar foto">&times;</button>
           </div>`).join('');
         if (data.fotos.length >= 11) {

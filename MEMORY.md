@@ -55,3 +55,5 @@
 - 2026-11-01: smoke tests locales OK (publico, APIs, login, CRUD admin, CSV y contacto guardado); `MAPTILER_API_KEY` ausente deja coordenadas nulas sin romper.
 - 2026-11-01: tarea geocodificacion backend: cadena exacta `direccion, ciudad, departamento, pais`; intento 2 conserva la letra de la calle y quita el numero de casa; intento 3 usa ciudad+departamento+pais; formulario admin envia `departamento`.
 - 2026-11-01: tarea coordenadas manuales: admin envia `latitud`/`longitud` opcionales; si son validas se guardan y se salta geocodificacion automatica; la ficha usa coords guardadas.
+- 2026-11-02: almacenamiento: soporte Cloudinary nativo en `storage.service.js` (Node 18 fetch + crypto SHA-1) para despliegues efímeros; `deleteByUrl` soporta `public_id`.
+- 2026-11-02: frontend multimedia: imágenes con `onerror="this.onerror=null;this.src='/img/placeholder.jpg';"`. Galería responsive: visor `aspect-video sm:aspect-[16/10]`, miniaturas 80x80 con scroll horizontal y sincronización activa.

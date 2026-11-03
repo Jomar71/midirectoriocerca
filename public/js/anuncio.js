@@ -13,10 +13,18 @@
     current = (i + sources.length) % sources.length;
     if (main) main.src = sources[current];
     thumbs.forEach((t, k) => {
-      t.classList.toggle('border-primary-600', k === current);
-      t.classList.toggle('border-neutral-200', k !== current);
-      t.classList.toggle('dark:border-slate-600', k !== current);
+      const isSelected = k === current;
+      t.classList.toggle('border-primary-600', isSelected);
+      t.classList.toggle('ring-2', isSelected);
+      t.classList.toggle('ring-primary-500/30', isSelected);
+      t.classList.toggle('opacity-100', isSelected);
+      t.classList.toggle('shadow-sm', isSelected);
+      t.classList.toggle('border-transparent', !isSelected);
+      t.classList.toggle('opacity-70', !isSelected);
     });
+    if (thumbs[current]) {
+      thumbs[current].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
     const lb = document.getElementById('lb-img');
     if (lb && !document.getElementById('lightbox').classList.contains('hidden')) lb.src = sources[current];
   }

@@ -10,6 +10,7 @@ const fs = require('fs');
 const fsp = require('fs/promises');
 const os = require('os');
 const path = require('path');
+const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const env = require('../config/env');
 
@@ -140,11 +141,85 @@ function resolveExtension(originalName, mimetype) {
   return MIME_EXT[(mimetype || '').toLowerCase()] || '.jpg';
 }
 
+/**
+ * Sube un buffer a Cloudinary usando su API REST y firma SHA-1.
+ * Devuelve { url: secure_url, publicId }.
+ */
+async function uploadToCloudinary(buffer, originalName, folder = 'anuncios', mimetype = '') {
+  const { cloudName, apiKey, apiSecret } = env.storage.cloudinary;
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error('Faltan credenciales de Cloudinary. Define CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY y CLOUDINARY_API_SECRET en .env.');
+  }
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const cleanFolder = (folder || 'anuncios').replace(/^[\\/]+/, '').replace(/[\\/]+$/, '');
+  const targetFolder = `directoriocerca/${cleanFolder}`;
+
+  const toSign = `folder=${targetFolder}&timestamp=${timestamp}${apiSecret}`;
+  const signature = crypto.createHash('sha1').update(toSign).digest('hex');
+
+  const formData = new FormData();
+  const blob = new Blob([buffer], { type: mimetype || 'application/octet-stream' });
+  formData.append('file', blob, originalName || 'image.jpg');
+  formData.append('api_key', apiKey);
+  formData.append('timestamp', String(timestamp));
+  formData.append('signature', signature);
+  formData.append('folder', targetFolder);
+
+  const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = await response.json();
+  if (!response.ok || !data.secure_url) {
+    throw new Error(data.error?.message || `Error al subir imagen a Cloudinary (HTTP ${response.status})`);
+  }
+
+  return {
+    url: data.secure_url,
+    publicId: data.public_id,
+  };
+}
+
+/**
+ * Elimina una imagen de Cloudinary a través de su public_id.
+ */
+async function deleteFromCloudinary(publicId) {
+  const { cloudName, apiKey, apiSecret } = env.storage.cloudinary;
+  if (!cloudName || !apiKey || !apiSecret || !publicId) return;
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const toSign = `public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
+  const signature = crypto.createHash('sha1').update(toSign).digest('hex');
+
+  const formData = new FormData();
+  formData.append('public_id', publicId);
+  formData.append('api_key', apiKey);
+  formData.append('timestamp', String(timestamp));
+  formData.append('signature', signature);
+
+  const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`;
+  try {
+    const res = await fetch(endpoint, { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.result !== 'ok' && data.result !== 'not found') {
+      console.warn('[storage] Cloudinary destroy result:', data);
+    }
+  } catch (err) {
+    console.warn('[storage] Error al borrar de Cloudinary:', err.message);
+  }
+}
+
 /** Guarda un buffer y devuelve { url, publicId }. */
 async function saveBuffer(buffer, originalName, folder = 'anuncios', mimetype = '') {
   const driver = env.storage.driver;
-  if (driver === 'cloudinary' || driver === 's3') {
-    throw new Error(`El driver de almacenamiento "${driver}" no esta configurado. Usa STORAGE_DRIVER=local.`);
+  if (driver === 'cloudinary') {
+    return uploadToCloudinary(buffer, originalName, folder, mimetype);
+  }
+  if (driver === 's3') {
+    throw new Error('El driver "s3" no esta configurado. Usa STORAGE_DRIVER=cloudinary o STORAGE_DRIVER=local.');
   }
 
   const subfolder = (folder || 'anuncios').replace(/^[\\/]+/, '').replace(/[\\/]+$/, '');
@@ -192,13 +267,12 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios', mimetype = 
   return { url, publicId };
 }
 
-/** Elimina un archivo a partir de su publicId (ruta relativa a /public). */
+/** Elimina un archivo a partir de su publicId (ruta relativa a /public o ID en Cloudinary). */
 async function deleteByPublicId(publicId) {
   if (!publicId) return;
-  const driver = env.storage.driver;
-  if (driver !== 'local') {
-    console.warn('[storage] Borrado no implementado para driver:', driver);
-    return;
+
+  if (env.storage.driver === 'cloudinary' || String(publicId).startsWith('directoriocerca/')) {
+    return deleteFromCloudinary(publicId);
   }
 
   // Normaliza "uploads/anuncios/x.png" -> "anuncios/x.png"
@@ -225,9 +299,17 @@ async function deleteByPublicId(publicId) {
   }
 }
 
-/** Elimina un archivo a partir de su url pública (/uploads/...). */
-async function deleteByUrl(url) {
-  if (!url || !url.startsWith(`/${uploadDirName}/`)) return;
+/** Elimina un archivo a partir de su url pública o publicId opcional. */
+async function deleteByUrl(url, publicId = null) {
+  if (publicId) return deleteByPublicId(publicId);
+  if (!url) return;
+  if (url.startsWith('https://res.cloudinary.com/')) {
+    // Si es Cloudinary y no vino publicId, deduce el ID tras /image/upload/v.../
+    const match = url.match(/\/image\/upload\/(?:v\d+\/)?(.+?)(?:\.[a-zA-Z0-9]+)?$/);
+    if (match && match[1]) return deleteFromCloudinary(match[1]);
+    return;
+  }
+  if (!url.startsWith(`/${uploadDirName}/`)) return;
   return deleteByPublicId(url.slice(1));
 }
 

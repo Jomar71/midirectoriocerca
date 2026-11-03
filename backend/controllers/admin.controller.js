@@ -1,4 +1,4 @@
-﻿/**
+/**
  * controllers/admin.controller.js
  * Panel del administrador: CRUD de anuncios, fotos, categorías y estadísticas.
  */
@@ -237,7 +237,7 @@ async function deleteAnuncio(req, res, next) {
     const anuncio = await anuncioModel.findById(req.params.id);
     if (!anuncio) return res.status(404).json({ ok: false, error: 'Anuncio no encontrado.' });
     const fotos = await fotoModel.listByAnuncio(anuncio.id);
-    await Promise.all(fotos.map((f) => storage.deleteByUrl(f.url)));
+    await Promise.all(fotos.map((f) => storage.deleteByUrl(f.url, f.public_id)));
     await anuncioModel.remove(anuncio.id);
     await invalidatePublicCache();
     return res.json({ ok: true, message: 'Anuncio eliminado.' });
@@ -288,7 +288,7 @@ async function eliminarFoto(req, res, next) {
   try {
     const foto = await fotoModel.findById(req.params.id);
     if (!foto) return res.status(404).json({ ok: false, error: 'Foto no encontrada.' });
-    await storage.deleteByUrl(foto.url);
+    await storage.deleteByUrl(foto.url, foto.public_id);
     await fotoModel.remove(foto.id);
     await invalidatePublicCache();
     return res.json({ ok: true });
