@@ -21,6 +21,9 @@ router.use('/api/admin', requireAdmin);
 // ── Dashboard ───────────────────────────────────────────────────────────
 router.get('/api/admin/dashboard', adminCtrl.dashboard);
 
+// ── Diagnóstico de notificaciones ───────────────────────────────────────
+router.get('/api/admin/test-notificaciones', adminCtrl.testNotificaciones);
+
 // ── Anuncios ────────────────────────────────────────────────────────────
 router.get('/api/admin/anuncios', adminCtrl.listAnuncios);
 router.post('/api/admin/anuncios', (req, res, next) => {

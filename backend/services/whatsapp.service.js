@@ -106,5 +106,11 @@ module.exports = {
   formatWhatsAppNumber,
   buildRenewalMessage,
   sendWhatsAppMessage,
+  /** Genera un enlace wa.me con texto pre-escrito (sin necesidad de API). */
+  buildWaUrl({ phone, message }) {
+    const n = formatWhatsAppNumber(phone);
+    if (!n) return null;
+    return `https://wa.me/${n}?text=${encodeURIComponent(message)}`;
+  },
 };
 

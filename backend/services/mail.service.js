@@ -52,6 +52,19 @@ async function initMailer() {
 
 async function send({ to, subject, html, replyTo }) {
   if (!transporter) await initMailer();
+
+  // Detección temprana: en modo json no llega nada al destinatario
+  if (env.mail.transport === 'json') {
+    console.log('[mail] ⚠  MAIL_TRANSPORT=json — el correo NO se envía. Configura MAIL_TRANSPORT=smtp en .env');
+    console.log('[mail] (simulado) →', to, '|', subject);
+    return { sent: false, simulated: true, transport: 'json', previewUrl: null };
+  }
+
+  // Verificación de credenciales antes de intentar el envío
+  if (env.mail.transport === 'smtp' && !env.mail.user) {
+    throw new Error('SMTP sin credenciales: agrega MAIL_USER y MAIL_PASS en .env');
+  }
+
   const info = await transporter.sendMail({
     from: env.mail.from,
     to,
@@ -60,22 +73,20 @@ async function send({ to, subject, html, replyTo }) {
     replyTo,
   });
 
-  const isSmtp = env.mail.transport === 'smtp';
-  const isJson = env.mail.transport === 'json';
-
-  if (isJson && info.message) {
-    console.log('[mail] (json simulado) →', to, '|', subject);
-  } else if (isSmtp) {
-    console.log(`[mail] SMTP aceptó el mensaje para ${to} (id: ${info.messageId || 'sin id'}).`);
-  }
   const url = nodemailer.getTestMessageUrl(info);
   if (url) etherealPreview = url;
+
+  if (env.mail.transport === 'ethereal') {
+    console.log(`[mail] Ethereal: revisa el correo en ${url}`);
+  } else {
+    console.log(`[mail] ✓ SMTP aceptó el mensaje para ${to} (id: ${info.messageId || 'sin id'}).`);
+  }
 
   return {
     info,
     previewUrl: url || etherealPreview || null,
-    sent: isSmtp,
-    simulated: isJson,
+    sent: true,
+    simulated: false,
     transport: env.mail.transport,
   };
 }

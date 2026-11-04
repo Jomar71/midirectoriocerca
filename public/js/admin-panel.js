@@ -16,11 +16,89 @@
 
   function toast(text, type = 'ok') {
     const el = document.getElementById('toast');
-    el.className = `fixed bottom-5 right-5 z-[60] px-4 py-3 rounded-xl text-white font-medium shadow-lg ${type === 'ok' ? 'bg-success-500' : 'bg-error-600'}`;
+    const cls = {
+      ok:   'bg-success-500',
+      err:  'bg-error-600',
+      warn: 'bg-amber-500',
+      info: 'bg-primary-600',
+    };
+    el.className = `fixed bottom-5 right-5 z-[60] px-4 py-3 rounded-xl text-white font-medium shadow-lg ${cls[type] || cls.ok}`;
     el.classList.remove('hidden');
     el.textContent = text;
     clearTimeout(el._t);
-    el._t = setTimeout(() => el.classList.add('hidden'), 3500);
+    el._t = setTimeout(() => el.classList.add('hidden'), type === 'warn' || type === 'info' ? 6000 : 3500);
+  }
+
+  /**
+   * Muestra un modal de resultado de notificación con botón directo a WhatsApp.
+   * Nunca usa window.open asíncrono (que los navegadores bloquean).
+   */
+  function mostrarResultadoNotificacion(res, nombre) {
+    // Elimina modal anterior si existe
+    const anterior = document.getElementById('modal-notif-resultado');
+    if (anterior) anterior.remove();
+
+    const emailOk   = res.canales?.email?.sent;
+    const emailSim  = res.canales?.email?.simulated;
+    const emailErr  = res.canales?.email?.error;
+    const waOk      = res.canales?.whatsapp?.sent;
+    const waUrl     = res.canales?.whatsapp?.waUrl || res.waUrl;
+
+    const emailHtml = emailOk
+      ? `<span class="text-success-600 font-semibold">✓ Correo enviado</span>`
+      : emailSim
+        ? `<span class="text-amber-700 font-semibold">⚠ Correo en modo simulación (MAIL_TRANSPORT=json). No llegó.</span>`
+        : emailErr
+          ? `<span class="text-error-600 font-semibold">✗ Correo falló: ${esc(emailErr)}</span>`
+          : `<span class="text-neutral-400">— Sin correo registrado</span>`;
+
+    const waHtml = waOk
+      ? `<span class="text-success-600 font-semibold">✓ WhatsApp enviado vía API</span>`
+      : waUrl
+        ? `<div class="flex items-center gap-3 mt-1">
+             <span class="text-amber-700 text-sm">Sin API automática — haz clic para enviar ahora:</span>
+             <a id="btn-wa-modal" href="${esc(waUrl)}" target="_blank" rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-colors">
+               <svg class="w-4 h-4 fill-white shrink-0" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+               Enviar por WhatsApp
+             </a>
+           </div>`
+        : `<span class="text-neutral-400">— Sin teléfono registrado</span>`;
+
+    const wrapper = document.createElement('div');
+    wrapper.id = 'modal-notif-resultado';
+    wrapper.className = 'fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm';
+    wrapper.innerHTML = `
+      <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6">
+        <div class="flex items-start justify-between mb-4">
+          <h3 class="text-base font-semibold text-neutral-800 dark:text-neutral-100">
+            Resultado del aviso privado — ${esc(nombre)}
+          </h3>
+          <button id="cerrar-notif" class="ml-4 text-neutral-400 hover:text-neutral-600 text-xl leading-none">&times;</button>
+        </div>
+        <dl class="space-y-3 text-sm">
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-neutral-500 mb-0.5">Correo electrónico</dt>
+            <dd>${emailHtml}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-neutral-500 mb-0.5">WhatsApp</dt>
+            <dd>${waHtml}</dd>
+          </div>
+          ${emailSim ? `<div class="mt-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800">
+            <strong>¿Por qué no llega el correo?</strong> <code>MAIL_TRANSPORT=json</code> en tu <code>.env</code> solo simula el envío. Agrega las variables SMTP reales y reinicia el servidor. Ver instrucciones en la sección de diagnóstico.
+          </div>` : ''}
+        </dl>
+        <div class="mt-5 flex justify-end">
+          <button id="cerrar-notif-btn" class="px-4 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-sm font-medium text-neutral-700">Cerrar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(wrapper);
+
+    const cerrar = () => wrapper.remove();
+    document.getElementById('cerrar-notif').addEventListener('click', cerrar);
+    document.getElementById('cerrar-notif-btn').addEventListener('click', cerrar);
+    wrapper.addEventListener('click', (e) => { if (e.target === wrapper) cerrar(); });
   }
 
   function focusables(container) {
@@ -135,16 +213,7 @@
         b.disabled = true;
         try {
           const res = await api(`/anuncios/${b.dataset.id}/notificar-vencimiento`, { method: 'POST' });
-          if (res.waUrl && (!res.canales?.whatsapp?.sent)) {
-            const w = window.open(res.waUrl, '_blank', 'noopener,noreferrer');
-            if (!w) {
-              toast('Correo enviado. Usa el botón "WhatsApp" en la lista para enviar el mensaje directo.', 'info');
-            } else {
-              toast('Aviso enviado por correo y WhatsApp abierto.');
-            }
-          } else {
-            toast(res.message || 'Aviso enviado');
-          }
+          mostrarResultadoNotificacion(res, b.dataset.name);
           loadDashboard();
         } catch (e) { toast(e.message, 'err'); }
         finally { b.disabled = false; }
@@ -232,19 +301,8 @@
       b.disabled = true;
       try {
         const res = await api(`/anuncios/${id}/notificar-vencimiento`, { method: 'POST' });
-        
-        // Si no hay API automática de WhatsApp pero sí waUrl, abrimos WhatsApp Web/App para enviar con 1 clic
-        if (res.waUrl && (!res.canales?.whatsapp?.sent)) {
-          const w = window.open(res.waUrl, '_blank', 'noopener,noreferrer');
-          if (!w) {
-            toast('Aviso procesado. El navegador bloqueó la ventana emergente; haz clic en el botón verde "WhatsApp" de la fila.', 'warn');
-          } else {
-            toast('Aviso enviado por correo y WhatsApp abierto en nueva pestaña.');
-          }
-        } else {
-          toast(res.message || 'Aviso privado enviado');
-        }
-
+        // Muestra modal con resultado detallado y botón directo de WhatsApp (sin popup blocker)
+        mostrarResultadoNotificacion(res, name);
         loadAnuncios();
         loadDashboard();
       } catch (e) {

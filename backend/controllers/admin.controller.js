@@ -426,8 +426,78 @@ async function deleteCategoria(req, res, next) {
   } catch (e) { next(e); }
 }
 
+/**
+ * GET /api/admin/test-notificaciones
+ * Devuelve el estado actual de la config de email y WhatsApp.
+ * Envía un correo de prueba al admin y genera un enlace wa.me de muestra.
+ */
+async function testNotificaciones(req, res, next) {
+  try {
+    const mailService = require('../services/mail.service');
+    const whatsappService = require('../services/whatsapp.service');
+
+    const mailCfg = {
+      transport: env.mail.transport,
+      host: env.mail.host || '(no configurado)',
+      service: env.mail.service || '(no configurado)',
+      port: env.mail.port,
+      hasUser: Boolean(env.mail.user),
+      hasPass: Boolean(env.mail.pass),
+      from: env.mail.from,
+    };
+
+    const waCfg = {
+      hasToken: Boolean(env.whatsapp.token),
+      hasPhoneNumberId: Boolean(env.whatsapp.phoneNumberId),
+      hasApiUrl: Boolean(env.whatsapp.apiUrl),
+      modo: (env.whatsapp.token && env.whatsapp.phoneNumberId)
+        ? 'Meta Cloud API (automático)'
+        : env.whatsapp.apiUrl
+          ? 'Gateway personalizado (automático)'
+          : 'Enlace wa.me (manual)',
+    };
+
+    // Intenta enviar correo de prueba al admin
+    let emailResult = { sent: false, simulated: false, error: null, previewUrl: null };
+    try {
+      const r = await mailService.send({
+        to: env.mail.adminEmail,
+        subject: '[DirectorioCerca] Prueba de configuración de correo',
+        html: `<p>Este es un correo de prueba enviado desde el panel admin de DirectorioCerca el ${new Date().toLocaleString('es-CO')}.</p>
+               <p>Si lo recibes, tu configuración SMTP está funcionando correctamente.</p>`,
+      });
+      emailResult = { sent: r.sent, simulated: r.simulated, error: null, previewUrl: r.previewUrl };
+    } catch (err) {
+      emailResult.error = err.message;
+    }
+
+    // Genera enlace wa.me de muestra (con el número del admin si está disponible)
+    const waUrl = whatsappService.buildWaUrl({
+      phone: '+571234567890',
+      message: '[Prueba] Este es el mensaje de renovación que se enviará a tus clientes.',
+    });
+
+    return res.json({
+      ok: true,
+      email: { config: mailCfg, resultado: emailResult },
+      whatsapp: { config: waCfg, waUrlEjemplo: waUrl },
+      instrucciones: {
+        email: mailCfg.transport === 'json'
+          ? 'ACCIÓN REQUERIDA: Agrega MAIL_TRANSPORT=smtp, MAIL_USER y MAIL_PASS en .env y reinicia el servidor.'
+          : (!mailCfg.hasUser
+            ? 'ACCIÓN REQUERIDA: Faltan MAIL_USER y MAIL_PASS en .env.'
+            : 'Configuración SMTP detectada. Revisa el resultado del envío de prueba.'),
+        whatsapp: waCfg.modo === 'Enlace wa.me (manual)'
+          ? 'Sin API automática: usa el botón verde "WhatsApp" en cada fila para enviar manualmente. Para automatizar, agrega WHATSAPP_TOKEN y WHATSAPP_PHONE_NUMBER_ID (Meta) en .env.'
+          : 'API de WhatsApp configurada: el envío es automático.',
+      },
+    });
+  } catch (e) { next(e); }
+}
+
 module.exports = {
   dashboard, listAnuncios, getAnuncio, createAnuncio, updateAnuncio, deleteAnuncio,
-  setEstado, renovar, notificarVencimientoManual, subirFotos, eliminarFoto, reordenarFotos,
+  setEstado, renovar, notificarVencimientoManual, testNotificaciones,
+  subirFotos, eliminarFoto, reordenarFotos,
   listCategorias, createCategoria, updateCategoria, deleteCategoria,
 };
