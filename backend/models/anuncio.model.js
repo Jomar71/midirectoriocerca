@@ -122,6 +122,14 @@ async function listAdmin({ q, estado, categoria, page = 1, limit = 20, offset = 
   const dataParams = [...params, limit, offset];
   const sql = `
     SELECT ${PUBLIC_COLS}, a.aviso_30_enviado,
+      COALESCE(a.estado_notificacion, CASE WHEN a.aviso_30_enviado THEN 'enviado' ELSE 'pendiente' END) AS estado_notificacion,
+      CASE
+        WHEN a.estado = 'deshabilitado' THEN 'Deshabilitada'
+        WHEN a.fecha_vencimiento < CURRENT_DATE OR a.estado = 'vencido' THEN 'Vencida'
+        WHEN a.fecha_vencimiento <= (CURRENT_DATE + INTERVAL '30 days') THEN 'Por Vencer'
+        ELSE 'Activa'
+      END AS estado_afiliacion,
+      (a.fecha_vencimiento - CURRENT_DATE)::int AS dias_restantes,
       (SELECT COUNT(*)::int FROM fotos f WHERE f.anuncio_id = a.id) AS total_fotos
     FROM anuncios a LEFT JOIN categorias c ON c.id = a.categoria_id
     ${where}
@@ -143,7 +151,16 @@ const findBySlug = async (slug) => {
 
 const findById = async (id) => {
   const { rows } = await query(
-    `SELECT ${PUBLIC_COLS}, a.aviso_30_enviado FROM anuncios a
+    `SELECT ${PUBLIC_COLS}, a.aviso_30_enviado,
+       COALESCE(a.estado_notificacion, CASE WHEN a.aviso_30_enviado THEN 'enviado' ELSE 'pendiente' END) AS estado_notificacion,
+       CASE
+         WHEN a.estado = 'deshabilitado' THEN 'Deshabilitada'
+         WHEN a.fecha_vencimiento < CURRENT_DATE OR a.estado = 'vencido' THEN 'Vencida'
+         WHEN a.fecha_vencimiento <= (CURRENT_DATE + INTERVAL '30 days') THEN 'Por Vencer'
+         ELSE 'Activa'
+       END AS estado_afiliacion,
+       (a.fecha_vencimiento - CURRENT_DATE)::int AS dias_restantes
+     FROM anuncios a
      LEFT JOIN categorias c ON c.id = a.categoria_id
      WHERE a.id = $1 LIMIT 1`,
     [id]
@@ -211,7 +228,9 @@ const updateCoordinates = async (id, latitud, longitud) => {
 
 const setVencimiento = async (id, fecha) => {
   await query(
-    `UPDATE anuncios SET fecha_vencimiento = $2, estado = 'activo', aviso_30_enviado = FALSE
+    `UPDATE anuncios 
+     SET fecha_vencimiento = $2, estado = 'activo', estado_afiliacion = 'Activa',
+         aviso_30_enviado = FALSE, estado_notificacion = 'pendiente'
      WHERE id = $1`,
     [id, fecha]
   );
@@ -226,14 +245,17 @@ const registrarCambio = async (id) => {
   return rows[0]?.cambios_usados ?? null;
 };
 
-/** Anuncios activos que vencen dentro de N días y aún no se avisó. */
+/** Anuncios activos que vencen dentro de N días (30) y aún no se les notificó privadamente. */
 const findExpiring = async (dias = 30) => {
   const { rows } = await query(
-    `SELECT id, razon_social, slug, email, fecha_vencimiento
+    `SELECT id, razon_social, slug, email, telefono_movil, fecha_vencimiento,
+            COALESCE(estado_notificacion, CASE WHEN aviso_30_enviado THEN 'enviado' ELSE 'pendiente' END) AS estado_notificacion,
+            (fecha_vencimiento - CURRENT_DATE)::int AS dias_restantes
      FROM anuncios
      WHERE estado = 'activo'
-       AND aviso_30_enviado = FALSE
-       AND fecha_vencimiento BETWEEN CURRENT_DATE AND (CURRENT_DATE + ($1 || ' days')::interval)
+       AND (estado_notificacion = 'pendiente' OR (estado_notificacion IS NULL AND aviso_30_enviado = FALSE))
+       AND fecha_vencimiento <= (CURRENT_DATE + ($1 || ' days')::interval)
+       AND fecha_vencimiento >= CURRENT_DATE
      ORDER BY fecha_vencimiento ASC`,
     [dias]
   );
@@ -242,16 +264,43 @@ const findExpiring = async (dias = 30) => {
 
 const markAvisoEnviado = async (ids) => {
   if (!ids.length) return;
-  await query('UPDATE anuncios SET aviso_30_enviado = TRUE WHERE id = ANY($1::bigint[])', [ids]);
+  await query(
+    `UPDATE anuncios 
+     SET aviso_30_enviado = TRUE, estado_notificacion = 'enviado' 
+     WHERE id = ANY($1::bigint[])`,
+    [ids]
+  );
 };
 
-/** Marca como vencidos los anuncios cuya fecha pasó. Devuelve las filas afectadas. */
+const markNotificacionEnviada = async (id, estado = 'enviado') => {
+  await query(
+    `UPDATE anuncios 
+     SET estado_notificacion = $2, aviso_30_enviado = ($2 = 'enviado') 
+     WHERE id = $1`,
+    [id, estado]
+  );
+};
+
+/** Marca como vencidos los anuncios cuya fecha pasó y sincroniza estado_afiliacion. */
 const marcarVencidos = async () => {
   const { rows } = await query(
-    `UPDATE anuncios SET estado = 'vencido'
+    `UPDATE anuncios 
+     SET estado = 'vencido', estado_afiliacion = 'Vencida'
      WHERE estado = 'activo' AND fecha_vencimiento < CURRENT_DATE
      RETURNING id, razon_social`
   );
+
+  // Sincroniza estado_afiliacion para todos los registros
+  await query(`
+    UPDATE anuncios
+    SET estado_afiliacion = CASE
+      WHEN estado = 'deshabilitado' THEN 'Deshabilitada'
+      WHEN fecha_vencimiento < CURRENT_DATE OR estado = 'vencido' THEN 'Vencida'
+      WHEN fecha_vencimiento <= (CURRENT_DATE + INTERVAL '30 days') THEN 'Por Vencer'
+      ELSE 'Activa'
+    END
+  `);
+
   return rows;
 };
 
@@ -278,5 +327,5 @@ const stats = async () => {
 module.exports = {
   list, listAdmin, findBySlug, findById, slugExists, create, update, remove,
   setEstado, setVencimiento, registrarCambio, findExpiring, markAvisoEnviado,
-  marcarVencidos, allActiveForSitemap, stats, updateCoordinates,
+  markNotificacionEnviada, marcarVencidos, allActiveForSitemap, stats, updateCoordinates,
 };

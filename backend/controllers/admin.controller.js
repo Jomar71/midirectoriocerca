@@ -236,11 +236,48 @@ async function deleteAnuncio(req, res, next) {
   try {
     const anuncio = await anuncioModel.findById(req.params.id);
     if (!anuncio) return res.status(404).json({ ok: false, error: 'Anuncio no encontrado.' });
+
+    // Protección de la ficha: si la afiliación está por vencer o vencida, exige confirmación explícita
+    const hoy = new Date();
+    const venc = new Date(anuncio.fecha_vencimiento);
+    const diasRestantes = Math.ceil((venc - hoy) / (1000 * 60 * 60 * 24));
+    const estaPorVencerOVencido = anuncio.estado === 'vencido' || diasRestantes <= 30;
+
+    const confirmado = req.query.confirmar_vencido === 'true' || req.body?.confirmar_vencido === true;
+    if (estaPorVencerOVencido && !confirmado) {
+      return res.status(409).json({
+        ok: false,
+        requireConfirmation: true,
+        error: 'Este cliente tiene una afiliación vencida/por vencer. ¿Está seguro de que desea eliminar su ficha permanentemente?',
+      });
+    }
+
     const fotos = await fotoModel.listByAnuncio(anuncio.id);
     await Promise.all(fotos.map((f) => storage.deleteByUrl(f.url, f.public_id)));
     await anuncioModel.remove(anuncio.id);
     await invalidatePublicCache();
     return res.json({ ok: true, message: 'Anuncio eliminado.' });
+  } catch (e) { next(e); }
+}
+
+/** Reenvío manual de aviso de renovación privado (Email y/o WhatsApp). */
+async function notificarVencimientoManual(req, res, next) {
+  try {
+    const anuncio = await anuncioModel.findById(req.params.id);
+    if (!anuncio) return res.status(404).json({ ok: false, error: 'Anuncio no encontrado.' });
+    if (!anuncio.email && !anuncio.telefono_movil) {
+      return res.status(422).json({ ok: false, error: 'Este cliente no tiene correo electrónico ni teléfono móvil registrados.' });
+    }
+
+    const { enviarAvisoPrivadoCliente } = require('../services/cron.service');
+    const canales = await enviarAvisoPrivadoCliente(anuncio);
+    await invalidatePublicCache();
+
+    return res.json({
+      ok: true,
+      message: `Aviso privado de renovación enviado a "${anuncio.razon_social}".`,
+      canales,
+    });
   } catch (e) { next(e); }
 }
 
@@ -345,6 +382,6 @@ async function deleteCategoria(req, res, next) {
 
 module.exports = {
   dashboard, listAnuncios, getAnuncio, createAnuncio, updateAnuncio, deleteAnuncio,
-  setEstado, renovar, subirFotos, eliminarFoto, reordenarFotos,
+  setEstado, renovar, notificarVencimientoManual, subirFotos, eliminarFoto, reordenarFotos,
   listCategorias, createCategoria, updateCategoria, deleteCategoria,
 };

@@ -56,6 +56,14 @@ const withTransaction = async (fn) => {
 
 const testConnection = async () => {
   const { rows } = await pool.query('SELECT NOW() AS now');
+  try {
+    await pool.query(`
+      ALTER TABLE anuncios ADD COLUMN IF NOT EXISTS estado_notificacion VARCHAR(20) DEFAULT 'pendiente';
+      ALTER TABLE anuncios ADD COLUMN IF NOT EXISTS estado_afiliacion VARCHAR(20) DEFAULT 'Activa';
+    `);
+  } catch (e) {
+    // Si la tabla aún no existe (antes de db:init), ignoramos el error
+  }
   return rows[0].now;
 };
 

@@ -57,6 +57,7 @@ router.put('/api/admin/anuncios/:id', (req, res, next) => {
 router.delete('/api/admin/anuncios/:id', adminCtrl.deleteAnuncio);
 router.patch('/api/admin/anuncios/:id/estado', adminCtrl.setEstado);
 router.post('/api/admin/anuncios/:id/renovar', adminCtrl.renovar);
+router.post('/api/admin/anuncios/:id/notificar-vencimiento', adminCtrl.notificarVencimientoManual);
 
 // ── Fotos ───────────────────────────────────────────────────────────────
 router.post('/api/admin/anuncios/:id/fotos', (req, res, next) => {

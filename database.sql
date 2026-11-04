@@ -103,6 +103,10 @@ CREATE TABLE anuncios (
   fecha_inicio          DATE NOT NULL DEFAULT CURRENT_DATE,
   fecha_vencimiento     DATE NOT NULL,
   aviso_30_enviado      BOOLEAN NOT NULL DEFAULT FALSE,
+  estado_notificacion   VARCHAR(20) NOT NULL DEFAULT 'pendiente'
+                          CHECK (estado_notificacion IN ('pendiente','enviado','fallido')),
+  estado_afiliacion     VARCHAR(20) NOT NULL DEFAULT 'Activa'
+                          CHECK (estado_afiliacion IN ('Activa','Por Vencer','Vencida','Deshabilitada')),
   cambios_usados        SMALLINT NOT NULL DEFAULT 0,         -- máx. 6
   -- Columna de búsqueda full-text ponderada (razón social > keywords > descripción)
   search_vector         tsvector GENERATED ALWAYS AS (

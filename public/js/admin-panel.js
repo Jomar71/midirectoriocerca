@@ -40,6 +40,30 @@
     const colors = { activo: 'bg-success-100 text-success-700', vencido: 'bg-error-50 text-error-700', deshabilitado: 'bg-neutral-200 text-neutral-600', pendiente: 'bg-warning-50 text-warning-700' };
     return `<span class="px-2 py-0.5 rounded-full text-xs font-medium ${colors[e] || 'bg-neutral-100'}">${esc(e)}</span>`;
   };
+
+  const afiliacionBadge = (afiliacion, dias) => {
+    if (afiliacion === 'Vencida') {
+      return `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 ring-1 ring-rose-300">Vencida</span>`;
+    }
+    if (afiliacion === 'Por Vencer') {
+      const diasTxt = dias != null ? ` (${dias}d)` : '';
+      return `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 ring-1 ring-amber-300">Por Vencer${diasTxt}</span>`;
+    }
+    if (afiliacion === 'Deshabilitada') {
+      return `<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-neutral-200 text-neutral-600">Deshabilitada</span>`;
+    }
+    return `<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Activa</span>`;
+  };
+
+  const notificacionBadge = (notif) => {
+    if (notif === 'enviado') {
+      return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700"><svg class="w-3 h-3 text-primary-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Enviado</span>`;
+    }
+    if (notif === 'fallido') {
+      return `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700">Fallido</span>`;
+    }
+    return `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-500">Pendiente</span>`;
+  };
   const fmtDate = (d) => (d ? String(d).slice(0, 10) : '—');
 
   // ── Navegación por pestañas ──────────────────────────────────────────
@@ -94,10 +118,27 @@
       pv.innerHTML = data.por_vencer.length
         ? data.por_vencer.map((a) => `
             <div class="flex items-center justify-between py-3">
-              <span class="font-medium">${esc(a.razon_social)}</span>
-              <span class="text-sm text-neutral-500">Vence: ${fmtDate(a.fecha_vencimiento)}</span>
+              <div>
+                <span class="font-medium text-neutral-800">${esc(a.razon_social)}</span>
+                <span class="ml-2 text-xs font-bold text-amber-800 bg-amber-100 ring-1 ring-amber-300 px-2 py-0.5 rounded-full">Por Vencer</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-sm text-neutral-500">Vence: ${fmtDate(a.fecha_vencimiento)}</span>
+                <button class="dash-notificar text-xs px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 hover:bg-amber-100 font-semibold transition-colors" data-id="${a.id}" data-name="${esc(a.razon_social)}">Avisar</button>
+              </div>
             </div>`).join('')
         : '<p class="text-sm text-neutral-400 py-3">No hay anuncios próximos a vencer.</p>';
+
+      pv.querySelectorAll('.dash-notificar').forEach((b) => b.addEventListener('click', async () => {
+        if (!confirm(`¿Enviar aviso privado de renovación a "${b.dataset.name}" (Email y WhatsApp)?`)) return;
+        b.disabled = true;
+        try {
+          const res = await api(`/anuncios/${b.dataset.id}/notificar-vencimiento`, { method: 'POST' });
+          toast(res.message || 'Aviso enviado');
+          loadDashboard();
+        } catch (e) { toast(e.message, 'err'); }
+        finally { b.disabled = false; }
+      }));
 
       const badge = document.getElementById('badge-mensajes');
       if (data.mensajes_no_leidos > 0) { badge.textContent = data.mensajes_no_leidos; badge.classList.remove('hidden'); }
@@ -115,15 +156,16 @@
       if (!data.length) { cont.innerHTML = '<p class="p-6 text-neutral-500 text-sm">Sin anuncios.</p>'; }
       else {
         cont.innerHTML = `
-          <table class="w-full text-sm min-w-[720px]">
+          <table class="w-full text-sm min-w-[780px]">
             <caption class="sr-only">Listado de anuncios</caption>
             <thead>
               <tr class="text-left text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-100">
                 <th scope="col" class="px-4 py-3 font-semibold">Anuncio</th>
                 <th scope="col" class="px-4 py-3 font-semibold">Categoría</th>
                 <th scope="col" class="px-4 py-3 font-semibold">Ubicación</th>
-                <th scope="col" class="px-4 py-3 font-semibold">Estado</th>
+                <th scope="col" class="px-4 py-3 font-semibold">Afiliación</th>
                 <th scope="col" class="px-4 py-3 font-semibold">Vence</th>
+                <th scope="col" class="px-4 py-3 font-semibold">Aviso Privado</th>
                 <th scope="col" class="px-4 py-3 font-semibold">Fotos</th>
                 <th scope="col" class="px-4 py-3 font-semibold text-right">Acciones</th>
               </tr>
@@ -133,17 +175,19 @@
                 <tr class="hover:bg-neutral-50 transition-colors">
                   <td class="px-4 py-3">
                     <div class="font-medium text-neutral-800">${esc(a.razon_social)}</div>
-                    <a href="/anuncio/${esc(a.slug)}" target="_blank" class="text-xs text-primary-600 hover:underline">ver ficha</a>
+                    <a href="/anuncio/${esc(a.slug)}" target="_blank" class="text-xs text-primary-600 hover:underline">ver ficha pública</a>
                   </td>
                   <td class="px-4 py-3 text-neutral-500">${esc(a.categoria_nombre || '—')}</td>
                   <td class="px-4 py-3 text-neutral-500">${esc([a.ciudad, a.pais].filter(Boolean).join(', ') || '—')}</td>
-                  <td class="px-4 py-3">${estadoBadge(a.estado)}</td>
+                  <td class="px-4 py-3">${afiliacionBadge(a.estado_afiliacion, a.dias_restantes)}</td>
                   <td class="px-4 py-3 text-neutral-500">${fmtDate(a.fecha_vencimiento)}</td>
+                  <td class="px-4 py-3">${notificacionBadge(a.estado_notificacion)}</td>
                   <td class="px-4 py-3 text-neutral-500">${a.total_fotos}/${11}</td>
                   <td class="px-4 py-3 text-right whitespace-nowrap">
                     <button class="act-edit text-primary-600 hover:text-primary-700 font-medium" data-id="${a.id}">Editar</button>
-                    <button class="act-renovar ml-3 text-success-600 hover:text-success-700 font-medium" data-id="${a.id}">Renovar</button>
-                    <button class="act-del ml-3 text-error-500 hover:text-error-600 font-medium" data-id="${a.id}" data-name="${esc(a.razon_social)}">Eliminar</button>
+                    <button class="act-renovar ml-2.5 text-success-600 hover:text-success-700 font-medium" data-id="${a.id}">Renovar</button>
+                    <button class="act-notificar ml-2.5 text-amber-700 hover:text-amber-800 font-semibold" data-id="${a.id}" data-name="${esc(a.razon_social)}" title="Enviar recordatorio privado al correo y WhatsApp del cliente">Reenviar Aviso</button>
+                    <button class="act-del ml-2.5 text-error-500 hover:text-error-600 font-medium" data-id="${a.id}" data-name="${esc(a.razon_social)}" data-afiliacion="${esc(a.estado_afiliacion)}">Eliminar</button>
                   </td>
                 </tr>`).join('')}
             </tbody>
@@ -168,14 +212,71 @@
 
   function wireAnuncioActions() {
     document.querySelectorAll('.act-edit').forEach((b) => b.addEventListener('click', () => openModal(Number(b.dataset.id))));
-    document.querySelectorAll('.act-del').forEach((b) => b.addEventListener('click', async () => {
-      if (!confirm(`¿Eliminar "${b.dataset.name}"? Esta acción no se puede deshacer.`)) return;
-      try { await api(`/anuncios/${b.dataset.id}`, { method: 'DELETE' }); toast('Anuncio eliminado'); loadAnuncios(); }
-      catch (e) { toast(e.message, 'err'); }
+
+    // Reenvío manual de aviso de renovación (privado al cliente)
+    document.querySelectorAll('.act-notificar').forEach((b) => b.addEventListener('click', async () => {
+      const id = b.dataset.id;
+      const name = b.dataset.name;
+      if (!confirm(`¿Enviar aviso privado de renovación a "${name}" por Correo y WhatsApp?`)) return;
+      b.disabled = true;
+      try {
+        const res = await api(`/anuncios/${id}/notificar-vencimiento`, { method: 'POST' });
+        toast(res.message || 'Aviso privado enviado');
+        loadAnuncios();
+        loadDashboard();
+      } catch (e) {
+        toast(e.message, 'err');
+      } finally {
+        b.disabled = false;
+      }
     }));
+
+    // Eliminación protegida contra borrado accidental de clientes por vencer o vencidos
+    document.querySelectorAll('.act-del').forEach((b) => b.addEventListener('click', async () => {
+      const id = b.dataset.id;
+      const name = b.dataset.name;
+      const afiliacion = b.dataset.afiliacion;
+      const esVencidoOPorVencer = afiliacion === 'Por Vencer' || afiliacion === 'Vencida';
+
+      let queryParams = '';
+      if (esVencidoOPorVencer) {
+        const mensajeAlerta = `Este cliente tiene una afiliación vencida/por vencer. ¿Está seguro de que desea eliminar su ficha permanentemente?`;
+        if (!confirm(mensajeAlerta)) return;
+        queryParams = '?confirmar_vencido=true';
+      } else {
+        if (!confirm(`¿Eliminar "${name}"? Esta acción no se puede deshacer.`)) return;
+      }
+
+      try {
+        await api(`/anuncios/${id}${queryParams}`, { method: 'DELETE' });
+        toast('Anuncio eliminado');
+        loadAnuncios();
+        loadDashboard();
+      } catch (e) {
+        if (e.message && e.message.includes('vencida/por vencer')) {
+          if (confirm(`${e.message}\n\n¿Desea forzar la eliminación definitiva?`)) {
+            try {
+              await api(`/anuncios/${id}?confirmar_vencido=true`, { method: 'DELETE' });
+              toast('Anuncio eliminado permanentemente');
+              loadAnuncios();
+              loadDashboard();
+            } catch (err2) {
+              toast(err2.message, 'err');
+            }
+          }
+        } else {
+          toast(e.message, 'err');
+        }
+      }
+    }));
+
     document.querySelectorAll('.act-renovar').forEach((b) => b.addEventListener('click', async () => {
-      try { const r = await api(`/anuncios/${b.dataset.id}/renovar`, { method: 'POST' }); toast(r.message); loadAnuncios(); }
-      catch (e) { toast(e.message, 'err'); }
+      try {
+        const r = await api(`/anuncios/${b.dataset.id}/renovar`, { method: 'POST' });
+        toast(r.message);
+        loadAnuncios();
+        loadDashboard();
+      } catch (e) { toast(e.message, 'err'); }
     }));
   }
 

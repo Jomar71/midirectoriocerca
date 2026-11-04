@@ -77,6 +77,12 @@ const env = {
     adminEmail: 'midirectoriocerca@proton.me',
   },
 
+  whatsapp: {
+    apiUrl: process.env.WHATSAPP_API_URL || '',
+    token: process.env.WHATSAPP_TOKEN || '',
+    phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
+  },
+
   seed: {
     adminName: process.env.SEED_ADMIN_NAME || 'Propietario',
     adminEmail: process.env.SEED_ADMIN_EMAIL || 'midirectoriocerca@proton.me',
@@ -85,7 +91,7 @@ const env = {
 
   cron: {
     tz: process.env.CRON_TZ || 'America/Caracas',
-    daily: process.env.CRON_DAILY || '0 3 * * *',
+    daily: process.env.CRON_DAILY || '0 8 * * *',
     expiryWarningDays: num(process.env.EXPIRY_WARNING_DAYS, 30),
   },
 };
