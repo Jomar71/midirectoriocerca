@@ -141,18 +141,33 @@ async function saveUploadedFotos(anuncioId, files) {
 // ── Dashboard ───────────────────────────────────────────────────────────
 async function dashboard(req, res, next) {
   try {
+    const { formatWhatsAppNumber, buildRenewalMessage } = require('../services/whatsapp.service');
     const [stats, noLeidos, porVencer] = await Promise.all([
       anuncioModel.stats(),
       mensajeModel.countNoLeidos(),
       anuncioModel.findExpiring(30),
     ]);
-    return res.json({ ok: true, data: { stats, mensajes_no_leidos: noLeidos, por_vencer: porVencer } });
+
+    const porVencerConWa = porVencer.map((a) => {
+      let whatsapp_url = null;
+      if (a.telefono_movil) {
+        const num = formatWhatsAppNumber(a.telefono_movil);
+        if (num) {
+          const msg = buildRenewalMessage(a.razon_social, S.formatDateOnly(a.fecha_vencimiento));
+          whatsapp_url = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+        }
+      }
+      return { ...a, whatsapp_url };
+    });
+
+    return res.json({ ok: true, data: { stats, mensajes_no_leidos: noLeidos, por_vencer: porVencerConWa } });
   } catch (e) { next(e); }
 }
 
 // ── Anuncios ────────────────────────────────────────────────────────────
 async function listAnuncios(req, res, next) {
   try {
+    const { formatWhatsAppNumber, buildRenewalMessage } = require('../services/whatsapp.service');
     const { page, limit, offset } = parsePagination(req.query, { defaultLimit: 20, maxLimit: 100 });
     const data = await anuncioModel.listAdmin({
       q: (req.query.q || '').toString().trim() || null,
@@ -160,7 +175,20 @@ async function listAnuncios(req, res, next) {
       categoria: (req.query.categoria || '').toString().trim() || null,
       page, limit, offset,
     });
-    return res.json({ ok: true, data: data.rows, pagination: buildMeta(data.total, page, limit) });
+
+    const rows = data.rows.map((a) => {
+      let whatsapp_url = null;
+      if (a.telefono_movil) {
+        const num = formatWhatsAppNumber(a.telefono_movil);
+        if (num) {
+          const msg = buildRenewalMessage(a.razon_social, S.formatDateOnly(a.fecha_vencimiento));
+          whatsapp_url = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+        }
+      }
+      return { ...a, whatsapp_url };
+    });
+
+    return res.json({ ok: true, data: rows, pagination: buildMeta(data.total, page, limit) });
   } catch (e) { next(e); }
 }
 

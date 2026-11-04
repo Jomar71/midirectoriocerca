@@ -122,8 +122,9 @@
                 <span class="font-medium text-neutral-800">${esc(a.razon_social)}</span>
                 <span class="ml-2 text-xs font-bold text-amber-800 bg-amber-100 ring-1 ring-amber-300 px-2 py-0.5 rounded-full">Por Vencer</span>
               </div>
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2">
                 <span class="text-sm text-neutral-500">Vence: ${fmtDate(a.fecha_vencimiento)}</span>
+                ${a.whatsapp_url ? `<a href="${esc(a.whatsapp_url)}" target="_blank" rel="noopener noreferrer" class="text-xs px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 font-semibold transition-colors inline-flex items-center gap-1 border border-emerald-200" title="Abrir chat de WhatsApp con el mensaje ya redactado"><svg class="w-3.5 h-3.5 fill-emerald-600" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>WhatsApp</a>` : ''}
                 <button class="dash-notificar text-xs px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 hover:bg-amber-100 font-semibold transition-colors" data-id="${a.id}" data-name="${esc(a.razon_social)}">Avisar</button>
               </div>
             </div>`).join('')
@@ -135,10 +136,12 @@
         try {
           const res = await api(`/anuncios/${b.dataset.id}/notificar-vencimiento`, { method: 'POST' });
           if (res.waUrl && (!res.canales?.whatsapp?.sent)) {
-            window.open(res.waUrl, '_blank', 'noopener,noreferrer');
-          }
-          if (res.canales?.email?.simulated) {
-            toast('Aviso procesado. Nota: El correo está en modo "json" en .env (no sale a buzón real hasta configurar SMTP).', 'warn');
+            const w = window.open(res.waUrl, '_blank', 'noopener,noreferrer');
+            if (!w) {
+              toast('Correo enviado. Usa el botón "WhatsApp" en la lista para enviar el mensaje directo.', 'info');
+            } else {
+              toast('Aviso enviado por correo y WhatsApp abierto.');
+            }
           } else {
             toast(res.message || 'Aviso enviado');
           }
@@ -192,9 +195,10 @@
                   <td class="px-4 py-3 text-neutral-500">${a.total_fotos}/${11}</td>
                   <td class="px-4 py-3 text-right whitespace-nowrap">
                     <button class="act-edit text-primary-600 hover:text-primary-700 font-medium" data-id="${a.id}">Editar</button>
-                    <button class="act-renovar ml-2.5 text-success-600 hover:text-success-700 font-medium" data-id="${a.id}">Renovar</button>
-                    <button class="act-notificar ml-2.5 text-amber-700 hover:text-amber-800 font-semibold" data-id="${a.id}" data-name="${esc(a.razon_social)}" title="Enviar recordatorio privado al correo y WhatsApp del cliente">Reenviar Aviso</button>
-                    <button class="act-del ml-2.5 text-error-500 hover:text-error-600 font-medium" data-id="${a.id}" data-name="${esc(a.razon_social)}" data-afiliacion="${esc(a.estado_afiliacion)}">Eliminar</button>
+                    <button class="act-renovar ml-2 text-success-600 hover:text-success-700 font-medium" data-id="${a.id}">Renovar</button>
+                    <button class="act-notificar ml-2 text-amber-700 hover:text-amber-800 font-semibold" data-id="${a.id}" data-name="${esc(a.razon_social)}" title="Enviar recordatorio privado al correo y WhatsApp del cliente">Reenviar Aviso</button>
+                    ${a.whatsapp_url ? `<a href="${esc(a.whatsapp_url)}" target="_blank" rel="noopener noreferrer" class="ml-2 inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-800 font-semibold text-xs bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-md transition-colors border border-emerald-200" title="Abrir chat de WhatsApp con el mensaje ya redactado"><svg class="w-3.5 h-3.5 fill-emerald-600" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>WhatsApp</a>` : ''}
+                    <button class="act-del ml-2 text-error-500 hover:text-error-600 font-medium" data-id="${a.id}" data-name="${esc(a.razon_social)}" data-afiliacion="${esc(a.estado_afiliacion)}">Eliminar</button>
                   </td>
                 </tr>`).join('')}
             </tbody>
@@ -231,11 +235,12 @@
         
         // Si no hay API automática de WhatsApp pero sí waUrl, abrimos WhatsApp Web/App para enviar con 1 clic
         if (res.waUrl && (!res.canales?.whatsapp?.sent)) {
-          window.open(res.waUrl, '_blank', 'noopener,noreferrer');
-        }
-
-        if (res.canales?.email?.simulated) {
-          toast('Aviso procesado. Atención: El email está en modo simulación (MAIL_TRANSPORT=json en .env). Configura SMTP para entrega real.', 'warn');
+          const w = window.open(res.waUrl, '_blank', 'noopener,noreferrer');
+          if (!w) {
+            toast('Aviso procesado. El navegador bloqueó la ventana emergente; haz clic en el botón verde "WhatsApp" de la fila.', 'warn');
+          } else {
+            toast('Aviso enviado por correo y WhatsApp abierto en nueva pestaña.');
+          }
         } else {
           toast(res.message || 'Aviso privado enviado');
         }
