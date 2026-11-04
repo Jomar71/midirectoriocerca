@@ -17,17 +17,25 @@ let etherealPreview = '';
 
 async function initMailer() {
   if (env.mail.transport === 'smtp') {
-    if (!env.mail.host) throw new Error('MAIL_HOST es obligatorio para enviar correos por SMTP.');
-    transporter = nodemailer.createTransport({
-      host: env.mail.host,
-      port: env.mail.port,
-      secure: env.mail.secure,
-      auth: env.mail.user ? { user: env.mail.user, pass: env.mail.pass } : undefined,
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 20000,
-    });
-    console.log(`[mail] SMTP configurado (${env.mail.host}:${env.mail.port}).`);
+    if (env.mail.service) {
+      transporter = nodemailer.createTransport({
+        service: env.mail.service,
+        auth: env.mail.user ? { user: env.mail.user, pass: env.mail.pass } : undefined,
+      });
+      console.log(`[mail] SMTP configurado con servicio "${env.mail.service}".`);
+    } else {
+      if (!env.mail.host) throw new Error('MAIL_HOST o MAIL_SERVICE es obligatorio para enviar correos por SMTP.');
+      transporter = nodemailer.createTransport({
+        host: env.mail.host,
+        port: env.mail.port,
+        secure: env.mail.secure,
+        auth: env.mail.user ? { user: env.mail.user, pass: env.mail.pass } : undefined,
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 20000,
+      });
+      console.log(`[mail] SMTP configurado (${env.mail.host}:${env.mail.port}).`);
+    }
   } else if (env.mail.transport === 'ethereal') {
     const test = await nodemailer.createTestAccount();
     transporter = nodemailer.createTransport({
@@ -38,7 +46,7 @@ async function initMailer() {
     console.log('[mail] Ethereal listo. Revisa los correos en https://ethereal.email');
   } else {
     transporter = nodemailer.createTransport({ jsonTransport: true });
-    console.log('[mail] Modo JSON: los correos se imprimen en consola.');
+    console.log('[mail] Modo JSON: los correos se imprimen en consola (MAIL_TRANSPORT=json). No se envía a destinatarios reales.');
   }
 }
 
@@ -51,14 +59,25 @@ async function send({ to, subject, html, replyTo }) {
     html,
     replyTo,
   });
-  if (env.mail.transport === 'json' && info.message) {
-    console.log('[mail] (json) →', to, '|', subject);
-  } else if (env.mail.transport === 'smtp') {
+
+  const isSmtp = env.mail.transport === 'smtp';
+  const isJson = env.mail.transport === 'json';
+
+  if (isJson && info.message) {
+    console.log('[mail] (json simulado) →', to, '|', subject);
+  } else if (isSmtp) {
     console.log(`[mail] SMTP aceptó el mensaje para ${to} (id: ${info.messageId || 'sin id'}).`);
   }
   const url = nodemailer.getTestMessageUrl(info);
   if (url) etherealPreview = url;
-  return { info, previewUrl: url || etherealPreview, sent: env.mail.transport === 'smtp' };
+
+  return {
+    info,
+    previewUrl: url || etherealPreview || null,
+    sent: isSmtp,
+    simulated: isJson,
+    transport: env.mail.transport,
+  };
 }
 
 const base = (title, body) => `
@@ -119,18 +138,26 @@ async function notifyExpiring(anuncios) {
 
 /** Aviso estrictamente privado al cliente / afiliado sobre su vencimiento. */
 async function notifyClientExpiring({ to, razonSocial, fechaVencimiento }) {
-  if (!to) return { sent: false, error: 'Sin correo electrónico' };
+  if (!to) return { sent: false, error: 'El cliente no tiene correo electrónico registrado.' };
   const fechaStr = S.formatDateOnly(fechaVencimiento);
   const body = `
     <p>Estimado(a) <strong>${escapeHtml(razonSocial)}</strong>,</p>
     <p>Le recordamos que su afiliación a MiDirectorioCerca vence el próximo <strong>${fechaStr}</strong>. Para mantener su ficha activa en nuestro directorio, por favor comuníquese con nosotros para realizar su renovación. Estamos a su disposición.</p>
     <p style="margin-top:24px">Atentamente,<br><strong>El equipo de MiDirectorioCerca.</strong></p>`;
 
-  return send({
+  const result = await send({
     to,
     subject: 'Aviso Importante: Renovación de su afiliación en MiDirectorioCerca',
     html: base('Aviso Importante de Renovación', body),
   });
+
+  return {
+    to,
+    sent: result.sent,
+    simulated: result.simulated,
+    previewUrl: result.previewUrl,
+    transport: result.transport,
+  };
 }
 
 /** Respuesta del administrador a un mensaje recibido. */

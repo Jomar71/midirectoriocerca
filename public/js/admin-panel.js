@@ -134,7 +134,14 @@
         b.disabled = true;
         try {
           const res = await api(`/anuncios/${b.dataset.id}/notificar-vencimiento`, { method: 'POST' });
-          toast(res.message || 'Aviso enviado');
+          if (res.waUrl && (!res.canales?.whatsapp?.sent)) {
+            window.open(res.waUrl, '_blank', 'noopener,noreferrer');
+          }
+          if (res.canales?.email?.simulated) {
+            toast('Aviso procesado. Nota: El correo está en modo "json" en .env (no sale a buzón real hasta configurar SMTP).', 'warn');
+          } else {
+            toast(res.message || 'Aviso enviado');
+          }
           loadDashboard();
         } catch (e) { toast(e.message, 'err'); }
         finally { b.disabled = false; }
@@ -221,7 +228,18 @@
       b.disabled = true;
       try {
         const res = await api(`/anuncios/${id}/notificar-vencimiento`, { method: 'POST' });
-        toast(res.message || 'Aviso privado enviado');
+        
+        // Si no hay API automática de WhatsApp pero sí waUrl, abrimos WhatsApp Web/App para enviar con 1 clic
+        if (res.waUrl && (!res.canales?.whatsapp?.sent)) {
+          window.open(res.waUrl, '_blank', 'noopener,noreferrer');
+        }
+
+        if (res.canales?.email?.simulated) {
+          toast('Aviso procesado. Atención: El email está en modo simulación (MAIL_TRANSPORT=json en .env). Configura SMTP para entrega real.', 'warn');
+        } else {
+          toast(res.message || 'Aviso privado enviado');
+        }
+
         loadAnuncios();
         loadDashboard();
       } catch (e) {

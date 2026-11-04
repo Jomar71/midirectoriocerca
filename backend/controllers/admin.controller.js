@@ -273,10 +273,28 @@ async function notificarVencimientoManual(req, res, next) {
     const canales = await enviarAvisoPrivadoCliente(anuncio);
     await invalidatePublicCache();
 
+    const detalles = [];
+    if (canales.email?.sent) {
+      detalles.push(`Email enviado a ${anuncio.email}`);
+    } else if (canales.email?.simulated) {
+      detalles.push(`Email en simulación local (MAIL_TRANSPORT=json)`);
+    } else if (canales.email?.error) {
+      detalles.push(`Email falló: ${canales.email.error}`);
+    }
+
+    if (canales.whatsapp?.sent) {
+      detalles.push(`WhatsApp enviado vía API`);
+    } else if (canales.whatsapp?.waUrl) {
+      detalles.push(`WhatsApp preparado en enlace directo`);
+    } else if (canales.whatsapp?.error) {
+      detalles.push(`WhatsApp falló: ${canales.whatsapp.error}`);
+    }
+
     return res.json({
       ok: true,
-      message: `Aviso privado de renovación enviado a "${anuncio.razon_social}".`,
+      message: detalles.join(' | ') || `Aviso privado procesado para "${anuncio.razon_social}".`,
       canales,
+      waUrl: canales.whatsapp?.waUrl || null,
     });
   } catch (e) { next(e); }
 }

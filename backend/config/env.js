@@ -68,6 +68,7 @@ const env = {
 
   mail: {
     transport: process.env.NODE_ENV === 'production' ? 'smtp' : (process.env.MAIL_TRANSPORT || 'json'), // smtp | json | ethereal
+    service: process.env.MAIL_SERVICE || '',
     host: process.env.MAIL_HOST || '',
     port: num(process.env.MAIL_PORT, 587),
     secure: bool(process.env.MAIL_SECURE, false),
