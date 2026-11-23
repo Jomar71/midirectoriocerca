@@ -1,5 +1,5 @@
 /* public/sw.js — Service Worker básico para PWA (vista móvil tipo app) */
-const CACHE = 'directoriocerca-v2';
+const CACHE = 'directoriocerca-v3';
 const PRECACHE = ['/', '/css/styles.css', '/manifest.webmanifest', '/img/placeholder.jpg'];
 
 self.addEventListener('install', (event) => {

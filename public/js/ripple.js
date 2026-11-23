@@ -173,16 +173,17 @@
       'void main() {',
       '  vec2 uv = vUv;',
       '  float aspect = uCanvasSize.x / max(uCanvasSize.y, 1.0);',
-      '  vec2 p = vec2(uv.x * aspect, uv.y);',
-      '  vec2 ptr = vec2(uPointer.x * aspect, uPointer.y);',
+      '  vec2 scaleAspect = aspect >= 1.0 ? vec2(aspect, 1.0) : vec2(1.0, 1.0 / max(aspect, 0.01));',
+      '  vec2 p = uv * scaleAspect;',
+      '  vec2 ptr = uPointer * scaleAspect;',
       '  vec2 delta = p - ptr;',
       '  float d = length(delta);',
       '  vec2 dir = delta / max(d, 0.0001);',
-      '  float ring = sin(d * 24.0 - uTime * 2.0);',
-      '  float amp = exp(-d * 10.5) * 0.008 * uStrength;',
+      '  float ring = sin(d * 24.0 - uTime * 2.2);',
+      '  float amp = exp(-d * 8.5) * 0.015 * uStrength;',
       '  uv += dir * ring * amp;',
-      '  uv.x += sin(uv.y * 9.0 + uTime * 0.4) * 0.0003;',
-      '  uv.y += cos(uv.x * 8.0 - uTime * 0.35) * 0.0003;',
+      '  uv.x += sin(uv.y * 9.0 + uTime * 0.45) * 0.0007;',
+      '  uv.y += cos(uv.x * 8.0 - uTime * 0.38) * 0.0007;',
       '  float imageAspect = uTexSize.x / max(uTexSize.y, 1.0);',
       '  vec2 scale = vec2(1.0);',
       '  if (aspect > imageAspect) {',
@@ -251,8 +252,9 @@
 
     function resize() {
       var rect = container.getBoundingClientRect();
-      var width = Math.max(1, Math.round(rect.width));
-      var height = Math.max(1, Math.round(rect.height));
+      var width = Math.round(rect.width);
+      var height = Math.round(rect.height);
+      if (width < 2 || height < 2) return;
       var nextDpr = Math.min(window.devicePixelRatio || 1, 2);
       if (width === lastWidth && height === lastHeight && nextDpr === dpr && canvas.width) return;
       lastWidth = width;
@@ -266,7 +268,6 @@
 
     function render(now) {
       if (!running) return;
-      resize();
       var time = (now - startedAt) / 1000;
       var idle = now - lastInteraction;
       var targetX;
@@ -275,15 +276,15 @@
       if (idle < 1600) {
         targetX = pointer.x;
         targetY = pointer.y;
-        targetStrength = 0.45;
+        targetStrength = 0.75;
       } else {
-        targetX = 0.5 + Math.cos(time * 0.15) * 0.08;
-        targetY = 0.5 + Math.sin(time * 0.12) * 0.06;
-        targetStrength = 0.2;
+        targetX = 0.5 + Math.cos(time * 0.18) * 0.1;
+        targetY = 0.5 + Math.sin(time * 0.14) * 0.08;
+        targetStrength = 0.38;
       }
-      smoothX += (targetX - smoothX) * 0.05;
-      smoothY += (targetY - smoothY) * 0.05;
-      smoothStrength += (targetStrength - smoothStrength) * 0.04;
+      smoothX += (targetX - smoothX) * 0.06;
+      smoothY += (targetY - smoothY) * 0.06;
+      smoothStrength += (targetStrength - smoothStrength) * 0.05;
       gl.uniform2f(uPointer, smoothX, smoothY);
       gl.uniform1f(uTime, time);
       gl.uniform1f(uStrength, smoothStrength);
@@ -305,23 +306,38 @@
 
     function setPointer(clientX, clientY) {
       var rect = canvas.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
+      if (rect.width < 2 || rect.height < 2) return;
+      if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) return;
       pointer.x = (clientX - rect.left) / rect.width;
       pointer.y = 1 - (clientY - rect.top) / rect.height;
       lastInteraction = performance.now();
     }
 
+    function extractCoords(event) {
+      if (event.touches && event.touches.length) {
+        return { x: event.touches[0].clientX, y: event.touches[0].clientY };
+      }
+      if (typeof event.clientX === 'number') {
+        return { x: event.clientX, y: event.clientY };
+      }
+      return null;
+    }
+
     function onPointerMove(event) {
-      setPointer(event.clientX, event.clientY);
+      var pt = extractCoords(event);
+      if (pt) setPointer(pt.x, pt.y);
     }
 
     function onPointerStart(event) {
-      setPointer(event.clientX, event.clientY);
+      var pt = extractCoords(event);
+      if (pt) setPointer(pt.x, pt.y);
       start();
     }
 
     window.addEventListener('pointermove', onPointerMove, { passive: true });
     window.addEventListener('pointerdown', onPointerStart, { passive: true });
+    window.addEventListener('touchmove', onPointerMove, { passive: true });
+    window.addEventListener('touchstart', onPointerStart, { passive: true });
     window.addEventListener('resize', resize);
 
     document.addEventListener('visibilitychange', function () {
@@ -455,10 +471,38 @@
     }
   }
 
+  function observeAndMount(container) {
+    var mounted = false;
+    var ro = null;
+    var io = null;
+    var tryMount = function () {
+      if (mounted) return;
+      var rect = container.getBoundingClientRect();
+      if (rect.width < 2 || rect.height < 2) return;
+      mounted = true;
+      if (ro) ro.disconnect();
+      if (io) io.disconnect();
+      mount(container);
+    };
+
+    var rect = container.getBoundingClientRect();
+    if (rect.width >= 2 && rect.height >= 2) {
+      tryMount();
+      return;
+    }
+
+    ro = new ResizeObserver(tryMount);
+    ro.observe(container);
+    io = new IntersectionObserver(function (entries) {
+      if (entries.some(function (e) { return e.isIntersecting; })) tryMount();
+    }, { rootMargin: '200px' });
+    io.observe(container);
+  }
+
   function init() {
     if (prefersReducedMotion()) return;
     var nodes = document.querySelectorAll('[data-ripple]');
-    for (var i = 0; i < nodes.length; i++) mount(nodes[i]);
+    for (var i = 0; i < nodes.length; i++) observeAndMount(nodes[i]);
   }
 
   if (document.readyState === 'loading') {
