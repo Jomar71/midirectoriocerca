@@ -60,6 +60,12 @@ const testConnection = async () => {
     await pool.query(`
       ALTER TABLE anuncios ADD COLUMN IF NOT EXISTS estado_notificacion VARCHAR(20) DEFAULT 'pendiente';
       ALTER TABLE anuncios ADD COLUMN IF NOT EXISTS estado_afiliacion VARCHAR(20) DEFAULT 'Activa';
+      CREATE TABLE IF NOT EXISTS archivos_media (
+        public_id TEXT PRIMARY KEY,
+        content_type VARCHAR(120) NOT NULL DEFAULT 'application/octet-stream',
+        data BYTEA NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
     `);
   } catch (e) {
     // Si la tabla aún no existe (antes de db:init), ignoramos el error

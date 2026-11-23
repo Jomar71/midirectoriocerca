@@ -13,6 +13,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const env = require('../config/env');
+const { query } = require('../config/db');
 
 const PUBLIC_DIR = path.resolve(__dirname, '..', '..', 'public');
 const PROJECT_DIR = path.resolve(__dirname, '..', '..');
@@ -212,6 +213,57 @@ async function deleteFromCloudinary(publicId) {
   }
 }
 
+const EXT_MIME = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.avif': 'image/avif',
+  '.bmp': 'image/bmp',
+  '.tiff': 'image/tiff',
+  '.tif': 'image/tiff',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.heic': 'image/heic',
+  '.heif': 'image/heif',
+  '.jxl': 'image/jxl',
+};
+
+function resolveMimeType(ext, mimetype) {
+  const clean = String(mimetype || '').toLowerCase().trim();
+  if (clean && clean !== 'application/octet-stream') return clean;
+  return EXT_MIME[String(ext || '').toLowerCase()] || 'application/octet-stream';
+}
+
+/** Guarda el binario en PostgreSQL para sobrevivir reinicios/despliegues efímeros (Pxxl). */
+async function saveToDb(publicId, contentType, buffer) {
+  await query(
+    `INSERT INTO archivos_media (public_id, content_type, data)
+     VALUES ($1, $2, $3)
+     ON CONFLICT (public_id) DO UPDATE
+       SET content_type = EXCLUDED.content_type,
+           data = EXCLUDED.data`,
+    [publicId, contentType, buffer]
+  );
+}
+
+/** Recupera un archivo desde PostgreSQL cuando no existe en el disco local. */
+async function readFromDb(publicId) {
+  if (!publicId) return null;
+  const normalized = String(publicId).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+  try {
+    const { rows } = await query(
+      'SELECT content_type, data FROM archivos_media WHERE public_id = $1 LIMIT 1',
+      [normalized]
+    );
+    return rows[0] || null;
+  } catch (e) {
+    console.warn('[storage] Error leyendo media desde PostgreSQL:', e.message);
+    return null;
+  }
+}
+
 /** Guarda un buffer y devuelve { url, publicId }. */
 async function saveBuffer(buffer, originalName, folder = 'anuncios', mimetype = '') {
   const driver = env.storage.driver;
@@ -226,7 +278,20 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios', mimetype = 
   const uuid = uuidv4();
   const date = new Date().toISOString().split('T')[0];
   const ext = resolveExtension(originalName, mimetype);
+  const contentType = resolveMimeType(ext, mimetype);
   const filename = `${date}-${uuid}${ext}`;
+  const rel = `${subfolder}/${filename}`;
+  const publicId = `${uploadDirName}/${rel}`;
+  const url = `/${uploadDirName}/${rel}`;
+
+  // 1. Persistencia garantizada en PostgreSQL (sobrevive redespliegues efímeros en Pxxl).
+  let savedInDb = false;
+  try {
+    await saveToDb(publicId, contentType, buffer);
+    savedInDb = true;
+  } catch (e) {
+    console.warn('[storage] No se pudo respaldar imagen en PostgreSQL:', e.message);
+  }
 
   const cp = require('child_process');
   const writeToPath = async (p) => {
@@ -236,7 +301,7 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios', mimetype = 
     }
   };
 
-  // Intenta la carpeta activa y, si falla, las alternativas escribibles.
+  // 2. Caché en disco local (rápido mientras el contenedor siga vivo).
   const roots = [...new Set([uploadRoot, ...UPLOAD_CANDIDATES])];
   let lastError = null;
   let savedPath = null;
@@ -256,14 +321,11 @@ async function saveBuffer(buffer, originalName, folder = 'anuncios', mimetype = 
     }
   }
 
-  if (!savedPath) {
+  if (!savedPath && !savedInDb) {
     const attempted = path.join(uploadRoot, subfolder, filename);
     throw new Error(`No se pudo guardar la imagen en ${attempted}: ${lastError ? lastError.message : 'sin carpeta escribible'}`);
   }
 
-  const rel = `${subfolder}/${filename}`;
-  const publicId = `${uploadDirName}/${rel}`;
-  const url = `/${uploadDirName}/${rel}`;
   return { url, publicId };
 }
 
@@ -273,6 +335,14 @@ async function deleteByPublicId(publicId) {
 
   if (env.storage.driver === 'cloudinary' || String(publicId).startsWith('directoriocerca/')) {
     return deleteFromCloudinary(publicId);
+  }
+
+  // Borrar también el respaldo persistente en PostgreSQL si existe
+  const normalizedDbId = String(publicId).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+  try {
+    await query('DELETE FROM archivos_media WHERE public_id = $1', [normalizedDbId]);
+  } catch (e) {
+    // Si la tabla no existe o hay error puntual, continuamos borrando en disco
   }
 
   // Normaliza "uploads/anuncios/x.png" -> "anuncios/x.png"
@@ -314,5 +384,5 @@ async function deleteByUrl(url, publicId = null) {
 }
 
 module.exports = {
-  saveBuffer, deleteByPublicId, deleteByUrl, ensureUploadDirs, getUploadRoot, getUploadRoots,
+  saveBuffer, deleteByPublicId, deleteByUrl, ensureUploadDirs, getUploadRoot, getUploadRoots, readFromDb,
 };

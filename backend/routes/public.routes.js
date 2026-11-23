@@ -47,4 +47,8 @@ router.post(
   mensajeCtrl.crear
 );
 
+// Subdominio / ruta corta de empresa: /tuempresa → ficha del anuncio
+// Debe ir al final para no interceptar rutas fijas (/resultados, /nosotros, /contacto, /api/*).
+router.get('/:slug([a-z0-9-]+)', anuncioCtrl.renderAnuncio);
+
 module.exports = router;

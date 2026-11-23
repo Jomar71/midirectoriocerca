@@ -18,7 +18,8 @@ const { testConnection } = require('./config/db');
 const { initRedis } = require('./config/redis');
 const mailService = require('./services/mail.service');
 const { startCron } = require('./services/cron.service');
-const { ensureUploadDirs, getUploadRoots } = require('./services/storage.service');
+const { ensureUploadDirs, getUploadRoots, readFromDb } = require('./services/storage.service');
+const anuncioCtrl = require('./controllers/anuncio.controller');
 
 const publicRoutes = require('./routes/public.routes');
 const authRoutes = require('./routes/auth.routes');
@@ -83,13 +84,27 @@ if (!env.isProd) app.use(morgan('dev'));
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
 // Subidas: sirve la carpeta activa y, como respaldo, la de public/uploads
-// (archivos antiguos). La carpeta activa puede estar fuera de public/ cuando
-// el hosting no permite escribir ahí (Pxxl, sistemas de solo lectura).
+// (archivos antiguos). Si el archivo no existe en disco (p. ej. tras un
+// redespliegue efímero en Pxxl), se recupera desde PostgreSQL (archivos_media).
 getUploadRoots().forEach((root) => {
   app.use('/uploads', express.static(root, {
     maxAge: env.isProd ? '7d' : 0,
     fallthrough: true,
   }));
+});
+
+app.get('/uploads/*', async (req, res, next) => {
+  try {
+    const rel = String(req.params[0] || '').replace(/^[\\/]+/, '');
+    if (!rel || rel.includes('..')) return next();
+    const media = await readFromDb(`uploads/${rel}`);
+    if (!media || !media.data) return next();
+    res.setHeader('Content-Type', media.content_type || 'application/octet-stream');
+    res.setHeader('Cache-Control', env.isProd ? 'public, max-age=604800, immutable' : 'no-cache');
+    return res.send(media.data);
+  } catch (e) {
+    return next(e);
+  }
 });
 
 app.use(express.static(PUBLIC_DIR, {
@@ -111,6 +126,19 @@ app.use('/vendor/shaders', express.static(SHADERS_DIST, {
 
 // ── Health check (Pxxl y balanceadores) ─────────────────────────────────
 app.get('/health', (_req, res) => res.status(200).json({ ok: true, uptime: process.uptime() }));
+
+// ── Subdominios de empresa (<slug>.dominio.com/) ────────────────────────
+const baseHost = new URL(env.appUrl).hostname.replace(/^www\./, '').toLowerCase();
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path !== '/') return next();
+  const host = String(req.hostname || '').toLowerCase();
+  if (!host || host === 'localhost' || host === baseHost || host === `www.${baseHost}`) return next();
+  if (!host.endsWith(`.${baseHost}`)) return next();
+  const sub = host.slice(0, -(baseHost.length + 1));
+  if (!/^[a-z0-9-]+$/.test(sub) || sub === 'www') return next();
+  req.params = { slug: sub };
+  return anuncioCtrl.renderAnuncio(req, res, next);
+});
 
 // ── Rutas ───────────────────────────────────────────────────────────────
 app.use(sitemapRoutes);
