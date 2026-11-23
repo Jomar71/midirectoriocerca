@@ -45,38 +45,41 @@
     <section class="relative border-b border-neutral-200 dark:border-slate-800 bg-gradient-to-b from-primary-50 via-white to-white dark:from-slate-800 dark:via-slate-900 dark:to-slate-900">
       <div class="relative max-w-7xl mx-auto px-3 sm:px-4 pt-6 sm:pt-8 pb-4">
         <!-- Buscador flotante -->
-        <form action="/resultados" method="get" role="search" aria-label="Buscar en el directorio"
-              class="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-full border border-neutral-200 dark:border-slate-700 shadow-md p-1.5 sm:p-2 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 max-w-4xl mx-auto">
-          <div class="relative flex-1 min-w-0">
-            <label for="q" class="sr-only">Qué buscas</label>
-            <svg class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-600 dark:text-primary-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-3.2-3.2"/></svg>
-            <input id="q" type="text" name="q" value="<%= filtros.q || '' %>" placeholder="¿Qué buscas? (restaurantes, abogados...)"
-                   class="h-11 sm:h-12 w-full pl-11 pr-3 rounded-xl sm:rounded-full bg-neutral-100 dark:bg-slate-700/70 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 text-sm sm:text-base">
-          </div>
-          <span class="hidden sm:block w-px h-7 bg-neutral-200 dark:bg-slate-600 shrink-0" aria-hidden="true"></span>
-          <div class="relative flex-1 min-w-0">
-            <label for="ciudad" class="sr-only">Dónde</label>
-            <svg class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-600 dark:text-primary-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-5.6-7-11a7 7 0 1 1 14 0c0 5.4-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
-            <input id="ciudad" type="text" name="ciudad" list="ciudades-list" value="<%= filtros.ciudad || '' %>" placeholder="¿Dónde? (Ciudad o municipio)"
-                   autocomplete="off"
-                   class="h-11 sm:h-12 w-full pl-11 pr-3 rounded-xl sm:rounded-full bg-neutral-100 dark:bg-slate-700/70 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 text-sm sm:text-base">
-            <datalist id="ciudades-list">
-              <% (ubicaciones.ciudades || []).forEach(function(c){ %>
-                <option value="<%= c.nombre %>"><%= c.departamento_nombre %><% if (c.es_capital) { %> · capital<% } %></option>
-              <% }) %>
-            </datalist>
-          </div>
-          <% if (filtros.categoria) { %><input type="hidden" name="categoria" value="<%= filtros.categoria %>"><% } %>
-          <button type="submit" class="h-11 sm:h-12 shrink-0 px-6 rounded-xl sm:rounded-full bg-primary-600 hover:bg-primary-700 text-white font-bold transition-colors inline-flex items-center justify-center gap-2 shadow-sm text-sm sm:text-base">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-3.2-3.2"/></svg>
-            Buscar
-          </button>
-        </form>
+        <search class="block max-w-4xl mx-auto">
+          <form action="/resultados" method="get" aria-label="Buscar en el directorio"
+                class="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-full border border-neutral-200 dark:border-slate-700 shadow-md p-1.5 sm:p-2 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+            <div class="relative flex-1 min-w-0">
+              <label for="q" class="sr-only">Qué buscas</label>
+              <svg class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-600 dark:text-primary-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-3.2-3.2"/></svg>
+              <input id="q" type="search" name="q" value="<%= filtros.q || '' %>" placeholder="¿Qué buscas? (restaurantes, abogados...)"
+                     class="h-11 sm:h-12 w-full pl-11 pr-3 rounded-xl sm:rounded-full bg-neutral-100 dark:bg-slate-700/70 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 text-sm sm:text-base">
+            </div>
+            <span class="hidden sm:block w-px h-7 bg-neutral-200 dark:bg-slate-600 shrink-0" aria-hidden="true"></span>
+            <div class="relative flex-1 min-w-0">
+              <label for="ciudad" class="sr-only">Dónde</label>
+              <svg class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-600 dark:text-primary-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-5.6-7-11a7 7 0 1 1 14 0c0 5.4-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+              <input id="ciudad" type="text" name="ciudad" list="ciudades-list" value="<%= filtros.ciudad || '' %>" placeholder="¿Dónde? (Ciudad o municipio)"
+                     autocomplete="off"
+                     class="h-11 sm:h-12 w-full pl-11 pr-3 rounded-xl sm:rounded-full bg-neutral-100 dark:bg-slate-700/70 border border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 text-sm sm:text-base">
+              <datalist id="ciudades-list">
+                <% (ubicaciones.ciudades || []).forEach(function(c){ %>
+                  <option value="<%= c.nombre %>"><%= c.departamento_nombre %><% if (c.es_capital) { %> · capital<% } %></option>
+                <% }) %>
+              </datalist>
+            </div>
+            <% if (filtros.categoria) { %><input type="hidden" name="categoria" value="<%= filtros.categoria %>"><% } %>
+            <button type="submit" class="h-11 sm:h-12 shrink-0 px-6 rounded-xl sm:rounded-full bg-primary-600 hover:bg-primary-700 text-white font-bold transition-colors inline-flex items-center justify-center gap-2 shadow-sm text-sm sm:text-base">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-3.2-3.2"/></svg>
+              Buscar
+            </button>
+          </form>
+        </search>
 
         <!-- Barra de categorías rápida (chips deslizables horizontalmente) -->
         <% if (typeof categorias !== 'undefined' && categorias && categorias.length) { %>
-          <div class="mt-5 max-w-5xl mx-auto flex items-center gap-1.5 overflow-x-auto pb-2 scroll-smooth" style="scrollbar-width:none" aria-label="Filtrar por categoría">
+          <nav class="mt-5 max-w-5xl mx-auto flex items-center gap-1.5 overflow-x-auto pb-2 scroll-smooth" style="scrollbar-width:none" aria-label="Filtrar por categoría">
             <a href="<%= buildFilterUrl({ categoria: null }) %>"
+               <%= !filtros.categoria ? 'aria-current="page"' : '' %>
                class="shrink-0 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors <%= !filtros.categoria ? 'bg-primary-600 text-white shadow-sm' : 'bg-neutral-100 dark:bg-slate-800 text-neutral-700 dark:text-slate-300 hover:bg-neutral-200 dark:hover:bg-slate-700 border border-neutral-200 dark:border-slate-700' %>">
               Todas
             </a>
@@ -86,11 +89,12 @@
                 var catUrl = isSelected ? buildFilterUrl({ categoria: null }) : buildFilterUrl({ categoria: c.slug });
               %>
               <a href="<%= catUrl %>"
+                 <%= isSelected ? 'aria-current="page"' : '' %>
                  class="shrink-0 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors <%= isSelected ? 'bg-primary-600 text-white shadow-sm' : 'bg-neutral-100 dark:bg-slate-800 text-neutral-700 dark:text-slate-300 hover:bg-neutral-200 dark:hover:bg-slate-700 border border-neutral-200 dark:border-slate-700' %>">
                 <%= c.nombre %>
               </a>
             <% }) %>
-          </div>
+          </nav>
         <% } %>
       </div>
     </section>
@@ -183,10 +187,10 @@
         </div>
       <% } else { %>
         <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <% anuncios.forEach(function(a){ %>
-            <article class="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-400 dark:hover:border-primary-500 hover:shadow-xl hover:shadow-primary-950/[0.08] dark:hover:shadow-black/40 transition-all duration-200 min-w-0">
+          <% anuncios.forEach(function(a, idx){ %>
+            <article class="<%= idx >= 4 ? 'dc-defer-card ' : '' %>group flex flex-col overflow-hidden rounded-2xl border border-neutral-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-400 dark:hover:border-primary-500 hover:shadow-xl hover:shadow-primary-950/[0.08] dark:hover:shadow-black/40 transition-all duration-200 min-w-0">
               <a href="/anuncio/<%= a.slug %>" class="block aspect-[4/3] overflow-hidden bg-neutral-100 dark:bg-slate-700 relative group-hover:opacity-95" aria-label="Ver ficha de <%= a.razon_social %>">
-                <img src="<%= a.foto_principal || '/img/placeholder.jpg' %>" alt="<%= a.razon_social %>" width="800" height="600" loading="lazy"
+                <img src="<%= a.foto_principal || '/img/placeholder.jpg' %>" alt="<%= a.razon_social %>" width="800" height="600" <%= idx === 0 ? 'fetchpriority="high"' : 'loading="lazy" decoding="async"' %>
                      onerror="this.onerror=null;this.src='/img/placeholder.jpg';"
                      class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
                 <% if (a.categoria_nombre) { %>
@@ -223,11 +227,16 @@
         <% if (pagination.totalPages > 1) { %>
           <nav class="mt-10 sm:mt-12 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-2" aria-label="Paginación de resultados">
             <% var build = function(p){ return buildFilterUrl({ page: p }); }; %>
-            <a href="<%= build(pagination.page - 1) %>"
-               class="h-10 px-3.5 sm:px-4 grid place-items-center rounded-xl text-xs sm:text-sm font-semibold border border-primary-600 text-primary-600 hover:bg-primary-50 dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-500/10 transition-colors <%= pagination.hasPrev ? '' : 'pointer-events-none opacity-40' %>"
-               <%= !pagination.hasPrev ? 'aria-disabled="true"' : '' %>>
-              Anterior
-            </a>
+            <% if (pagination.hasPrev) { %>
+              <a href="<%= build(pagination.page - 1) %>"
+                 class="h-10 px-3.5 sm:px-4 grid place-items-center rounded-xl text-xs sm:text-sm font-semibold border border-primary-600 text-primary-600 hover:bg-primary-50 dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-500/10 transition-colors">
+                Anterior
+              </a>
+            <% } else { %>
+              <span aria-disabled="true" class="h-10 px-3.5 sm:px-4 grid place-items-center rounded-xl text-xs sm:text-sm font-semibold border border-primary-600 text-primary-600 dark:border-primary-400 dark:text-primary-400 opacity-40 cursor-not-allowed">
+                Anterior
+              </span>
+            <% } %>
 
             <% for (var p = Math.max(1, pagination.page-2); p <= Math.min(pagination.totalPages, pagination.page+2); p++) { %>
               <a href="<%= build(p) %>"
@@ -237,11 +246,16 @@
               </a>
             <% } %>
 
-            <a href="<%= build(pagination.page + 1) %>"
-               class="h-10 px-3.5 sm:px-4 grid place-items-center rounded-xl text-xs sm:text-sm font-semibold border border-primary-600 text-primary-600 hover:bg-primary-50 dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-500/10 transition-colors <%= pagination.hasNext ? '' : 'pointer-events-none opacity-40' %>"
-               <%= !pagination.hasNext ? 'aria-disabled="true"' : '' %>>
-              Siguiente
-            </a>
+            <% if (pagination.hasNext) { %>
+              <a href="<%= build(pagination.page + 1) %>"
+                 class="h-10 px-3.5 sm:px-4 grid place-items-center rounded-xl text-xs sm:text-sm font-semibold border border-primary-600 text-primary-600 hover:bg-primary-50 dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-500/10 transition-colors">
+                Siguiente
+              </a>
+            <% } else { %>
+              <span aria-disabled="true" class="h-10 px-3.5 sm:px-4 grid place-items-center rounded-xl text-xs sm:text-sm font-semibold border border-primary-600 text-primary-600 dark:border-primary-400 dark:text-primary-400 opacity-40 cursor-not-allowed">
+                Siguiente
+              </span>
+            <% } %>
           </nav>
         <% } %>
       <% } %>

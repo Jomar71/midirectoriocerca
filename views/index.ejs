@@ -51,13 +51,13 @@
         </p>
 
         <!-- Barra de búsqueda flotante (una sola pieza) -->
-        <div class="dc-rise mt-8 sm:mt-10 w-full max-w-2xl" style="animation-delay:.1s">
-          <form action="/resultados" method="get" role="search" aria-label="Buscar en el directorio"
+        <search class="block dc-rise mt-8 sm:mt-10 w-full max-w-2xl" style="animation-delay:.1s">
+          <form action="/resultados" method="get" aria-label="Buscar en el directorio"
                 class="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-full border border-white/20 shadow-xl shadow-primary-950/30 p-1.5 sm:p-2 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
             <div class="relative flex-1 min-w-0">
               <label for="q" class="sr-only">Qué buscas</label>
               <svg class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-600 dark:text-primary-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-3.2-3.2"/></svg>
-              <input id="q" type="text" name="q" value="<%= filtros.q || '' %>" placeholder="¿Qué buscas? (Ej: restaurantes, abogados, talleres)"
+              <input id="q" type="search" name="q" value="<%= filtros.q || '' %>" placeholder="¿Qué buscas? (Ej: restaurantes, abogados, talleres)"
                      class="h-12 w-full pl-11 pr-3 rounded-xl sm:rounded-full bg-neutral-100 sm:bg-neutral-100 dark:bg-slate-700/70 border border-neutral-200 sm:border-neutral-200 dark:border-slate-600 text-neutral-900 dark:text-slate-100 placeholder:text-neutral-600 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500">
             </div>
             <span class="hidden sm:block w-px h-7 bg-neutral-200 dark:bg-slate-600 shrink-0" aria-hidden="true"></span>
@@ -78,23 +78,20 @@
               Buscar
             </button>
           </form>
-        </div>
+        </search>
 
         <dl class="mt-8 sm:mt-10 flex flex-wrap gap-x-8 gap-y-4 sm:gap-x-12">
-          <div>
-            <dt class="sr-only">Anuncios publicados</dt>
-            <dd class="font-display text-2xl sm:text-3xl font-bold text-white dc-tabular"><%= totalGlobal %></dd>
+          <div class="flex flex-col-reverse">
             <dt class="text-sm text-primary-200/80">Anuncios publicados</dt>
+            <dd class="font-display text-2xl sm:text-3xl font-bold text-white dc-tabular"><%= totalGlobal %></dd>
           </div>
-          <div>
-            <dt class="sr-only">Categorías</dt>
-            <dd class="font-display text-2xl sm:text-3xl font-bold text-white dc-tabular"><%= categorias.length %></dd>
+          <div class="flex flex-col-reverse">
             <dt class="text-sm text-primary-200/80">Categorías</dt>
+            <dd class="font-display text-2xl sm:text-3xl font-bold text-white dc-tabular"><%= categorias.length %></dd>
           </div>
-          <div>
-            <dt class="sr-only">Ciudades</dt>
-            <dd class="font-display text-2xl sm:text-3xl font-bold text-white dc-tabular"><%= ubicaciones.ciudades.length %></dd>
+          <div class="flex flex-col-reverse">
             <dt class="text-sm text-primary-200/80">Ciudades</dt>
+            <dd class="font-display text-2xl sm:text-3xl font-bold text-white dc-tabular"><%= ubicaciones.ciudades.length %></dd>
           </div>
         </dl>
       </div>
@@ -140,7 +137,7 @@
   </section>
 
   <!-- ── PAUTA CON NOSOTROS ──────────────────────────────────────── -->
-  <section id="contacto" class="border-t border-primary-800 bg-primary-950" aria-labelledby="pauta-titulo">
+  <section id="contacto" class="dc-defer-section border-t border-primary-800 bg-primary-950" aria-labelledby="pauta-titulo">
     <div class="relative overflow-hidden border-b border-white/10">
       <div class="absolute inset-0" data-ripple data-ripple-image="/img/call-center.jpg">
         <img src="/img/call-center.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async"
@@ -319,6 +316,6 @@
 
   <%- include('partials/footer') %>
   <script src="/js/index.js?v=20261030-mail-fast-2" defer></script>
-  <script src="/js/ripple.js" defer></script>
+  <script src="/js/ripple.js" defer fetchpriority="low"></script>
 </body>
 </html>

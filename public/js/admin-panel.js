@@ -65,16 +65,18 @@
            </div>`
         : `<span class="text-neutral-400">— Sin teléfono registrado</span>`;
 
-    const wrapper = document.createElement('div');
-    wrapper.id = 'modal-notif-resultado';
-    wrapper.className = 'fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm';
-    wrapper.innerHTML = `
-      <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6">
+    const dialog = document.createElement('dialog');
+    dialog.id = 'modal-notif-resultado';
+    dialog.setAttribute('closedby', 'any');
+    dialog.setAttribute('aria-labelledby', 'notif-resultado-title');
+    dialog.className = 'p-0 bg-transparent max-w-md w-[calc(100%-2rem)] rounded-2xl shadow-2xl border-0';
+    dialog.innerHTML = `
+      <div class="bg-white rounded-2xl w-full p-6">
         <div class="flex items-start justify-between mb-4">
-          <h3 class="text-base font-semibold text-neutral-800 dark:text-neutral-100">
+          <h2 id="notif-resultado-title" class="text-base font-semibold text-neutral-800">
             Resultado del aviso privado — ${esc(nombre)}
-          </h3>
-          <button id="cerrar-notif" class="ml-4 text-neutral-400 hover:text-neutral-600 text-xl leading-none">&times;</button>
+          </h2>
+          <button type="button" id="cerrar-notif" commandfor="modal-notif-resultado" command="close" aria-label="Cerrar" class="ml-4 text-neutral-400 hover:text-neutral-600 text-xl leading-none">&times;</button>
         </div>
         <dl class="space-y-3 text-sm">
           <div>
@@ -90,28 +92,13 @@
           </div>` : ''}
         </dl>
         <div class="mt-5 flex justify-end">
-          <button id="cerrar-notif-btn" class="px-4 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-sm font-medium text-neutral-700">Cerrar</button>
+          <button type="button" id="cerrar-notif-btn" commandfor="modal-notif-resultado" command="close" autofocus class="px-4 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-sm font-medium text-neutral-700">Cerrar</button>
         </div>
       </div>`;
-    document.body.appendChild(wrapper);
-
-    const cerrar = () => wrapper.remove();
-    document.getElementById('cerrar-notif').addEventListener('click', cerrar);
-    document.getElementById('cerrar-notif-btn').addEventListener('click', cerrar);
-    wrapper.addEventListener('click', (e) => { if (e.target === wrapper) cerrar(); });
+    document.body.appendChild(dialog);
+    dialog.addEventListener('close', () => dialog.remove());
+    dialog.showModal();
   }
-
-  function focusables(container) {
-    return container.querySelectorAll('a[href], button:not([disabled]), textarea:not([disabled]), input:not([type="hidden"]):not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])');
-  }
-  function trapFocus(container, e) {
-    const items = focusables(container);
-    if (!items.length) return;
-    const first = items[0], last = items[items.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-  }
-  let lastFocused = null;
 
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const estadoBadge = (e) => {
@@ -281,7 +268,7 @@
 
   function renderPaginador(p) {
     const cont = document.getElementById('paginador-anuncios');
-    if (!p || p.totalPages <= 1) { cont.innerHTML = ''; return; }
+    if (!p || p.totalPages <= 1) { cont.replaceChildren(); return; }
     let html = '';
     for (let i = 1; i <= p.totalPages; i++) {
       html += `<button data-page="${i}" ${i === p.page ? 'aria-current="page"' : ''} aria-label="Página ${i}" class="px-3 py-1.5 rounded-lg border text-sm ${i === p.page ? 'bg-primary-600 text-white border-primary-600' : 'bg-white border-neutral-200'}">${i}</button>`;
@@ -431,11 +418,10 @@
   });
 
   async function openModal(id) {
-    lastFocused = document.activeElement;
     await Promise.all([loadCategoriasSelect(), loadUbicaciones()]);
     fillDepartamentosSelect();
     formAnuncio.reset();
-    document.getElementById('fotos-actuales').innerHTML = '';
+    document.getElementById('fotos-actuales').replaceChildren();
     document.getElementById('in-fotos').disabled = false;
     document.getElementById('form-msg').textContent = '';
     state.anuncioEditando = id || null;
@@ -482,18 +468,13 @@
       fillDatalist('');
       syncDepartamentoHidden();
     }
-    modal.classList.remove('hidden');
-    const firstField = document.getElementById('in-razon-social');
-    if (firstField) firstField.focus();
+    modal.showModal();
   }
   function closeAnuncioModal() {
-    modal.classList.add('hidden');
-    if (lastFocused && lastFocused.focus) lastFocused.focus();
+    if (modal.open) modal.close();
   }
 
   document.getElementById('btn-nuevo').addEventListener('click', () => openModal(null));
-  document.getElementById('modal-close').addEventListener('click', closeAnuncioModal);
-  modal.addEventListener('click', (e) => { if (e.target === modal) closeAnuncioModal(); });
 
   formAnuncio.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -604,20 +585,15 @@
 
   const modalMsg = document.getElementById('modal-mensaje');
   function openMsgModal(id, nombre, mensaje) {
-    lastFocused = document.activeElement;
     modalMsg.dataset.id = id;
     document.getElementById('msg-detalle').innerHTML = `<strong>${esc(nombre)}</strong><br>${esc(mensaje)}`;
     const ta = document.getElementById('msg-respuesta');
     ta.value = '';
-    modalMsg.classList.remove('hidden');
-    ta.focus();
+    modalMsg.showModal();
   }
   function closeMsgModal() {
-    modalMsg.classList.add('hidden');
-    if (lastFocused && lastFocused.focus) lastFocused.focus();
+    if (modalMsg.open) modalMsg.close();
   }
-  document.getElementById('msg-cerrar').addEventListener('click', closeMsgModal);
-  modalMsg.addEventListener('click', (e) => { if (e.target === modalMsg) closeMsgModal(); });
   document.getElementById('msg-enviar').addEventListener('click', async () => {
     const respuesta = document.getElementById('msg-respuesta').value.trim();
     if (!respuesta) return;
@@ -648,14 +624,6 @@
     } catch (err) {
       out.innerHTML = `<p class="text-error-600 text-sm">${esc(err.message)}</p>`;
     }
-  });
-
-  // ── Teclado: cerrar con Esc y atrapar el foco en los modales ─────────
-  document.addEventListener('keydown', (e) => {
-    const abierto = !modal.classList.contains('hidden') ? modal : (!modalMsg.classList.contains('hidden') ? modalMsg : null);
-    if (!abierto) return;
-    if (e.key === 'Escape') { e.preventDefault(); (abierto === modal ? closeAnuncioModal : closeMsgModal)(); return; }
-    if (e.key === 'Tab') trapFocus(abierto, e);
   });
 
   // ── Inicio ───────────────────────────────────────────────────────────

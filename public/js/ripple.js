@@ -129,8 +129,7 @@
 
     var gl = null;
     try {
-      gl = canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: true })
-        || canvas.getContext('experimental-webgl', { alpha: true, antialias: true, premultipliedAlpha: true });
+      gl = canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: true });
     } catch (e) {
       gl = null;
     }
@@ -311,27 +310,16 @@
     }
 
     function onPointerMove(event) {
-      if (event.touches && event.touches.length) {
-        setPointer(event.touches[0].clientX, event.touches[0].clientY);
-      } else if (typeof event.clientX === 'number') {
-        setPointer(event.clientX, event.clientY);
-      }
+      setPointer(event.clientX, event.clientY);
     }
 
     function onPointerStart(event) {
-      if (event.touches && event.touches.length) {
-        setPointer(event.touches[0].clientX, event.touches[0].clientY);
-      } else if (typeof event.clientX === 'number') {
-        setPointer(event.clientX, event.clientY);
-      }
+      setPointer(event.clientX, event.clientY);
       start();
     }
 
     window.addEventListener('pointermove', onPointerMove, { passive: true });
-    window.addEventListener('mousemove', onPointerMove, { passive: true });
-    window.addEventListener('touchmove', onPointerMove, { passive: true });
     window.addEventListener('pointerdown', onPointerStart, { passive: true });
-    window.addEventListener('touchstart', onPointerStart, { passive: true });
     window.addEventListener('resize', resize);
 
     document.addEventListener('visibilitychange', function () {
@@ -349,21 +337,17 @@
       mountWebGL(container, imageUrl);
     });
 
-    if ('ResizeObserver' in window) {
-      resizeObserver = new ResizeObserver(resize);
-      resizeObserver.observe(container);
-    }
+    resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(container);
 
-    if ('IntersectionObserver' in window) {
-      intersectionObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          visible = entry.isIntersecting;
-          if (visible) start();
-          else stop();
-        });
-      }, { rootMargin: '120px' });
-      intersectionObserver.observe(container);
-    }
+    intersectionObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        visible = entry.isIntersecting;
+        if (visible) start();
+        else stop();
+      });
+    }, { rootMargin: '120px' });
+    intersectionObserver.observe(container);
 
     var source = new Image();
     source.decoding = 'async';

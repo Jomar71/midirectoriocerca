@@ -14,6 +14,7 @@
     if (main) main.src = sources[current];
     thumbs.forEach((t, k) => {
       const isSelected = k === current;
+      t.setAttribute('aria-current', isSelected ? 'true' : 'false');
       t.classList.toggle('border-primary-600', isSelected);
       t.classList.toggle('ring-2', isSelected);
       t.classList.toggle('ring-primary-500/30', isSelected);
@@ -26,7 +27,8 @@
       thumbs[current].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
     const lb = document.getElementById('lb-img');
-    if (lb && !document.getElementById('lightbox').classList.contains('hidden')) lb.src = sources[current];
+    const lbDialog = document.getElementById('lightbox');
+    if (lb && lbDialog?.open) lb.src = sources[current];
   }
 
   thumbs.forEach((t, i) => t.addEventListener('click', () => show(i)));
@@ -35,55 +37,31 @@
   if (prev) prev.addEventListener('click', (e) => { e.stopPropagation(); show(current - 1); });
   if (next) next.addEventListener('click', (e) => { e.stopPropagation(); show(current + 1); });
 
-  // ── Lightbox ─────────────────────────────────────────────────────────
+  // ── Lightbox (<dialog closedby="any"> + command="close" nativos) ──
   const lightbox = document.getElementById('lightbox');
   const lbImg = document.getElementById('lb-img');
-  const lbClose = document.getElementById('lb-close');
   const lbPrev = document.getElementById('lb-prev');
   const lbNext = document.getElementById('lb-next');
-  let lastFocused = null;
+
   const open = () => {
     if (!lightbox) return;
-    lastFocused = document.activeElement;
     if (lbImg) lbImg.src = sources[current] || (main && main.src);
     const showNavigation = sources.length > 1;
     if (lbPrev) lbPrev.classList.toggle('hidden', !showNavigation);
     if (lbNext) lbNext.classList.toggle('hidden', !showNavigation);
-    lightbox.classList.remove('hidden');
-    lightbox.classList.add('flex');
-    if (lbClose) lbClose.focus();
-  };
-  const close = () => {
-    if (!lightbox) return;
-    lightbox.classList.add('hidden');
-    lightbox.classList.remove('flex');
-    if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+    lightbox.showModal();
   };
 
   const gal = document.getElementById('galeria');
-  if (gal) {
-    gal.addEventListener('click', open);
-    gal.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
-  }
+  if (gal) gal.addEventListener('click', open);
   if (lightbox) {
-    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
-    if (lbClose) lbClose.addEventListener('click', close);
     if (lbPrev) lbPrev.addEventListener('click', () => show(current - 1));
     if (lbNext) lbNext.addEventListener('click', () => show(current + 1));
+    lightbox.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); show(current + 1); }
+    });
   }
-  document.addEventListener('keydown', (e) => {
-    if (!lightbox || lightbox.classList.contains('hidden')) return;
-    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
-    if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); return; }
-    if (e.key === 'ArrowRight') { e.preventDefault(); show(current + 1); return; }
-    if (e.key === 'Tab') {
-      const items = Array.from(lightbox.querySelectorAll('button')).filter((b) => !b.disabled && b.offsetWidth > 0 && b.offsetHeight > 0);
-      if (!items.length) return;
-      const first = items[0], last = items[items.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    }
-  });
 
   const emailLink = document.querySelector('[data-email-href]');
   if (emailLink) {

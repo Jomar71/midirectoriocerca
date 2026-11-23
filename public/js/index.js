@@ -16,8 +16,7 @@
   dept.addEventListener('change', () => {
     const selected = dept.value;
     const previous = city.value;
-    city.innerHTML = '';
-    city.appendChild(new Option('Todas las ciudades', ''));
+    city.replaceChildren(new Option('Todas las ciudades', ''));
     groups
       .filter((g) => !selected || g.dept === selected)
       .forEach((g) => {
