@@ -18,8 +18,10 @@
   'use strict';
 
   var VENDOR_URL = '/vendor/shaders/js/index.js';
-  var DECAY = 7.3;
-  var RADIUS = 0.6;
+  var INTENSITY = 3.2;
+  var DECAY = 12;
+  var RADIUS = 0.35;
+  var CHROMATIC_SPLIT = 0.25;
 
   function prefersReducedMotion() {
     return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -176,11 +178,11 @@
       '  vec2 delta = p - ptr;',
       '  float d = length(delta);',
       '  vec2 dir = delta / max(d, 0.0001);',
-      '  float ring = sin(d * 38.0 - uTime * 5.0);',
-      '  float amp = exp(-d * 7.5) * 0.035 * uStrength;',
+      '  float ring = sin(d * 28.0 - uTime * 2.6);',
+      '  float amp = exp(-d * 9.5) * 0.012 * uStrength;',
       '  uv += dir * ring * amp;',
-      '  uv.x += sin(uv.y * 13.0 + uTime * 1.1) * 0.0016;',
-      '  uv.y += cos(uv.x * 11.0 - uTime * 0.9) * 0.0016;',
+      '  uv.x += sin(uv.y * 10.0 + uTime * 0.55) * 0.0005;',
+      '  uv.y += cos(uv.x * 9.0 - uTime * 0.45) * 0.0005;',
       '  float imageAspect = uTexSize.x / max(uTexSize.y, 1.0);',
       '  vec2 scale = vec2(1.0);',
       '  if (aspect > imageAspect) {',
@@ -273,15 +275,15 @@
       if (idle < 1600) {
         targetX = pointer.x;
         targetY = pointer.y;
-        targetStrength = 1.15;
+        targetStrength = 0.65;
       } else {
-        targetX = 0.5 + Math.cos(time * 0.35) * 0.18;
-        targetY = 0.5 + Math.sin(time * 0.27) * 0.14;
-        targetStrength = 0.7;
+        targetX = 0.5 + Math.cos(time * 0.2) * 0.1;
+        targetY = 0.5 + Math.sin(time * 0.16) * 0.08;
+        targetStrength = 0.3;
       }
-      smoothX += (targetX - smoothX) * 0.08;
-      smoothY += (targetY - smoothY) * 0.08;
-      smoothStrength += (targetStrength - smoothStrength) * 0.06;
+      smoothX += (targetX - smoothX) * 0.05;
+      smoothY += (targetY - smoothY) * 0.05;
+      smoothStrength += (targetStrength - smoothStrength) * 0.04;
       gl.uniform2f(uPointer, smoothX, smoothY);
       gl.uniform1f(uTime, time);
       gl.uniform1f(uStrength, smoothStrength);
@@ -424,7 +426,7 @@
             {
               type: 'CursorRipples',
               id: 'ripple',
-              props: { decay: DECAY, radius: RADIUS },
+              props: { intensity: INTENSITY, decay: DECAY, radius: RADIUS, chromaticSplit: CHROMATIC_SPLIT },
               children: [
                 { type: 'ImageTexture', id: 'foto', props: { url: imageUrl, objectFit: 'cover' } }
               ]
