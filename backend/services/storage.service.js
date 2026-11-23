@@ -238,14 +238,26 @@ function resolveMimeType(ext, mimetype) {
 
 /** Guarda el binario en PostgreSQL para sobrevivir reinicios/despliegues efímeros (Pxxl). */
 async function saveToDb(publicId, contentType, buffer) {
-  await query(
-    `INSERT INTO archivos_media (public_id, content_type, data)
+  const sql = `INSERT INTO archivos_media (public_id, content_type, data)
      VALUES ($1, $2, $3)
      ON CONFLICT (public_id) DO UPDATE
        SET content_type = EXCLUDED.content_type,
-           data = EXCLUDED.data`,
-    [publicId, contentType, buffer]
-  );
+           data = EXCLUDED.data`;
+  try {
+    await query(sql, [publicId, contentType, buffer]);
+  } catch (e) {
+    if (e.code === '42P01') {
+      await query(`CREATE TABLE IF NOT EXISTS archivos_media (
+        public_id TEXT PRIMARY KEY,
+        content_type VARCHAR(120) NOT NULL DEFAULT 'application/octet-stream',
+        data BYTEA NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )`);
+      await query(sql, [publicId, contentType, buffer]);
+      return;
+    }
+    throw e;
+  }
 }
 
 /** Recupera un archivo desde PostgreSQL cuando no existe en el disco local. */

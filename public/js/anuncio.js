@@ -1,8 +1,17 @@
 /* public/js/anuncio.js — Galería con lightbox y formulario de contacto del anuncio */
 (function () {
   // ── Galería ──────────────────────────────────────────────────────────
+  const PLACEHOLDER = '/img/placeholder.jpg';
   const main = document.getElementById('galeria-principal');
   const thumbs = Array.from(document.querySelectorAll('.gal-thumb'));
+  const applyFallback = (img) => {
+    if (!img) return;
+    img.addEventListener('error', () => {
+      if (!img.getAttribute('src')?.endsWith(PLACEHOLDER)) img.src = PLACEHOLDER;
+    });
+  };
+  applyFallback(main);
+  applyFallback(document.getElementById('lb-img'));
   let current = 0;
   const sources = thumbs.length
     ? thumbs.map((t) => t.dataset.src)
