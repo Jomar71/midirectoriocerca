@@ -18,10 +18,10 @@
   'use strict';
 
   var VENDOR_URL = '/vendor/shaders/js/index.js';
-  var INTENSITY = 3.2;
-  var DECAY = 12;
-  var RADIUS = 0.35;
-  var CHROMATIC_SPLIT = 0.25;
+  var INTENSITY = 2.0;
+  var DECAY = 14;
+  var RADIUS = 0.28;
+  var CHROMATIC_SPLIT = 0.15;
 
   function prefersReducedMotion() {
     return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -178,11 +178,11 @@
       '  vec2 delta = p - ptr;',
       '  float d = length(delta);',
       '  vec2 dir = delta / max(d, 0.0001);',
-      '  float ring = sin(d * 28.0 - uTime * 2.6);',
-      '  float amp = exp(-d * 9.5) * 0.012 * uStrength;',
+      '  float ring = sin(d * 24.0 - uTime * 2.0);',
+      '  float amp = exp(-d * 10.5) * 0.008 * uStrength;',
       '  uv += dir * ring * amp;',
-      '  uv.x += sin(uv.y * 10.0 + uTime * 0.55) * 0.0005;',
-      '  uv.y += cos(uv.x * 9.0 - uTime * 0.45) * 0.0005;',
+      '  uv.x += sin(uv.y * 9.0 + uTime * 0.4) * 0.0003;',
+      '  uv.y += cos(uv.x * 8.0 - uTime * 0.35) * 0.0003;',
       '  float imageAspect = uTexSize.x / max(uTexSize.y, 1.0);',
       '  vec2 scale = vec2(1.0);',
       '  if (aspect > imageAspect) {',
@@ -275,11 +275,11 @@
       if (idle < 1600) {
         targetX = pointer.x;
         targetY = pointer.y;
-        targetStrength = 0.65;
+        targetStrength = 0.45;
       } else {
-        targetX = 0.5 + Math.cos(time * 0.2) * 0.1;
-        targetY = 0.5 + Math.sin(time * 0.16) * 0.08;
-        targetStrength = 0.3;
+        targetX = 0.5 + Math.cos(time * 0.15) * 0.08;
+        targetY = 0.5 + Math.sin(time * 0.12) * 0.06;
+        targetStrength = 0.2;
       }
       smoothX += (targetX - smoothX) * 0.05;
       smoothY += (targetY - smoothY) * 0.05;
